@@ -1,10 +1,10 @@
 import assert from "assert";
-import { refParser, fieldParser } from "../parse";
+import { refParser, fieldParser, structParser, varDeclParser } from "../parse";
 import { stream } from "parser-ts/lib/Stream";
 import { isRight, isLeft } from "fp-ts/lib/Either";
 import * as chai from "chai";
-import { Reference, Field } from "../ast";
-import { eof, seq, Parser, apFirst, map } from "parser-ts/lib/Parser";
+import { Reference, Field, VariableDeclaration } from "../ast";
+import { eof, seq, Parser, apFirst, map, sat } from "parser-ts/lib/Parser";
 
 function eoffed<a, b>(parser: Parser<a, b>) {
   return apFirst(eof())(parser);
@@ -177,6 +177,116 @@ describe("Parsing", function () {
             {
               ref: "Dog",
               typeArgs: [],
+            },
+          ],
+        },
+      };
+      chai.assert.deepEqual(ref, targetRef);
+    });
+  });
+
+  describe("VarDeclHelper", function () {
+    const parseVarDeclFirstLine = buildTestParser(varDeclParser("bloop"));
+
+    it("should correctly parse a simple var declaration", function () {
+      const input = "bloop Hello:\n";
+
+      const parsed = parseVarDeclFirstLine(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      chai.assert.equal("Hello", parsed.right.value);
+    });
+  });
+
+  describe("StructDecl", function () {
+    const parseStruct = buildTestParser(structParser);
+
+    it("should correctly parse a simple proto", function () {
+      const input = "struct Hello:\n  fat: Dog\n  cat: Dog";
+
+      const parsed = parseStruct(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      const ref = parsed.right.value;
+      const targetRef: VariableDeclaration<Reference> = {
+        name: "Hello",
+        value: {
+          type: "struct",
+          fields: [
+            {
+              name: "fat",
+              optional: false,
+              baseType: { ref: "Dog", typeArgs: [] },
+            },
+            {
+              name: "cat",
+              optional: false,
+              baseType: { ref: "Dog", typeArgs: [] },
+            },
+          ],
+        },
+      };
+      chai.assert.deepEqual(ref, targetRef);
+    });
+
+    it("should correctly parse a proto with complex types", function () {
+      const input = `struct Hello:
+  fatDogs: List<Map<string, Dog>>
+  catTracksSeen: bool
+  peopleWhoLetTheDogsOut: List<string>
+`;
+
+      const parsed = parseStruct(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      const ref = parsed.right.value;
+      const targetRef: VariableDeclaration<Reference> = {
+        name: "Hello",
+        value: {
+          type: "struct",
+          fields: [
+            {
+              baseType: {
+                ref: "List",
+                typeArgs: [
+                  {
+                    ref: "Map",
+                    typeArgs: [
+                      {
+                        ref: "string",
+                        typeArgs: [],
+                      },
+                      {
+                        ref: "Dog",
+                        typeArgs: [],
+                      },
+                    ],
+                  },
+                ],
+              },
+              name: "fatDogs",
+              optional: false,
+            },
+            {
+              baseType: {
+                ref: "bool",
+                typeArgs: [],
+              },
+              name: "catTracksSeen",
+              optional: false,
+            },
+            {
+              baseType: {
+                ref: "List",
+                typeArgs: [
+                  {
+                    ref: "string",
+                    typeArgs: [],
+                  },
+                ],
+              },
+              name: "peopleWhoLetTheDogsOut",
+              optional: false,
             },
           ],
         },

@@ -9,8 +9,13 @@ import {
   VarRHS,
 } from "./ast";
 import fs from "fs";
-import { alphanum, char, space } from "parser-ts/lib/char";
-import { string, spaces1, spaces, many1 } from "parser-ts/lib/string";
+import { alphanum, char } from "parser-ts/lib/char";
+import {
+  string,
+  spaces1,
+  spaces,
+  many1 as stringMany1,
+} from "parser-ts/lib/string";
 import {
   seq,
   sepBy1,
@@ -21,16 +26,24 @@ import {
   many,
   fail,
   succeed,
+  many1,
+  sat,
   either,
   eof,
 } from "parser-ts/lib/Parser";
 import { getMonoid } from "fp-ts/lib/Array";
 import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
 
-const identifierParser = many1(alphanum);
-
+const identifierParser = stringMany1(alphanum);
 const toss = map(() => {});
 const eolf = either<string, void>(toss(char("\n")), () => eof());
+const spaceRe = /^\s$/;
+
+function isNonNewlineSpace(char: string): boolean {
+  return char !== "\n" && spaceRe.test(char);
+}
+const nonNewlineSpace = many(sat(isNonNewlineSpace));
+const nonNewlineSpace1 = many1(sat(isNonNewlineSpace));
 
 export const refParser: Parser<string, Reference> = seq(
   identifierParser,
@@ -58,41 +71,58 @@ export const refParser: Parser<string, Reference> = seq(
     )
 );
 
-const whitespacedColon = toss(seq(spaces, () => seq(char(":"), () => spaces)));
+const whitespacedColon = toss(
+  seq(nonNewlineSpace, () => seq(char(":"), () => nonNewlineSpace))
+);
 const lineEndingColon = toss(seq(whitespacedColon, () => char("\n")));
 
 // Right now, hardcoding set of field modifiers to 'optional'
 //const fieldModifiers = succeed<string, string[]>([]);
 const fieldModifiers = many(apFirst(spaces1)(string("optional")));
 
-export const fieldParser: Parser<string, Field<Reference>> = seq(spaces1, () =>
-  seq(identifierParser, (name: string) =>
-    seq(whitespacedColon, () =>
-      seq(fieldModifiers, (mods) => {
-        if (mods.length > 1) {
-          return fail();
-        }
-        // This will need to change on stuff.
-        return map((reference: Reference) => ({
-          name,
-          optional: mods.includes("optional"),
-          baseType: reference,
-        }))(apFirst(seq(spaces, () => eolf))(refParser));
-      })
+export const fieldParser: Parser<string, Field<Reference>> = seq(
+  nonNewlineSpace1,
+  () =>
+    seq(identifierParser, (name: string) =>
+      seq(whitespacedColon, () =>
+        seq(fieldModifiers, (mods) => {
+          if (mods.length > 1) {
+            return fail();
+          }
+          // This will need to change on stuff.
+          return map((reference: Reference) => ({
+            name,
+            optional: mods.includes("optional"),
+            baseType: reference,
+          }))(apFirst(seq(nonNewlineSpace, () => eolf))(refParser));
+        })
+      )
     )
-  )
 );
 
-const varDecl = (keyword: string) =>
+export const varDeclParser = (keyword: string) =>
   apFirst(lineEndingColon)(
     seq(
-      seq(string(keyword), () => spaces1),
-      (_) => identifierParser
+      seq(string(keyword), () => nonNewlineSpace1),
+      () => identifierParser
     )
   );
 
-// Struct parsing!
-const structNameDecl = varDecl("struct");
+export const structParser: Parser<string, VariableDeclaration<Reference>> = seq(
+  varDeclParser("struct"),
+  (name: string) => {
+    return map((fields: Array<Field<Reference>>) => {
+      const struct: StructType<Reference> = {
+        type: "struct",
+        fields,
+      };
+      return {
+        name,
+        value: struct,
+      };
+    })(many(fieldParser));
+  }
+);
 
 function parse(contents: string): SurpcFile<Reference> {
   throw "not implemented";
