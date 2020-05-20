@@ -36,12 +36,14 @@ struct BleepResponse:
 
 // for oneoff rpc
 rpc Bleep:
-  name: "string" //
+  namespace: "string" // < can be omitted
   request: BleepRequest
   response: number
 
 // for 2-way, continuous channel.
-channel BleepChannel
+channel PeopleISee
+  incoming: List<integer>,
+  outgoing: People
 
 
 ```

@@ -39,13 +39,13 @@ interface ListType<T> {
   value: T;
 }
 
-interface Field<T> {
+export interface Field<T> {
   name: string;
   optional: boolean;
   baseType: T;
 }
 
-interface StructType<T> {
+export interface StructType<T> {
   type: "struct";
   fields: Array<Field<T>>;
 }
@@ -94,6 +94,7 @@ export type Representable =
 // Or references
 export interface Reference {
   ref: string;
+  typeArgs: Reference[];
 }
 
 // Is polymorphic in whether it's a reference ast or a fully qualified ast
