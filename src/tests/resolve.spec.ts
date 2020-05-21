@@ -1,4 +1,4 @@
-import { load } from "../parse";
+import { load } from "../resolve";
 import * as chai from "chai";
 
 describe("Resolving", function () {
