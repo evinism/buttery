@@ -40,6 +40,8 @@ import {
 } from "parser-ts/lib/Parser";
 import { getMonoid } from "fp-ts/lib/Array";
 import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
+import { stream } from "parser-ts/lib/Stream";
+import { isRight } from "fp-ts/lib/Either";
 
 const identifierParser = stringMany1(alphanum);
 const toss = map(() => {});
@@ -252,19 +254,31 @@ export const fileParser: (
     }))(many(apFirst(spaces)(statementParser)))
   );
 
+function badParse(contents: string, fname: string) {
+  return fileParser(fname)(stream(contents.split(""), 0));
+}
+
 function parse(contents: string): SurpcFile<Reference> {
   throw "not implemented";
 }
 
-function load(file: string, loadedFiles: string[]): SurpcFile<Representable> {
+export function load(
+  file: string,
+  loadedFiles: string[] = []
+): SurpcFile<Representable> {
   if (loadedFiles.includes(file)) {
     throw new Error("Cycle detected between files!");
   }
-  return resolve(parse(fs.readFileSync(file, "utf8")));
+  const parseResult = badParse(fs.readFileSync(file, "utf8"), file);
+  if (isRight(parseResult)) {
+    return resolve(parseResult.right.value);
+  } else {
+    throw `Failed to parse file ${file}`;
+  }
 }
 
 function resolveRef(
-  { ref }: Reference,
+  { ref, typeArgs }: Reference,
   context: SurpcFile<Reference>,
   prevReffedVars: string[]
 ): Representable {
@@ -274,9 +288,35 @@ function resolveRef(
       type: primitive,
     };
   }
+
+  // Garbage way of doing builtins
+  if (ref === "List") {
+    if (typeArgs.length !== 1) {
+      throw `Wrong number of type arguments for a List (expected 1, got ${typeArgs.length})`;
+    }
+    return {
+      type: "list",
+      value: resolveRef(typeArgs[0], context, prevReffedVars),
+    };
+  }
+  if (ref === "Map") {
+    if (typeArgs.length !== 2) {
+      throw `Wrong number of type arguments for a Map (expected 2, got ${typeArgs.length})`;
+    }
+    const mapKey = Primitive[typeArgs[0].ref] as Primitive | undefined;
+    if (!mapKey) {
+      throw "Can only use a primitive for map's first type arg";
+    }
+    return {
+      type: "map",
+      key: mapKey,
+      value: resolveRef(typeArgs[1], context, prevReffedVars),
+    };
+  }
+
   const decl = context.variables.find(({ name }) => name === ref);
   if (!decl) {
-    throw new Error(`Could not find type ${decl}`);
+    throw new Error(`Could not find type ${ref}`);
   }
   const resolvedDecl = resolveDecl(decl, context, prevReffedVars);
   if (resolvedDecl.value.type === "channel") {
@@ -349,12 +389,14 @@ function resolveDecl(
 
   return {
     statementType: "declaration",
-    name,
+    name: decl.name,
     value: newVal,
   };
 }
 
-function resolve(refFile: SurpcFile<Reference>): SurpcFile<Representable> {
+export function resolve(
+  refFile: SurpcFile<Reference>
+): SurpcFile<Representable> {
   // circ reference betw. files solved in load()
   // so now we just have to solve it here.
   const newVars = refFile.variables.map((variable) =>

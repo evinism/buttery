@@ -95,6 +95,7 @@ export interface Reference {
 }
 
 // Is polymorphic in whether it's a reference ast or a fully qualified ast
+// TODO: Remove path
 export interface SurpcFile<T> {
   path: string;
   imports: Array<ImportStatement>;

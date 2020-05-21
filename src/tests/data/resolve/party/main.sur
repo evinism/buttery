@@ -1,0 +1,15 @@
+import Person from "./person.sur"
+
+struct Slot:
+  startTime: integer
+  endTime: integer
+
+struct AddToPartyResponse:
+  success: boolean
+  time: optional Slot
+
+rpc AddToParty:
+  request: Person
+  response: AddToPartyResponse
+
+

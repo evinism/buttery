@@ -43,3 +43,8 @@ channel PeopleISee
 
 
 ```
+
+To add:
+
+- enums
+- oneof
