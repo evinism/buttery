@@ -64,14 +64,18 @@ export interface RPC<T> {
 export type VarRHS<T> = Channel<T> | RPC<T> | StructType<T>;
 
 export interface VariableDeclaration<T> {
+  statementType: "declaration";
   name: string;
   value: VarRHS<T>;
 }
 
-interface ImportStatement {
+export interface ImportStatement {
+  statementType: "import";
   imports: Array<string>;
   path: string;
 }
+
+export type Statement<T> = VariableDeclaration<T> | ImportStatement;
 
 // The two types of leaf nodes:
 // Representable types

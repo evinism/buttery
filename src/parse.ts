@@ -9,6 +9,8 @@ import {
   VarRHS,
   RPC,
   Channel,
+  ImportStatement,
+  Statement,
 } from "./ast";
 import fs from "fs";
 import { alphanum, char } from "parser-ts/lib/char";
@@ -17,9 +19,11 @@ import {
   spaces1,
   spaces,
   many1 as stringMany1,
+  doubleQuotedString,
 } from "parser-ts/lib/string";
 import {
   seq,
+  sepBy,
   sepBy1,
   map,
   maybe,
@@ -119,10 +123,12 @@ export const structParser: Parser<string, VariableDeclaration<Reference>> = seq(
         type: "struct",
         fields,
       };
-      return {
+      const decl: VariableDeclaration<Reference> = {
+        statementType: "declaration",
         name,
         value: struct,
       };
+      return decl;
     })(many(fieldParser));
   }
 );
@@ -150,10 +156,13 @@ export const rpcParser: Parser<string, VariableDeclaration<Reference>> = seq(
         request,
         response,
       };
-      return {
+
+      const decl: VariableDeclaration<Reference> = {
+        statementType: "declaration",
         name,
         value: rpc,
       };
+      return decl;
     })(many(fieldParser));
   }
 );
@@ -182,12 +191,66 @@ export const channelParser: Parser<
       incoming,
       outgoing,
     };
-    return {
+
+    const decl: VariableDeclaration<Reference> = {
+      statementType: "declaration",
       name,
       value: rpc,
     };
+    return decl;
   })(many(fieldParser));
 });
+
+export const importParser: Parser<string, ImportStatement> = seq(
+  seq(string("import"), () => spaces1),
+  () =>
+    seq(
+      sepBy1(
+        seq(char(","), () => spaces),
+        identifierParser
+      ),
+      (imports) => {
+        return map((path: string) => {
+          const importStatement: ImportStatement = {
+            statementType: "import",
+            path,
+            imports,
+          };
+          return importStatement;
+        })(
+          seq(
+            seq(
+              seq(spaces1, () => string("from")),
+              () => spaces1
+            ),
+            () => apFirst(seq(nonNewlineSpace, () => eolf))(doubleQuotedString)
+          )
+        );
+      }
+    )
+);
+
+const statementParser: Parser<string, Statement<Reference>> = either<
+  string,
+  Statement<Reference>
+>(importParser, () =>
+  either(structParser, () => either(rpcParser, () => channelParser))
+);
+
+export const fileParser: (
+  path: string
+) => Parser<string, SurpcFile<Reference>> = (path) =>
+  seq(spaces, () =>
+    map((statements: Array<Statement<Reference>>) => ({
+      path,
+      imports: statements.filter(
+        ({ statementType }) => statementType === "import"
+      ) as ImportStatement[],
+      variables: statements.filter(
+        ({ statementType }) => statementType === "declaration"
+      ) as VariableDeclaration<Reference>[],
+    }))(many(apFirst(spaces)(statementParser)))
+  );
 
 function parse(contents: string): SurpcFile<Reference> {
   throw "not implemented";
@@ -285,6 +348,7 @@ function resolveDecl(
   }
 
   return {
+    statementType: "declaration",
     name,
     value: newVal,
   };

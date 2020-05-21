@@ -6,11 +6,19 @@ import {
   varDeclParser,
   rpcParser,
   channelParser,
+  importParser,
+  fileParser,
 } from "../parse";
 import { stream } from "parser-ts/lib/Stream";
 import { isRight, isLeft } from "fp-ts/lib/Either";
 import * as chai from "chai";
-import { Reference, Field, VariableDeclaration } from "../ast";
+import {
+  Reference,
+  Field,
+  VariableDeclaration,
+  ImportStatement,
+  SurpcFile,
+} from "../ast";
 import { eof, seq, Parser, apFirst, map, sat } from "parser-ts/lib/Parser";
 
 function eoffed<a, b>(parser: Parser<a, b>) {
@@ -19,6 +27,10 @@ function eoffed<a, b>(parser: Parser<a, b>) {
 
 const buildTestParser = <T>(parser: Parser<string, T>) => (str: string) =>
   eoffed<string, T>(parser)(stream(str.split(""), 0));
+
+const buildUneoffedTestParser = <T>(parser: Parser<string, T>) => (
+  str: string
+) => parser(stream(str.split(""), 0));
 
 describe("Parsing", function () {
   describe("Reference", function () {
@@ -216,6 +228,7 @@ describe("Parsing", function () {
       assert(isRight(parsed));
       const ref = parsed.right.value;
       const targetRef: VariableDeclaration<Reference> = {
+        statementType: "declaration",
         name: "Hello",
         value: {
           type: "struct",
@@ -248,6 +261,7 @@ describe("Parsing", function () {
       assert(isRight(parsed));
       const ref = parsed.right.value;
       const targetRef: VariableDeclaration<Reference> = {
+        statementType: "declaration",
         name: "Hello",
         value: {
           type: "struct",
@@ -314,6 +328,7 @@ describe("Parsing", function () {
       assert(isRight(parsed));
       const ref = parsed.right.value;
       const targetRef: VariableDeclaration<Reference> = {
+        statementType: "declaration",
         name: "Hello",
         value: {
           type: "rpc",
@@ -367,6 +382,7 @@ describe("Parsing", function () {
       assert(isRight(parsed));
       const ref = parsed.right.value;
       const targetRef: VariableDeclaration<Reference> = {
+        statementType: "declaration",
         name: "Hello",
         value: {
           type: "channel",
@@ -402,6 +418,134 @@ describe("Parsing", function () {
             optional: false,
           },
         },
+      };
+      chai.assert.deepEqual(ref, targetRef);
+    });
+  });
+  describe("Import", function () {
+    const parseImport = buildTestParser(importParser);
+
+    it("correctly parses a basic input stream", function () {
+      const input = `import Bleep, Bleep2 from "./this_path.sur"\n`;
+
+      const parsed = parseImport(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      const ref = parsed.right.value;
+      const targetRef: ImportStatement = {
+        statementType: "import",
+        path: "./this_path.sur",
+        imports: ["Bleep", "Bleep2"],
+      };
+      chai.assert.deepEqual(ref, targetRef);
+    });
+
+    it("correctly parses an input stream in an uneven format", function () {
+      const input = `import
+  Bleep,
+  Bleep2
+from "./this_path.sur"
+`;
+
+      const parsed = parseImport(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      const ref = parsed.right.value;
+      const targetRef: ImportStatement = {
+        statementType: "import",
+        path: "./this_path.sur",
+        imports: ["Bleep", "Bleep2"],
+      };
+      chai.assert.deepEqual(ref, targetRef);
+    });
+  });
+  describe("File", function () {
+    const parseFile = buildUneoffedTestParser(fileParser("filename"));
+    it("correctly parses a file", function () {
+      const input = `import
+  Bloop,
+  Scoop
+from "./some_path.sur"
+
+struct WhoBloopedRequest:
+  bloop: Bloop
+  includeExtras: optional boolean
+
+struct WhoBloopedResponse:
+  scoop: Scoop
+  bloopers: List<Bloopers>
+`;
+
+      const parsed = parseFile(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      const ref = parsed.right.value;
+      const targetRef: SurpcFile<Reference> = {
+        imports: [
+          {
+            imports: ["Bloop", "Scoop"],
+            path: "./some_path.sur",
+            statementType: "import",
+          },
+        ],
+        path: "filename",
+        variables: [
+          {
+            name: "WhoBloopedRequest",
+            statementType: "declaration",
+            value: {
+              fields: [
+                {
+                  baseType: {
+                    ref: "Bloop",
+                    typeArgs: [],
+                  },
+                  name: "bloop",
+                  optional: false,
+                },
+                {
+                  baseType: {
+                    ref: "boolean",
+                    typeArgs: [],
+                  },
+                  name: "includeExtras",
+                  optional: true,
+                },
+              ],
+              type: "struct",
+            },
+          },
+          {
+            name: "WhoBloopedResponse",
+            statementType: "declaration",
+            value: {
+              fields: [
+                {
+                  baseType: {
+                    ref: "Scoop",
+                    typeArgs: [],
+                  },
+                  name: "scoop",
+                  optional: false,
+                },
+                {
+                  baseType: {
+                    ref: "List",
+                    typeArgs: [
+                      {
+                        ref: "Bloopers",
+                        typeArgs: [],
+                      },
+                    ],
+                  },
+                  name: "bloopers",
+                  optional: false,
+                },
+              ],
+              type: "struct",
+            },
+          },
+        ],
       };
       chai.assert.deepEqual(ref, targetRef);
     });
