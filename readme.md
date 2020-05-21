@@ -1,8 +1,6 @@
 ## surpc
 
-Simple, universal rpc definition
-
-constraints...
+Simple unadorned rpc definition DSL
 
 ```
 
