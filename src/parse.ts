@@ -7,6 +7,8 @@ import {
   Primitive,
   VariableDeclaration,
   VarRHS,
+  RPC,
+  Channel,
 } from "./ast";
 import fs from "fs";
 import { alphanum, char } from "parser-ts/lib/char";
@@ -30,6 +32,7 @@ import {
   sat,
   either,
   eof,
+  failAt,
 } from "parser-ts/lib/Parser";
 import { getMonoid } from "fp-ts/lib/Array";
 import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
@@ -124,6 +127,68 @@ export const structParser: Parser<string, VariableDeclaration<Reference>> = seq(
   }
 );
 
+export const rpcParser: Parser<string, VariableDeclaration<Reference>> = seq(
+  varDeclParser("rpc"),
+  (name: string) => {
+    return map((fields: Array<Field<Reference>>) => {
+      // Bad way of ensuring required fields!
+      const request = fields.find((field) => field.name === "request");
+      const response = fields.find((field) => field.name === "response");
+      if (!request) {
+        throw "Missing request!";
+      }
+      if (!response) {
+        throw "Missing response!";
+      }
+      if (fields.length > 2) {
+        throw "Too many fields!";
+      }
+
+      const rpc: RPC<Reference> = {
+        type: "rpc",
+        name: name,
+        request,
+        response,
+      };
+      return {
+        name,
+        value: rpc,
+      };
+    })(many(fieldParser));
+  }
+);
+
+export const channelParser: Parser<
+  string,
+  VariableDeclaration<Reference>
+> = seq(varDeclParser("channel"), (name: string) => {
+  return map((fields: Array<Field<Reference>>) => {
+    // Bad way of ensuring required fields!
+    const incoming = fields.find((field) => field.name === "incoming");
+    const outgoing = fields.find((field) => field.name === "outgoing");
+    if (!incoming) {
+      throw "Missing request!";
+    }
+    if (!outgoing) {
+      throw "Missing response!";
+    }
+    if (fields.length > 2) {
+      throw "Too many fields!";
+    }
+
+    const rpc: Channel<Reference> = {
+      type: "channel",
+      name: name,
+      incoming,
+      outgoing,
+    };
+    return {
+      name,
+      value: rpc,
+    };
+  })(many(fieldParser));
+});
+
 function parse(contents: string): SurpcFile<Reference> {
   throw "not implemented";
 }
@@ -176,22 +241,36 @@ function resolveDecl(
 
   let newVal: VarRHS<Representable>;
   if (decl.value.type === "channel") {
-    const { type, name, namespace, incoming, outgoing } = decl.value;
+    const { type, name, incoming, outgoing } = decl.value;
     newVal = {
       type,
       name,
-      namespace,
-      incoming: qResolveRev(incoming),
-      outgoing: qResolveRev(outgoing),
+      incoming: {
+        name: incoming.name,
+        optional: incoming.optional,
+        baseType: qResolveRev(incoming.baseType),
+      },
+      outgoing: {
+        name: outgoing.name,
+        optional: outgoing.optional,
+        baseType: qResolveRev(outgoing.baseType),
+      },
     };
   } else if (decl.value.type === "rpc") {
-    const { type, name, namespace, request, response } = decl.value;
+    const { type, name, request, response } = decl.value;
     newVal = {
       type,
       name,
-      namespace,
-      request: qResolveRev(request),
-      response: qResolveRev(response),
+      request: {
+        name: request.name,
+        optional: request.optional,
+        baseType: qResolveRev(request.baseType),
+      },
+      response: {
+        name: response.name,
+        optional: response.optional,
+        baseType: qResolveRev(response.baseType),
+      },
     };
   } else {
     const { type, fields } = decl.value;

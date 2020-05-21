@@ -23,11 +23,6 @@ interface StringType {
   type: Primitive.string;
 }
 
-interface SymbolType {
-  type: "symbol";
-  member: string;
-}
-
 interface MapType<T> {
   type: "map";
   key: Primitive;
@@ -52,20 +47,18 @@ export interface StructType<T> {
 
 // Variables!!
 
-interface Channel<T> {
+export interface Channel<T> {
   type: "channel";
-  namespace: SymbolType;
   name: string;
-  incoming: T;
-  outgoing: T;
+  incoming: Field<T>;
+  outgoing: Field<T>;
 }
 
-interface RPC<T> {
+export interface RPC<T> {
   type: "rpc";
-  namespace: SymbolType;
   name: string;
-  request: T;
-  response: T;
+  request: Field<T>;
+  response: Field<T>;
 }
 
 export type VarRHS<T> = Channel<T> | RPC<T> | StructType<T>;

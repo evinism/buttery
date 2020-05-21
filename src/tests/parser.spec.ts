@@ -1,5 +1,12 @@
 import assert from "assert";
-import { refParser, fieldParser, structParser, varDeclParser } from "../parse";
+import {
+  refParser,
+  fieldParser,
+  structParser,
+  varDeclParser,
+  rpcParser,
+  channelParser,
+} from "../parse";
 import { stream } from "parser-ts/lib/Stream";
 import { isRight, isLeft } from "fp-ts/lib/Either";
 import * as chai from "chai";
@@ -289,6 +296,111 @@ describe("Parsing", function () {
               optional: false,
             },
           ],
+        },
+      };
+      chai.assert.deepEqual(ref, targetRef);
+    });
+  });
+  describe("RpcParser", () => {
+    const parseRpc = buildTestParser(rpcParser);
+    it("should correctly parse an rpc decl with complex types", function () {
+      const input = `rpc Hello:
+  request: List<Map<string, Dog>>
+  response: bool
+`;
+
+      const parsed = parseRpc(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      const ref = parsed.right.value;
+      const targetRef: VariableDeclaration<Reference> = {
+        name: "Hello",
+        value: {
+          type: "rpc",
+          name: "Hello",
+          request: {
+            baseType: {
+              ref: "List",
+              typeArgs: [
+                {
+                  ref: "Map",
+                  typeArgs: [
+                    {
+                      ref: "string",
+                      typeArgs: [],
+                    },
+                    {
+                      ref: "Dog",
+                      typeArgs: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            name: "request",
+            optional: false,
+          },
+          response: {
+            baseType: {
+              ref: "bool",
+              typeArgs: [],
+            },
+            name: "response",
+            optional: false,
+          },
+        },
+      };
+      chai.assert.deepEqual(ref, targetRef);
+    });
+  });
+
+  describe("ChannelParser", () => {
+    const parseChannel = buildTestParser(channelParser);
+    it("should correctly parse a proto with complex types", function () {
+      const input = `channel Hello:
+  incoming: List<Map<string, Dog>>
+  outgoing: bool
+`;
+
+      const parsed = parseChannel(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      const ref = parsed.right.value;
+      const targetRef: VariableDeclaration<Reference> = {
+        name: "Hello",
+        value: {
+          type: "channel",
+          name: "Hello",
+          incoming: {
+            baseType: {
+              ref: "List",
+              typeArgs: [
+                {
+                  ref: "Map",
+                  typeArgs: [
+                    {
+                      ref: "string",
+                      typeArgs: [],
+                    },
+                    {
+                      ref: "Dog",
+                      typeArgs: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            name: "incoming",
+            optional: false,
+          },
+          outgoing: {
+            baseType: {
+              ref: "bool",
+              typeArgs: [],
+            },
+            name: "outgoing",
+            optional: false,
+          },
         },
       };
       chai.assert.deepEqual(ref, targetRef);
