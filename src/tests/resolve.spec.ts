@@ -321,4 +321,10 @@ describe("Resolving", function () {
       });
     });
   });
+  describe("Single File", function () {
+    it("resolves vars in oneFile correctly", function () {
+      const output = load("./src/tests/data/resolve/party/main.sur");
+      chai.assert.deepEqual({}, output);
+    });
+  });
 });

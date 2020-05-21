@@ -40,6 +40,8 @@ const toss = map(() => {});
 const eolf = either<string, void>(toss(char("\n")), () => eof());
 const spaceRe = /^\s$/;
 
+/* TODO: Remove EOLF as a concept. Statements should be joined by whitespace
+    with a newline somewhere in it.*/
 function isNonNewlineSpace(char: string): boolean {
   return char !== "\n" && spaceRe.test(char);
 }
@@ -234,16 +236,18 @@ const statementParser: Parser<string, Statement<Reference>> = either<
 export const fileParser: (
   path: string
 ) => Parser<string, SurpcFile<Reference>> = (path) =>
-  seq(spaces, () =>
-    map((statements: Array<Statement<Reference>>) => ({
-      path,
-      imports: statements.filter(
-        ({ statementType }) => statementType === "import"
-      ) as ImportStatement[],
-      variables: statements.filter(
-        ({ statementType }) => statementType === "declaration"
-      ) as VariableDeclaration<Reference>[],
-    }))(many(apFirst(spaces)(statementParser)))
+  apFirst<string, void>(eof())(
+    seq(spaces, () =>
+      map((statements: Array<Statement<Reference>>) => ({
+        path,
+        imports: statements.filter(
+          ({ statementType }) => statementType === "import"
+        ) as ImportStatement[],
+        variables: statements.filter(
+          ({ statementType }) => statementType === "declaration"
+        ) as VariableDeclaration<Reference>[],
+      }))(many(apFirst(spaces)(statementParser)))
+    )
   );
 
 export function badParse(contents: string, fname: string) {

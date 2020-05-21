@@ -8,6 +8,7 @@ import {
   VariableDeclaration,
   VarRHS,
 } from "./ast";
+import path from "path";
 
 import { badParse } from "./parse";
 
@@ -63,11 +64,34 @@ function resolveRef(
     };
   }
 
-  const decl = context.variables.find(({ name }) => name === ref);
-  if (!decl) {
-    throw new Error(`Could not find type ${ref}`);
+  // Look in imports! (should move external to this function.)
+  const importStatement = context.imports.find((statement) =>
+    statement.imports.includes(ref)
+  );
+
+  let resolvedDecl: VariableDeclaration<Representable>;
+  if (importStatement) {
+    const loadPath = path.resolve(
+      path.dirname(context.path),
+      importStatement.path
+    );
+    const file = load(loadPath);
+    const resolvedVar = file.variables.find((v) => v.name === ref);
+    if (!resolvedVar) {
+      throw new Error(`File ${loadPath} does not define ${ref}`);
+    }
+    resolvedDecl = resolvedVar;
+  } else {
+    // Look in locally defined variables
+    const decl = context.variables.find(({ name }) => name === ref);
+
+    if (!decl) {
+      throw new Error(`Could not find type ${ref}`);
+    }
+
+    resolvedDecl = resolveDecl(decl, context, prevReffedVars);
   }
-  const resolvedDecl = resolveDecl(decl, context, prevReffedVars);
+
   if (resolvedDecl.value.type === "channel") {
     throw new Error("Channels cannot be referenced as types");
   }
