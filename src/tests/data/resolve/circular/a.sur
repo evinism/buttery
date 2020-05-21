@@ -1,0 +1,4 @@
+import B from "./b.sur"
+
+struct A:
+  b: B
