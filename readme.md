@@ -1,18 +1,37 @@
-## surpc
+# Sur: Simple, unadorned cross-language DSL for defining RPCs
 
-Simple unadorned rpc definition DSL
+Sur aims to be a minimalistic cross-language DSL for defining RPCs. It's
+essentially a proto / grpc replacement for modern webstacks, with low barrier to
+entry and easy integration into existing products. Sur is specialized for use
+over http(s), but is technically transport-layer agnostic. Sur aims to ship with
+http clients for several major programming languages and features.
+
+### CLI:
+
+Sur's CLI is very simple right now:
+
+`sur generate <target environment> -f [files`
+
+As an example call:
+
+`sur generate ts-client -f ./path/to/file.sur`
+
+### Syntax
 
 ```
-
-
-// basic types:
-// ---
-// integer
-// boolean
-// double
-// string
-// Map<key, value>
-// List<param>
+/* Basic types:
+ * ---
+ * integer
+ * boolean
+ * double
+ * string
+ * Map<key, value>
+ * List<param>
+ *
+ * To be specced out / implemented:
+ * Enums
+ * Services
+ * OneOfs
 
 import Bleep, BleepRequest from "./some/path"
 
@@ -41,8 +60,3 @@ channel PeopleISee
 
 
 ```
-
-To add:
-
-- enums
-- oneof
