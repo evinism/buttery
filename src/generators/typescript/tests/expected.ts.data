@@ -1,0 +1,3 @@
+type Slot = {startTime: number, endTime: number};
+type AddToPartyResponse = {success: boolean, time?: {startTime: number, endTime: number}};
+type AddToParty = { request: {name: string, pronouns: Array<string>}, response: {success: boolean, time?: {startTime: number, endTime: number}}};

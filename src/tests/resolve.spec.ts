@@ -4,11 +4,11 @@ import * as chai from "chai";
 describe("Resolving", function () {
   describe("Single File", function () {
     it("resolves vars in oneFile correctly", function () {
-      const output = load("./src/tests/data/resolve/onefile/main.sur");
+      const output = load("./data/resolve/onefile/main.sur");
 
       chai.assert.deepEqual(output, {
         imports: [],
-        path: "./src/tests/data/resolve/onefile/main.sur",
+        path: "./data/resolve/onefile/main.sur",
         variables: [
           {
             name: "Person",
@@ -321,16 +321,17 @@ describe("Resolving", function () {
       });
     });
   });
+
   describe("Multiple Files", function () {
-    it("resolves vars in oneFile correctly", function () {
-      const output = load("./src/tests/data/resolve/party/main.sur");
+    it.skip("resolves vars in oneFile correctly", function () {
+      const output = load("./data/resolve/party/main.sur");
       chai.assert.deepEqual(output, {});
     });
   });
 
   describe("Circular Includes", function () {
     it.skip("resolves vars in oneFile correctly", function () {
-      const output = load("./src/tests/data/resolve/circular/a.sur");
+      const output = load("./data/resolve/circular/a.sur");
       chai.assert.deepEqual({}, output);
     });
   });

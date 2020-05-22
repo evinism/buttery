@@ -1,0 +1,10 @@
+class SurpcClient {
+  constructor(url: string) {
+    this.url = url;
+  }
+
+  url: string;
+
+  _request() {
+  }
+}
