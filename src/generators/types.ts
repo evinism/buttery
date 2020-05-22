@@ -1,6 +1,6 @@
 import { SurpcFile, Representable } from "../ast";
 
-interface GenFile {
+export interface GenFile {
   fileName: string;
   content: string;
 }

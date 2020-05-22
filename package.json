@@ -2,22 +2,25 @@
   "name": "surpc",
   "version": "0.0.1",
   "description": "Simple, usable RPC utility",
-  "main": "index.js",
+  "main": "index.ts",
   "author": "evinism@gmail.com",
   "license": "MIT",
   "dependencies": {
     "@types/mocha": "^7.0.2",
+    "@types/yargs": "^15.0.5",
     "chai": "^4.2.0",
     "fp-ts": "^2.6.1",
     "parser-ts": "^0.6.3",
     "ts-node": "^8.10.1",
-    "typescript": "^3.9.3"
+    "typescript": "^3.9.3",
+    "yargs": "^15.3.1"
   },
   "devDependencies": {
     "@types/node": "^14.0.4",
     "mocha": "^7.1.2"
   },
   "scripts": {
-    "test": "mocha --require ts-node/register"
+    "test": "mocha --require ts-node/register",
+    "sur": "ts-node ./index.ts"
   }
 }

@@ -1,4 +1,4 @@
-import { gen } from "../gen";
+import { gen } from "..";
 import { load } from "../../../resolve";
 import fs from "fs";
 import * as chai from "chai";

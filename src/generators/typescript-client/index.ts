@@ -5,6 +5,7 @@ import {
   VarRHS,
   Primitive,
 } from "../../ast";
+import path from "path";
 
 export const gen: CodeGenerator = (file) => {
   const typeDecls = file.variables.map(generateTypeDeclaration).join("\n");
@@ -24,7 +25,7 @@ ${methodDecls}
 
   return [
     {
-      fileName: file.path,
+      fileName: `${path.basename(file.path)}.ts`,
       content,
     },
   ];
