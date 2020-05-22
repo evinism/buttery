@@ -8,8 +8,19 @@ import {
 
 export const gen: CodeGenerator = (file) => {
   const typeDecls = file.variables.map(generateTypeDeclaration).join("\n");
+  const methodDecls = file.variables
+    .map(generateClassMethod)
+    .filter(Boolean)
+    .join("\n");
 
-  const content = typeDecls;
+  const content = `import SurClient from 'surpc-client';
+
+${typeDecls}
+
+class Client extends SurClient {
+${methodDecls}
+}
+`;
 
   return [
     {
@@ -19,12 +30,27 @@ export const gen: CodeGenerator = (file) => {
   ];
 };
 
+const generateClassMethod = (decl: VariableDeclaration<Representable>) => {
+  // Lol this should be
+  if (decl.value.type === "struct") {
+    return "";
+  }
+  const rpcOrChannel = decl.value;
+  if (rpcOrChannel.type === "rpc") {
+    const reqType = genTypeForRepresentable(rpcOrChannel.request.baseType);
+    const resType = genTypeForRepresentable(rpcOrChannel.response.baseType);
+    return `  ${decl.name}(data: ${reqType}): (${resType}){
+    this.request(data);
+  }`;
+  }
+};
+
 const generateTypeDeclaration = (
   varDecl: VariableDeclaration<Representable>
 ): string => {
   const { name, value: rhs } = varDecl;
   const rhsType = genTypeForRhs(rhs);
-  return `type ${name} = ${rhsType};`;
+  return `export type ${name} = ${rhsType};`;
 };
 
 const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
