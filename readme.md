@@ -1,10 +1,67 @@
 # Sur: Simple, unadorned cross-language DSL for defining RPCs
 
-Sur aims to be a minimalistic cross-language DSL for defining RPCs. It's
-essentially a proto / grpc replacement for modern webstacks, with low barrier to
-entry and easy integration into existing products. Sur is specialized for use
-over http(s), but is technically transport-layer agnostic. Sur aims to ship with
-http clients for several major programming languages and features.
+Sur aims to be a minimalistic cross-language DSL for defining RPCs and channels.
+It's essentially a proto / grpc replacement for modern webstacks, with low
+barrier to entry and easy integration into existing products. Sur is specialized
+for use over http(s), but is technically transport-layer agnostic.
+
+### Scope of Sur
+
+Sur aims to provide:
+
+1. A lightweight language for defining over-the-network APIs.
+2. Codegen for clients and servers in a variety of languages.
+3. Parsing and validation of requests and responses.
+4. Basic reliability abstractions, such as retries and message buffers for 2-way
+   connections
+5. (when applicable) Cross-language, cross network boundary type safety.
+
+Sur does not aim to provide:
+
+1. Strong protections against version skew of specific definitions.
+2. Highly size-optimized over-the-wire encodings.
+
+### A simple example:
+
+Let's say we're building a basic chat app over websockets.
+
+We can define the interface as follows:
+
+```
+// chat.sur
+service ChatService:
+  struct SendMessage:
+    timestamp: integer
+    content: string
+
+  struct NewMessageUpdate:
+    timestamp: integer
+    author: string
+    content: string
+
+  channel Chat:
+    incoming: SendMessage
+    outgoing: NewMessageUpdate
+```
+
+And consume the generated files in a sample client and server:
+
+```
+// client.ts on the frontend
+
+```
+
+```
+// routes.ts on the backend (with Express)
+
+```
+
+### Sample patterns of places where Sur could be used:
+
+- Backend to backend RPCs
+- Frontend requests to backend services
+- Easy multiplexing of multiple services through a single host
+- Websockets
 
 ### CLI:
 
@@ -16,47 +73,56 @@ As an example call:
 
 `sur generate ts-client -f ./path/to/file.sur`
 
-### Syntax
+### Sample of features
+
+Primitives:
+
+- integer
+- boolean
+- double
+- string
+
+Builtin Types:
+
+- Map:
+- List
+
+Declarations:
+
+- struct: static key-value maps
+- oneof: tagged unions
+- service: Groupings of RPCs and Channels
+- rpc
+- channel
 
 ```
-/* Basic types:
- * ---
- * integer
- * boolean
- * double
- * string
- * Map<key, value>
- * List<param>
- *
- * To be specced out / implemented:
- * Enums
- * Services
- * OneOfs
+// This is a comment!
+// Imports can reference other files
+import Bleep, BleepRequest from "./some/file.sur"
 
-import Bleep, BleepRequest from "./some/path"
-
+// Structs can be declared either outside or within a service
 struct People:
   name: string
   areTheyChill: boolean
   title: optional string
 
-struct BleepRequest:
-  whoIsBleeping: string
-  whoAreTheyTargeting: List<People>
+service BleepService:
+  struct BleepRequest:
+    whoIsBleeping: string
+    whoAreTheyTargeting: List<People>
 
-struct BleepResponse:
-  didItWork: boolean
-  wereTheySurprised: boolean
+  struct BleepResponse:
+    didItWork: boolean
+    wereTheySurprised: boolean
 
-// for oneoff rpc
-rpc Bleep:
-  request: BleepRequest
-  response: number
+  // for oneoff request / response pairs.
+  rpc Bleep:
+    request: BleepRequest
+    response: number
 
-// for 2-way, continuous channel.
-channel PeopleISee
-  incoming: List<integer>,
-  outgoing: People
-
+  // for 2-way, continuous channel.
+  channel PeopleISee
+    incoming: List<integer>,
+    outgoing: People
 
 ```
