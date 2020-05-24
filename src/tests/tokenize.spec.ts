@@ -17,15 +17,6 @@ describe("Tokenizing", function () {
           {
             token: "newline",
           },
-          {
-            token: "newline",
-          },
-          {
-            token: "newline",
-          },
-          {
-            token: "newline",
-          },
         ],
         output
       );
@@ -77,7 +68,6 @@ describe("Tokenizing", function () {
         { token: "from" },
         { token: "quotedString", contents: "./person.sur" },
         { token: "newline" },
-        { token: "newline" },
         { token: "struct" },
         { token: "name", name: "Slot" },
         { token: "colon" },
@@ -100,7 +90,6 @@ describe("Tokenizing", function () {
         { token: "colon" },
         { token: "name", name: "integer" },
         { token: "newline" },
-        { token: "newline" },
         { token: "struct" },
         { token: "name", name: "AddToPartyResponse" },
         { token: "colon" },
@@ -116,7 +105,6 @@ describe("Tokenizing", function () {
         { token: "optional" },
         { token: "name", name: "Slot" },
         { token: "newline" },
-        { token: "newline" },
         { token: "rpc" },
         { token: "name", name: "AddToParty" },
         { token: "colon" },
@@ -131,6 +119,211 @@ describe("Tokenizing", function () {
         { token: "colon" },
         { token: "name", name: "AddToPartyResponse" },
         { token: "newline" },
+      ];
+      chai.assert.deepEqual(expected, output);
+    });
+
+    it("tokenizes references with lots of spaces everywhere", function () {
+      const contents = "List  < Map <string  ,Cat  > >";
+      const parsed = tokenize(stream(contents.split(""), 0));
+
+      assert(isRight(parsed));
+      const output = parsed.right.value;
+      const expected = [
+        {
+          name: "List",
+          token: "name",
+        },
+        {
+          token: "openbracket",
+        },
+        {
+          name: "Map",
+          token: "name",
+        },
+        {
+          token: "openbracket",
+        },
+        {
+          name: "string",
+          token: "name",
+        },
+        {
+          token: "comma",
+        },
+        {
+          name: "Cat",
+          token: "name",
+        },
+        {
+          token: "closebracket",
+        },
+        {
+          token: "closebracket",
+        },
+      ];
+      chai.assert.deepEqual(expected, output);
+    });
+
+    it("tokenizes nested and multiple items", function () {
+      const contents = "  field: Map<number, List<Dog>>";
+      const parsed = tokenize(stream(contents.split(""), 0));
+
+      assert(isRight(parsed));
+      const output = parsed.right.value;
+      const expected = [
+        {
+          token: "indent",
+        },
+        {
+          name: "field",
+          token: "name",
+        },
+        {
+          token: "colon",
+        },
+        {
+          name: "Map",
+          token: "name",
+        },
+        {
+          token: "openbracket",
+        },
+        {
+          name: "number",
+          token: "name",
+        },
+        {
+          token: "comma",
+        },
+        {
+          name: "List",
+          token: "name",
+        },
+        {
+          token: "openbracket",
+        },
+        {
+          name: "Dog",
+          token: "name",
+        },
+        {
+          token: "closebracket",
+        },
+        {
+          token: "closebracket",
+        },
+      ];
+      chai.assert.deepEqual(expected, output);
+    });
+
+    it("correctly tokenizes a simple field", function () {
+      const contents = "myFieldName: number";
+      const parsed = tokenize(stream(contents.split(""), 0));
+
+      assert(isRight(parsed));
+      const output = parsed.right.value;
+      const expected = [
+        {
+          name: "myFieldName",
+          token: "name",
+        },
+        {
+          token: "colon",
+        },
+        {
+          name: "number",
+          token: "name",
+        },
+      ];
+      chai.assert.deepEqual(expected, output);
+    });
+
+    it("correctly tokenizes a simple struct", function () {
+      const contents = "struct Hello:\n  fat: Dog\n  cat: Dog";
+      const parsed = tokenize(stream(contents.split(""), 0));
+
+      assert(isRight(parsed));
+      const output = parsed.right.value;
+      const expected = [
+        {
+          token: "struct",
+        },
+        {
+          name: "Hello",
+          token: "name",
+        },
+        {
+          token: "colon",
+        },
+        {
+          token: "newline",
+        },
+        {
+          token: "indent",
+        },
+        {
+          name: "fat",
+          token: "name",
+        },
+        {
+          token: "colon",
+        },
+        {
+          name: "Dog",
+          token: "name",
+        },
+        {
+          token: "newline",
+        },
+        {
+          token: "indent",
+        },
+        {
+          name: "cat",
+          token: "name",
+        },
+        {
+          token: "colon",
+        },
+        {
+          name: "Dog",
+          token: "name",
+        },
+      ];
+      chai.assert.deepEqual(expected, output);
+    });
+    it("correctly tokenizes an import with odd newlines", function () {
+      const contents = `import
+  Bleep,
+  Bleep2
+from "./this_path.sur"`;
+      const parsed = tokenize(stream(contents.split(""), 0));
+
+      assert(isRight(parsed));
+      const output = parsed.right.value;
+      const expected = [
+        {
+          token: "import",
+        },
+        {
+          name: "Bleep",
+          token: "name",
+        },
+        {
+          token: "comma",
+        },
+        {
+          name: "Bleep2",
+          token: "name",
+        },
+        {
+          token: "from",
+        },
+        {
+          contents: "./this_path.sur",
+          token: "quotedString",
+        },
       ];
       chai.assert.deepEqual(expected, output);
     });

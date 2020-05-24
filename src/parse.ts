@@ -54,7 +54,6 @@ import {
   QuotedStringToken,
   FromToken,
 } from "./tokenize";
-import { match } from "assert";
 import { isRight } from "fp-ts/lib/Either";
 
 // Dangerous function because casted
@@ -87,32 +86,28 @@ export const refParser: Parser<Token, Reference> = seq(
 const fieldModifiers = many(matchToken<OptionalToken>("optional"));
 
 export const fieldParser: Parser<Token, Field<Reference>> = seq(
-  matchToken<IndentToken>("indent"),
-  () =>
-    seq(matchToken<NameToken>("name"), ({ name }) =>
-      seq(matchToken<ColonToken>("colon"), () =>
-        seq(fieldModifiers, (mods) => {
-          if (mods.length > 1) {
-            return fail();
-          }
-          // This will need to change on stuff.
-          return map((reference: Reference) => ({
-            name,
-            optional: !!mods.find((mod) => mod.token === "optional"),
-            baseType: reference,
-          }))(apFirst(matchToken<NewLineToken>("newline"))(refParser));
-        })
-      )
+  matchToken<NameToken>("name"),
+  ({ name }) =>
+    seq(matchToken<ColonToken>("colon"), () =>
+      seq(fieldModifiers, (mods) => {
+        if (mods.length > 1) {
+          return fail();
+        }
+        // This will need to change on stuff.
+        return map((reference: Reference) => ({
+          name,
+          optional: !!mods.find((mod) => mod.token === "optional"),
+          baseType: reference,
+        }))(refParser);
+      })
     )
 );
 
-const fieldLinesParser = many(
-  seq(
-    seq(matchToken<NewLineToken>("newline"), () =>
-      matchToken<IndentToken>("indent")
-    ),
-    () => fieldParser
-  )
+export const fieldLineParser = seq(
+  seq(matchToken<NewLineToken>("newline"), () =>
+    matchToken<IndentToken>("indent")
+  ),
+  () => fieldParser
 );
 
 const structDeclParser = seq(matchToken<StructToken>("struct"), () =>
@@ -133,7 +128,7 @@ export const structParser: Parser<Token, VariableDeclaration<Reference>> = seq(
         value: struct,
       };
       return decl;
-    })(fieldLinesParser);
+    })(many(fieldLineParser));
   }
 );
 
@@ -171,7 +166,7 @@ export const rpcParser: Parser<Token, VariableDeclaration<Reference>> = seq(
         value: rpc,
       };
       return decl;
-    })(fieldLinesParser);
+    })(many(fieldLineParser));
   }
 );
 
@@ -209,7 +204,7 @@ export const channelParser: Parser<Token, VariableDeclaration<Reference>> = seq(
         value: rpc,
       };
       return decl;
-    })(fieldLinesParser);
+    })(many(fieldLineParser));
   }
 );
 

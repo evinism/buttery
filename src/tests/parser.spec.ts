@@ -19,7 +19,6 @@ import {
   SurpcFile,
 } from "../ast";
 import { eof, seq, Parser, apFirst, map, sat } from "parser-ts/lib/Parser";
-import { parse } from "querystring";
 import { Token, tokenize } from "../tokenize";
 
 function eoffed<I, T>(parser: Parser<I, T>) {
@@ -31,11 +30,11 @@ function eoffed<I, T>(parser: Parser<I, T>) {
 ) => parser(stream(str.split(""), 0));*/
 
 const buildTestParser = <T>(parser: Parser<Token, T>) => (str: string) => {
-  const tokens = tokenize(stream(str.split(""), 0));
+  const tokens = eoffed(tokenize)(stream(str.split(""), 0));
   if (!isRight(tokens)) {
     throw "tokenizer error!";
   }
-  return parser(stream(tokens.right.value, 0));
+  return eoffed(parser)(stream(tokens.right.value, 0));
 };
 
 describe("Parsing", function () {
@@ -147,7 +146,7 @@ describe("Parsing", function () {
   describe("Field", function () {
     const parseField = buildTestParser(fieldParser);
     it("should correctly parse a simple field line", function () {
-      const parsed = parseField("  myFieldName: number");
+      const parsed = parseField("myFieldName: number");
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
@@ -259,8 +258,7 @@ describe("Parsing", function () {
       const input = `struct Hello:
   fatDogs: List<Map<string, Dog>>
   catTracksSeen: bool
-  peopleWhoLetTheDogsOut: List<string>
-`;
+  peopleWhoLetTheDogsOut: List<string>`;
 
       const parsed = parseStruct(input);
       // parsing succeeds!
@@ -326,8 +324,7 @@ describe("Parsing", function () {
     it("should correctly parse an rpc decl with complex types", function () {
       const input = `rpc Hello:
   request: List<Map<string, Dog>>
-  response: bool
-`;
+  response: bool`;
 
       const parsed = parseRpc(input);
       // parsing succeeds!
@@ -380,8 +377,7 @@ describe("Parsing", function () {
     it("should correctly parse a proto with complex types", function () {
       const input = `channel Hello:
   incoming: List<Map<string, Dog>>
-  outgoing: bool
-`;
+  outgoing: bool`;
 
       const parsed = parseChannel(input);
       // parsing succeeds!
@@ -432,7 +428,7 @@ describe("Parsing", function () {
     const parseImport = buildTestParser(importParser);
 
     it("correctly parses a basic input stream", function () {
-      const input = `import Bleep, Bleep2 from "./this_path.sur"\n`;
+      const input = `import Bleep, Bleep2 from "./this_path.sur"`;
 
       const parsed = parseImport(input);
       // parsing succeeds!
@@ -450,8 +446,7 @@ describe("Parsing", function () {
       const input = `import
   Bleep,
   Bleep2
-from "./this_path.sur"
-`;
+from "./this_path.sur"`;
 
       const parsed = parseImport(input);
       // parsing succeeds!

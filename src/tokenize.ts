@@ -51,6 +51,9 @@ const allowSpaceRight = <T>(parser: Parser<string, T>) =>
 const allowSpaceAround = <T>(parser: Parser<string, T>) =>
   allowSpaceLeft(allowSpaceRight(parser));
 
+const allowNewlineSpaceRight = <T>(parser: Parser<string, T>) =>
+  apFirst(spaces)(parser);
+
 export type BasicToken<T> = {
   token: T;
 };
@@ -139,12 +142,12 @@ const optionalTokenParser = apFirst(nonNewlineSpace1)(
 );
 
 export type CommaToken = BasicToken<"comma">;
-const commaTokenParser = allowSpaceAround(
-  parserForBasicToken<"comma">("comma")
+const commaTokenParser = allowNewlineSpaceRight(
+  allowSpaceLeft(parserForBasicToken<"comma">("comma", ","))
 );
 export type OpenBracketToken = BasicToken<"openbracket">;
-const openBracketTokenParser = allowSpaceAround(
-  parserForBasicToken<"openbracket">("openbracket", "<")
+const openBracketTokenParser = allowNewlineSpaceRight(
+  allowSpaceLeft(parserForBasicToken<"openbracket">("openbracket", "<"))
 );
 export type CloseBracketToken = BasicToken<"closebracket">;
 const closeBracketTokenParser = allowSpaceAround(
@@ -190,21 +193,26 @@ export const tokenize: Parser<string, Token[]> = apFirst(
 )(
   many(
     anyOf<string, Token>([
+      // alphanumeric keywords
       importTokenParser,
       fromTokenParser,
-      quotedStringTokenParser,
       structTokenParser,
       oneofTokenParser,
       serviceTokenParser,
       rpcTokenParser,
       channelTokenParser,
       optionalTokenParser,
+
+      // non-alphanumeric
+      quotedStringTokenParser,
       colonTokenParser,
-      newlineTokenParser,
-      indentParser,
       commaTokenParser,
       openBracketTokenParser,
       closeBracketTokenParser,
+
+      // alphanumeric, defaults
+      newlineTokenParser,
+      indentParser,
       nameTokenParser,
     ])
   )
