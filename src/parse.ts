@@ -240,18 +240,18 @@ const statementParser: Parser<Token, Statement<Reference>> = either<
 export const fileParser: (
   path: string
 ) => Parser<Token, SurpcFile<Reference>> = (path) =>
-  apFirst<Token, void>(eof())(
-    seq(many(matchToken<NewLineToken>("newline")), () =>
-      map((statements: Array<Statement<Reference>>) => ({
-        path,
-        imports: statements.filter(
-          ({ statementType }) => statementType === "import"
-        ) as ImportStatement[],
-        variables: statements.filter(
-          ({ statementType }) => statementType === "declaration"
-        ) as VariableDeclaration<Reference>[],
-      }))(sepBy(matchToken<NewLineToken>("newline"), statementParser))
-    )
+  apFirst<Token, void>(
+    seq(many(matchToken<NewLineToken>("newline")), () => eof())
+  )(
+    map((statements: Array<Statement<Reference>>) => ({
+      path,
+      imports: statements.filter(
+        ({ statementType }) => statementType === "import"
+      ) as ImportStatement[],
+      variables: statements.filter(
+        ({ statementType }) => statementType === "declaration"
+      ) as VariableDeclaration<Reference>[],
+    }))(sepBy(matchToken<NewLineToken>("newline"), statementParser))
   );
 
 export function badParse(contents: string, fname: string) {
