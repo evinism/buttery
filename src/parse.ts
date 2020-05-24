@@ -19,6 +19,7 @@ import {
 } from "parser-ts/lib/string";
 import {
   seq,
+  sepBy,
   sepBy1,
   map,
   maybe,
@@ -34,86 +35,88 @@ import {
 import { getMonoid } from "fp-ts/lib/Array";
 import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
 import { stream } from "parser-ts/lib/Stream";
+import {
+  Token,
+  tokenize,
+  BasicToken,
+  NameToken,
+  OpenBracketToken,
+  CloseBracketToken,
+  CommaToken,
+  ColonToken,
+  IndentToken,
+  NewLineToken,
+  OptionalToken,
+  StructToken,
+  RPCToken,
+  ChannelToken,
+  ImportToken,
+  QuotedStringToken,
+  FromToken,
+} from "./tokenize";
+import { isRight } from "fp-ts/lib/Either";
 
-const identifierParser = stringMany1(alphanum);
-const toss = map(() => {});
-const eolf = either<string, void>(toss(char("\n")), () => eof());
-const spaceRe = /^\s$/;
+// Dangerous function because casted
+const matchToken = <T extends BasicToken<unknown>>(tokenName: T["token"]) =>
+  map((x) => x as T)(
+    sat<Token>(({ token }: Token) => {
+      return token === tokenName;
+    })
+  );
 
-/* TODO: Remove EOLF as a concept. Statements should be joined by whitespace
-    with a newline somewhere in it.*/
-function isNonNewlineSpace(char: string): boolean {
-  return char !== "\n" && spaceRe.test(char);
-}
-const nonNewlineSpace = many(sat(isNonNewlineSpace));
-const nonNewlineSpace1 = many1(sat(isNonNewlineSpace));
-
-export const refParser: Parser<string, Reference> = seq(
-  identifierParser,
-  (ident) =>
+export const refParser: Parser<Token, Reference> = seq(
+  matchToken<NameToken>("name"),
+  (token) =>
     map((typeArgs: Array<Reference>) => ({
-      ref: ident,
+      ref: token.name,
       typeArgs,
     }))(
       maybe(getMonoid<Reference>())(
-        seq(spaces, () =>
-          seq(
-            seq(
-              seq(char("<"), () => spaces),
-              () =>
-                sepBy1(
-                  seq(spaces, () => seq(char(","), () => spaces)),
-                  refParser
-                )
-            ),
-            (refs: NonEmptyArray<Reference>) =>
-              map(() => refs)(seq(spaces, () => char(">")))
+        apFirst(matchToken<CloseBracketToken>("closebracket"))(
+          seq(matchToken<OpenBracketToken>("openbracket"), () =>
+            sepBy1(matchToken<CommaToken>("comma"), refParser)
           )
         )
       )
     )
 );
 
-const whitespacedColon = toss(
-  seq(nonNewlineSpace, () => seq(char(":"), () => nonNewlineSpace))
-);
-const lineEndingColon = toss(seq(whitespacedColon, () => char("\n")));
-
 // Right now, hardcoding set of field modifiers to 'optional'
 //const fieldModifiers = succeed<string, string[]>([]);
-const fieldModifiers = many(apFirst(spaces1)(string("optional")));
+const fieldModifiers = many(matchToken<OptionalToken>("optional"));
 
-export const fieldParser: Parser<string, Field<Reference>> = seq(
-  nonNewlineSpace1,
-  () =>
-    seq(identifierParser, (name: string) =>
-      seq(whitespacedColon, () =>
-        seq(fieldModifiers, (mods) => {
-          if (mods.length > 1) {
-            return fail();
-          }
-          // This will need to change on stuff.
-          return map((reference: Reference) => ({
-            name,
-            optional: mods.includes("optional"),
-            baseType: reference,
-          }))(apFirst(seq(nonNewlineSpace, () => eolf))(refParser));
-        })
-      )
+export const fieldParser: Parser<Token, Field<Reference>> = seq(
+  matchToken<NameToken>("name"),
+  ({ name }) =>
+    seq(matchToken<ColonToken>("colon"), () =>
+      seq(fieldModifiers, (mods) => {
+        if (mods.length > 1) {
+          return fail();
+        }
+        // This will need to change on stuff.
+        return map((reference: Reference) => ({
+          name,
+          optional: !!mods.find((mod) => mod.token === "optional"),
+          baseType: reference,
+        }))(refParser);
+      })
     )
 );
 
-export const varDeclParser = (keyword: string) =>
-  apFirst(lineEndingColon)(
-    seq(
-      seq(string(keyword), () => nonNewlineSpace1),
-      () => identifierParser
-    )
-  );
+export const fieldLineParser = seq(
+  seq(matchToken<NewLineToken>("newline"), () =>
+    matchToken<IndentToken>("indent")
+  ),
+  () => fieldParser
+);
 
-export const structParser: Parser<string, VariableDeclaration<Reference>> = seq(
-  varDeclParser("struct"),
-  (name: string) => {
+const structDeclParser = seq(matchToken<StructToken>("struct"), () =>
+  apFirst(matchToken<ColonToken>("colon"))(matchToken<NameToken>("name"))
+);
+
+export const structParser: Parser<Token, VariableDeclaration<Reference>> = seq(
+  structDeclParser,
+  ({ name }) => {
     return map((fields: Array<Field<Reference>>) => {
       const struct: StructType<Reference> = {
         type: "struct",
@@ -125,13 +128,17 @@ export const structParser: Parser<string, VariableDeclaration<Reference>> = seq(
         value: struct,
       };
       return decl;
-    })(many(fieldParser));
+    })(many(fieldLineParser));
   }
 );
 
-export const rpcParser: Parser<string, VariableDeclaration<Reference>> = seq(
-  varDeclParser("rpc"),
-  (name: string) => {
+const rpcDeclParser = seq(matchToken<RPCToken>("rpc"), () =>
+  apFirst(matchToken<ColonToken>("colon"))(matchToken<NameToken>("name"))
+);
+
+export const rpcParser: Parser<Token, VariableDeclaration<Reference>> = seq(
+  rpcDeclParser,
+  ({ name }) => {
     return map((fields: Array<Field<Reference>>) => {
       // Bad way of ensuring required fields!
       const request = fields.find((field) => field.name === "request");
@@ -159,75 +166,72 @@ export const rpcParser: Parser<string, VariableDeclaration<Reference>> = seq(
         value: rpc,
       };
       return decl;
-    })(many(fieldParser));
+    })(many(fieldLineParser));
   }
 );
 
-export const channelParser: Parser<
-  string,
-  VariableDeclaration<Reference>
-> = seq(varDeclParser("channel"), (name: string) => {
-  return map((fields: Array<Field<Reference>>) => {
-    // Bad way of ensuring required fields!
-    const incoming = fields.find((field) => field.name === "incoming");
-    const outgoing = fields.find((field) => field.name === "outgoing");
-    if (!incoming) {
-      throw "Missing request!";
-    }
-    if (!outgoing) {
-      throw "Missing response!";
-    }
-    if (fields.length > 2) {
-      throw "Too many fields!";
-    }
+const channelDeclParser = seq(matchToken<ChannelToken>("channel"), () =>
+  apFirst(matchToken<ColonToken>("colon"))(matchToken<NameToken>("name"))
+);
 
-    const rpc: Channel<Reference> = {
-      type: "channel",
-      name: name,
-      incoming,
-      outgoing,
-    };
+export const channelParser: Parser<Token, VariableDeclaration<Reference>> = seq(
+  channelDeclParser,
+  ({ name }) => {
+    return map((fields: Array<Field<Reference>>) => {
+      // Bad way of ensuring required fields!
+      const incoming = fields.find((field) => field.name === "incoming");
+      const outgoing = fields.find((field) => field.name === "outgoing");
+      if (!incoming) {
+        throw "Missing request!";
+      }
+      if (!outgoing) {
+        throw "Missing response!";
+      }
+      if (fields.length > 2) {
+        throw "Too many fields!";
+      }
 
-    const decl: VariableDeclaration<Reference> = {
-      statementType: "declaration",
-      name,
-      value: rpc,
-    };
-    return decl;
-  })(many(fieldParser));
-});
+      const rpc: Channel<Reference> = {
+        type: "channel",
+        name: name,
+        incoming,
+        outgoing,
+      };
 
-export const importParser: Parser<string, ImportStatement> = seq(
-  seq(string("import"), () => spaces1),
+      const decl: VariableDeclaration<Reference> = {
+        statementType: "declaration",
+        name,
+        value: rpc,
+      };
+      return decl;
+    })(many(fieldLineParser));
+  }
+);
+
+export const importParser: Parser<Token, ImportStatement> = seq(
+  matchToken<ImportToken>("import"),
   () =>
     seq(
-      sepBy1(
-        seq(char(","), () => spaces),
-        identifierParser
-      ),
+      sepBy1(matchToken<CommaToken>("comma"), matchToken<NameToken>("name")),
       (imports) => {
-        return map((path: string) => {
+        return map(({ contents }: QuotedStringToken) => {
           const importStatement: ImportStatement = {
             statementType: "import",
-            path,
-            imports,
+            path: contents,
+            imports: imports.map(({ name }) => name),
           };
           return importStatement;
         })(
-          seq(
-            seq(
-              seq(spaces1, () => string("from")),
-              () => spaces1
-            ),
-            () => apFirst(seq(nonNewlineSpace, () => eolf))(doubleQuotedString)
+          seq(matchToken<FromToken>("from"), () =>
+            matchToken<QuotedStringToken>("quotedString")
           )
         );
       }
     )
 );
 
-const statementParser: Parser<string, Statement<Reference>> = either<
-  string,
+const statementParser: Parser<Token, Statement<Reference>> = either<
+  Token,
   Statement<Reference>
 >(importParser, () =>
   either(structParser, () => either(rpcParser, () => channelParser))
@@ -235,23 +239,27 @@ const statementParser: Parser<string, Statement<Reference>> = either<
 
 export const fileParser: (
   path: string
-) => Parser<string, SurpcFile<Reference>> = (path) =>
-  apFirst<string, void>(eof())(
-    seq(spaces, () =>
-      map((statements: Array<Statement<Reference>>) => ({
-        path,
-        imports: statements.filter(
-          ({ statementType }) => statementType === "import"
-        ) as ImportStatement[],
-        variables: statements.filter(
-          ({ statementType }) => statementType === "declaration"
-        ) as VariableDeclaration<Reference>[],
-      }))(many(apFirst(spaces)(statementParser)))
-    )
+) => Parser<Token, SurpcFile<Reference>> = (path) =>
+  apFirst<Token, void>(
+    seq(many(matchToken<NewLineToken>("newline")), () => eof())
+  )(
+    map((statements: Array<Statement<Reference>>) => ({
+      path,
+      imports: statements.filter(
+        ({ statementType }) => statementType === "import"
+      ) as ImportStatement[],
+      variables: statements.filter(
+        ({ statementType }) => statementType === "declaration"
+      ) as VariableDeclaration<Reference>[],
+    }))(sepBy(matchToken<NewLineToken>("newline"), statementParser))
   );
 
 export function badParse(contents: string, fname: string) {
-  return fileParser(fname)(stream(contents.split(""), 0));
+  const tokenized = tokenize(stream(contents.split(""), 0));
+  if (!isRight(tokenized)) {
+    throw "tokenizer error!";
+  }
+  return fileParser(fname)(stream(tokenized.right.value, 0));
 }
 
 function parse(contents: string): SurpcFile<Reference> {

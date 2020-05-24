@@ -1,11 +1,11 @@
 import SurClient from 'surpc-client';
 
-export type Slot = {startTime: number, endTime: number};
-export type AddToPartyResponse = {success: boolean, time?: {startTime: number, endTime: number}};
-export type AddToParty = { request: {name: string, pronouns: Array<string>}, response: {success: boolean, time?: {startTime: number, endTime: number}}};
+export type Slot = {people: Array<{name: string, pronouns: Array<string>}>, startTime: number, endTime: number};
+export type AddToPartyResponse = {success: boolean, time?: {people: Array<{name: string, pronouns: Array<string>}>, startTime: number, endTime: number}};
+export type AddToParty = { request: {name: string, pronouns: Array<string>}, response: {success: boolean, time?: {people: Array<{name: string, pronouns: Array<string>}>, startTime: number, endTime: number}}};
 
 class Client extends SurClient {
-  AddToParty(data: {name: string, pronouns: Array<string>}): ({success: boolean, time?: {startTime: number, endTime: number}}){
+  AddToParty(data: {name: string, pronouns: Array<string>}): ({success: boolean, time?: {people: Array<{name: string, pronouns: Array<string>}>, startTime: number, endTime: number}}){
     this.request(data);
   }
 }

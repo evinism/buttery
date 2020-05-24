@@ -9,7 +9,7 @@ describe("Generation", function () {
       const ast = load("./data/resolve/party/main.sur");
       const bleep = gen(ast);
       const expected = fs.readFileSync(
-        "./src/generators/typescript/tests/expected.ts.data",
+        "./src/generators/typescript-client/tests/expected.ts.data",
         "utf8"
       );
       chai.assert.equal(expected, bleep[0].content);
