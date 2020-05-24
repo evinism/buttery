@@ -1,6 +1,7 @@
 import Person from "./person.sur"
 
 struct Slot:
+  people: List<Person>
   startTime: integer
   endTime: integer
 
