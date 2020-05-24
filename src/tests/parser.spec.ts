@@ -3,7 +3,6 @@ import {
   refParser,
   fieldParser,
   structParser,
-  varDeclParser,
   rpcParser,
   channelParser,
   importParser,
@@ -20,17 +19,24 @@ import {
   SurpcFile,
 } from "../ast";
 import { eof, seq, Parser, apFirst, map, sat } from "parser-ts/lib/Parser";
+import { parse } from "querystring";
+import { Token, tokenize } from "../tokenize";
 
-function eoffed<a, b>(parser: Parser<a, b>) {
-  return apFirst(eof())(parser);
+function eoffed<I, T>(parser: Parser<I, T>) {
+  return apFirst(eof<I>())(parser);
 }
 
-const buildTestParser = <T>(parser: Parser<string, T>) => (str: string) =>
-  eoffed<string, T>(parser)(stream(str.split(""), 0));
-
-const buildUneoffedTestParser = <T>(parser: Parser<string, T>) => (
+/*const buildUneoffedTestParser = <T>(parser: Parser<string, T>) => (
   str: string
-) => parser(stream(str.split(""), 0));
+) => parser(stream(str.split(""), 0));*/
+
+const buildTestParser = <T>(parser: Parser<Token, T>) => (str: string) => {
+  const tokens = tokenize(stream(str.split(""), 0));
+  if (!isRight(tokens)) {
+    throw "tokenizer error!";
+  }
+  return parser(stream(tokens.right.value, 0));
+};
 
 describe("Parsing", function () {
   describe("Reference", function () {
@@ -141,7 +147,7 @@ describe("Parsing", function () {
   describe("Field", function () {
     const parseField = buildTestParser(fieldParser);
     it("should correctly parse a simple field line", function () {
-      const parsed = parseField("  myFieldName: number\n");
+      const parsed = parseField("  myFieldName: number");
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
@@ -157,7 +163,7 @@ describe("Parsing", function () {
     });
 
     it("should correctly parse an optional field line", function () {
-      const parsed = parseField("  myFieldName: optional number\n");
+      const parsed = parseField("myFieldName: optional number");
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
@@ -173,17 +179,17 @@ describe("Parsing", function () {
     });
 
     it("should fail parsing an unindented line", function () {
-      const parsed = parseField("myFieldName: number\n");
+      const parsed = parseField("myFieldName: number");
       assert(isLeft(parsed));
     });
 
     it("should fail parsing a line with multiple optional decls", function () {
-      const parsed = parseField("myFieldName: optional optional number\n");
+      const parsed = parseField("myFieldName: optional optional number");
       assert(isLeft(parsed));
     });
 
     it("should correctly parse a complicated field line", function () {
-      const parsed = parseField("  myFieldName: optional List<Dog>\n");
+      const parsed = parseField("myFieldName: optional List<Dog>");
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
@@ -204,7 +210,7 @@ describe("Parsing", function () {
     });
   });
 
-  describe("VarDeclHelper", function () {
+  /*describe("VarDeclHelper", function () {
     const parseVarDeclFirstLine = buildTestParser(varDeclParser("bloop"));
 
     it("should correctly parse a simple var declaration", function () {
@@ -215,7 +221,7 @@ describe("Parsing", function () {
       assert(isRight(parsed));
       chai.assert.equal("Hello", parsed.right.value);
     });
-  });
+  });*/
 
   describe("StructDecl", function () {
     const parseStruct = buildTestParser(structParser);
@@ -460,7 +466,7 @@ from "./this_path.sur"
     });
   });
   describe("File", function () {
-    const parseFile = buildUneoffedTestParser(fileParser("filename"));
+    const parseFile = buildTestParser(fileParser("filename"));
     it("correctly parses a file", function () {
       const input = `import
   Bloop,

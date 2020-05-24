@@ -73,7 +73,7 @@ describe("Tokenizing", function () {
       const output = parsed.right.value;
       const expected = [
         { token: "import" },
-        { token: "name", name: "person" },
+        { token: "name", name: "Person" },
         { token: "from" },
         { token: "quotedString", contents: "./person.sur" },
         { token: "newline" },
@@ -130,8 +130,6 @@ describe("Tokenizing", function () {
         { token: "name", name: "response" },
         { token: "colon" },
         { token: "name", name: "AddToPartyResponse" },
-        { token: "newline" },
-        { token: "newline" },
         { token: "newline" },
       ];
       chai.assert.deepEqual(expected, output);

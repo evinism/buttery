@@ -51,7 +51,7 @@ const allowSpaceRight = <T>(parser: Parser<string, T>) =>
 const allowSpaceAround = <T>(parser: Parser<string, T>) =>
   allowSpaceLeft(allowSpaceRight(parser));
 
-type BasicToken<T> = {
+export type BasicToken<T> = {
   token: T;
 };
 
@@ -66,19 +66,19 @@ const parserForBasicToken = <T extends string>(
 };
 
 /* Import statements */
-type ImportToken = BasicToken<"import">;
+export type ImportToken = BasicToken<"import">;
 // Allow newlines after this!
 const importTokenParser = apFirst(spaces1)(
   parserForBasicToken<"import">("import")
 );
 
 // Allow lots of newlines around this!
-type FromToken = BasicToken<"from">;
+export type FromToken = BasicToken<"from">;
 const fromTokenParser = apFirst(spaces1)(
   seq(spaces1, () => parserForBasicToken<"from">("from"))
 );
 
-type QuotedStringToken = {
+export type QuotedStringToken = {
   token: "quotedString";
   contents: string;
 };
@@ -90,29 +90,29 @@ const quotedStringTokenParser = map(
 )(doubleQuotedString);
 
 /* Keyword declaration tokens */
-type StructToken = BasicToken<"struct">;
+export type StructToken = BasicToken<"struct">;
 const structTokenParser = apFirst(nonNewlineSpace1)(
   parserForBasicToken<"struct">("struct")
 );
-type OneOfToken = BasicToken<"oneof">;
+export type OneOfToken = BasicToken<"oneof">;
 const oneofTokenParser = apFirst(nonNewlineSpace1)(
   parserForBasicToken<"oneof">("oneof")
 );
-type ServiceToken = BasicToken<"service">;
+export type ServiceToken = BasicToken<"service">;
 const serviceTokenParser = apFirst(nonNewlineSpace1)(
   parserForBasicToken<"service">("service")
 );
-type RPCToken = BasicToken<"rpc">;
+export type RPCToken = BasicToken<"rpc">;
 const rpcTokenParser = apFirst(nonNewlineSpace1)(
   parserForBasicToken<"rpc">("rpc")
 );
-type ChannelToken = BasicToken<"channel">;
+export type ChannelToken = BasicToken<"channel">;
 const channelTokenParser = apFirst(nonNewlineSpace1)(
   parserForBasicToken<"channel">("channel")
 );
 
 /* Joiner Tokens */
-type ColonToken = BasicToken<"colon">;
+export type ColonToken = BasicToken<"colon">;
 const colonTokenParser = allowSpaceAround(
   parserForBasicToken<"colon">("colon", ":")
 );
@@ -120,37 +120,39 @@ const colonTokenParser = allowSpaceAround(
 // Right now, we're only gonna deal with single line comments
 // because they're good enough, and multiline comments sound frustrating
 // to try to tokenize at this point
-type NewLineToken = BasicToken<"newline">;
-const newlineTokenParser = allowSpaceLeft(
-  parserForBasicToken<"newline">("newline", "\n")
-);
+export type NewLineToken = BasicToken<"newline">;
+const newlineTokenParser: Parser<string, NewLineToken> = map(
+  (): NewLineToken => ({
+    token: "newline",
+  })
+)(many1(allowSpaceLeft(char("\n"))));
 
 // Right now this means 2 spaces or a tab but it really shouldn't
-type IndentToken = BasicToken<"indent">;
+export type IndentToken = BasicToken<"indent">;
 const indentParser = map((): IndentToken => ({ token: "indent" }))(
   either(string("  "), () => char("\t"))
 );
 
-type OptionalToken = BasicToken<"optional">;
+export type OptionalToken = BasicToken<"optional">;
 const optionalTokenParser = apFirst(nonNewlineSpace1)(
   parserForBasicToken<"optional">("optional")
 );
 
-type CommaToken = BasicToken<"comma">;
+export type CommaToken = BasicToken<"comma">;
 const commaTokenParser = allowSpaceAround(
   parserForBasicToken<"comma">("comma")
 );
-type OpenBracketToken = BasicToken<"openbracket">;
+export type OpenBracketToken = BasicToken<"openbracket">;
 const openBracketTokenParser = allowSpaceAround(
   parserForBasicToken<"openbracket">("openbracket", "<")
 );
-type CloseBracketToken = BasicToken<"closebracket">;
+export type CloseBracketToken = BasicToken<"closebracket">;
 const closeBracketTokenParser = allowSpaceAround(
   parserForBasicToken<"closebracket">("closebracket", ">")
 );
 
 // For fields
-type NameToken = {
+export type NameToken = {
   token: "name";
   name: string;
 };
@@ -161,7 +163,7 @@ export const nameTokenParser: Parser<string, NameToken> = map(
   })
 )(stringMany1(alphanum));
 
-type Token =
+export type Token =
   | ImportToken
   | FromToken
   | QuotedStringToken
