@@ -241,7 +241,7 @@ export const fileParser: (
   path: string
 ) => Parser<Token, SurpcFile<Reference>> = (path) =>
   apFirst<Token, void>(eof())(
-    seq(matchToken<NewLineToken>("newline"), () =>
+    seq(many(matchToken<NewLineToken>("newline")), () =>
       map((statements: Array<Statement<Reference>>) => ({
         path,
         imports: statements.filter(

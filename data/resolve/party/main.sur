@@ -13,4 +13,3 @@ rpc AddToParty:
   request: Person
   response: AddToPartyResponse
 
-

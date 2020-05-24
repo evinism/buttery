@@ -8,14 +8,22 @@ import { isRight } from "fp-ts/lib/Either";
 describe("Tokenizing", function () {
   describe("Featureful file", function () {
     it("allows whitespace before newlines", function () {
-      const parsed = tokenize(stream("  \n \n\n \n".split(""), 0));
+      const parsed = tokenize(stream("hi  \n \n\n \nhi".split(""), 0));
 
       assert(isRight(parsed));
       const output = parsed.right.value;
       chai.assert.deepEqual(
         [
           {
+            token: "name",
+            name: "hi",
+          },
+          {
             token: "newline",
+          },
+          {
+            token: "name",
+            name: "hi",
           },
         ],
         output
@@ -166,15 +174,12 @@ describe("Tokenizing", function () {
     });
 
     it("tokenizes nested and multiple items", function () {
-      const contents = "  field: Map<number, List<Dog>>";
+      const contents = "field: Map<number, List<Dog>>";
       const parsed = tokenize(stream(contents.split(""), 0));
 
       assert(isRight(parsed));
       const output = parsed.right.value;
       const expected = [
-        {
-          token: "indent",
-        },
         {
           name: "field",
           token: "name",

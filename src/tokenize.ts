@@ -188,32 +188,32 @@ const anyOf = <S, T>(parsers: Array<Parser<S, T>>) => {
   return parsers.reduceRight((acc, cur) => either(cur, () => acc), fail());
 };
 
-export const tokenize: Parser<string, Token[]> = apFirst(
-  allowSpaceLeft(eof<string>())
-)(
-  many(
-    anyOf<string, Token>([
-      // alphanumeric keywords
-      importTokenParser,
-      fromTokenParser,
-      structTokenParser,
-      oneofTokenParser,
-      serviceTokenParser,
-      rpcTokenParser,
-      channelTokenParser,
-      optionalTokenParser,
+export const tokenize: Parser<string, Token[]> = seq(spaces, () =>
+  apFirst(seq(spaces, () => eof<string>()))(
+    many(
+      anyOf<string, Token>([
+        // alphanumeric keywords
+        importTokenParser,
+        fromTokenParser,
+        structTokenParser,
+        oneofTokenParser,
+        serviceTokenParser,
+        rpcTokenParser,
+        channelTokenParser,
+        optionalTokenParser,
 
-      // non-alphanumeric
-      quotedStringTokenParser,
-      colonTokenParser,
-      commaTokenParser,
-      openBracketTokenParser,
-      closeBracketTokenParser,
+        // non-alphanumeric
+        quotedStringTokenParser,
+        colonTokenParser,
+        commaTokenParser,
+        openBracketTokenParser,
+        closeBracketTokenParser,
 
-      // alphanumeric, defaults
-      newlineTokenParser,
-      indentParser,
-      nameTokenParser,
-    ])
+        // alphanumeric, defaults
+        newlineTokenParser,
+        indentParser,
+        nameTokenParser,
+      ])
+    )
   )
 );
