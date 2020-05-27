@@ -52,6 +52,5 @@ export function indentify(tokens: Token[]): Token[] {
       token: "shiftOut",
     });
   }
-  console.log(JSON.stringify(out, null, 2));
   return out;
 }
