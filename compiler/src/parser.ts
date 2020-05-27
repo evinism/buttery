@@ -46,6 +46,7 @@ import {
   FromToken,
   ShiftInToken,
   ShiftOutToken,
+  PeriodToken,
 } from "./lexer";
 import { indentify } from "./indenter";
 import { isRight } from "fp-ts/lib/Either";
@@ -60,11 +61,18 @@ const matchToken = <T extends BasicToken<unknown>>(tokenName: T["token"]) =>
     })
   );
 
+const refNameParser: Parser<Token, NonEmptyArray<NameToken>> = sepBy1(
+  matchToken<PeriodToken>("period"),
+  matchToken<NameToken>("name")
+);
+
 export const refParser: Parser<Token, Reference> = seq(
-  matchToken<NameToken>("name"),
-  (token) =>
+  refNameParser,
+  (tokenArr) =>
     map((typeArgs: Array<Reference>) => ({
-      ref: token.name,
+      // not excellent, but whatever.
+      // TODO: Proper namespacing!
+      ref: tokenArr.map(({ name }) => name).join("."),
       typeArgs,
     }))(
       maybe(getMonoid<Reference>())(

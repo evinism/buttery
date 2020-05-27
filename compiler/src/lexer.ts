@@ -145,6 +145,10 @@ export type CommaToken = BasicToken<"comma">;
 const commaTokenParser = allowNewlineSpaceRight(
   allowSpaceLeft(parserForBasicToken<"comma">("comma", ","))
 );
+export type PeriodToken = BasicToken<"period">;
+const periodTokenParser = allowNewlineSpaceRight(
+  allowSpaceLeft(parserForBasicToken<"period">("period", "."))
+);
 export type OpenBracketToken = BasicToken<"openbracket">;
 const openBracketTokenParser = allowNewlineSpaceRight(
   allowSpaceLeft(parserForBasicToken<"openbracket">("openbracket", "<"))
@@ -187,6 +191,7 @@ export type Token =
   | ShiftInToken
   | ShiftOutToken
   | CommaToken
+  | PeriodToken
   | OpenBracketToken
   | CloseBracketToken
   | NameToken;
@@ -213,6 +218,7 @@ export const lexer: Parser<string, Token[]> = seq(spaces, () =>
         quotedStringTokenParser,
         colonTokenParser,
         commaTokenParser,
+        periodTokenParser,
         openBracketTokenParser,
         closeBracketTokenParser,
 

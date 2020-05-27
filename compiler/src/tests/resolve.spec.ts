@@ -323,7 +323,7 @@ describe("Resolving", function () {
   });
 
   describe("Multiple Files", function () {
-    it.skip("resolves vars in oneFile correctly", function () {
+    it.skip("resolves vars in party correctly", function () {
       const output = load("../data/resolve/party/main.sur");
       chai.assert.deepEqual(output, {});
     });
@@ -332,6 +332,13 @@ describe("Resolving", function () {
   describe("Circular Includes", function () {
     it.skip("resolves vars in oneFile correctly", function () {
       const output = load("../data/resolve/circular/a.sur");
+      chai.assert.deepEqual({}, output);
+    });
+  });
+
+  describe("Service descriptors", function () {
+    it.skip("resolves vars in foodDelivery correctly", function () {
+      const output = load("../data/resolve/fooddelivery/order.sur");
       chai.assert.deepEqual({}, output);
     });
   });
