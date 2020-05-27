@@ -1,0 +1,15 @@
+service RestaurantService:
+  struct Meal:
+    id: integer
+    title: string
+    price: integer
+
+  struct Restaurant:
+    id: integer
+    name: string
+    address: string
+    menu: List<Meal>
+
+  rpc GetRestauraunts:
+    request: boolean
+    response: List<Restauraunt>

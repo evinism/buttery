@@ -1,0 +1,4 @@
+struct User:
+  id: integer
+  name: string
+  pronouns: string

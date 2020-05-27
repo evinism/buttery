@@ -1,0 +1,16 @@
+import RestaurantService from "./restaurant.sur"
+import User from "./user.sur"
+
+service OrderService:
+  struct Order:
+    restaurantId: integer
+    mealId: integer
+    timeOfOrder: integer
+
+  rpc PlaceOrder:
+    request: Order
+    response: boolean
+
+  rpc GetRestaurauntMeals:
+    request: empty
+    response: List<RestaurantService.Meal>
