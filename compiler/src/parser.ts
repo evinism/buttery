@@ -97,11 +97,6 @@ export const fieldParser: Parser<Token, Field<Reference>> = seq(
     )
 );
 
-export const fieldLineParser = seq(
-  matchToken<NewLineToken>("newline"),
-  () => fieldParser
-);
-
 const indentingDeclarationParser = (
   keywordTokenType: Token["token"],
   innerParser: (
@@ -140,50 +135,39 @@ export const structParser = indentingDeclarationParser("struct", ({ name }) =>
   })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser))
 );
 
-const rpcDeclParser = seq(matchToken<RPCToken>("rpc"), () =>
-  apFirst(matchToken<ColonToken>("colon"))(matchToken<NameToken>("name"))
-);
+export const rpcParser = indentingDeclarationParser("rpc", ({ name }) => {
+  return map((fields: Array<Field<Reference>>) => {
+    // Bad way of ensuring required fields!
+    const request = fields.find((field) => field.name === "request");
+    const response = fields.find((field) => field.name === "response");
+    if (!request) {
+      throw "Missing request!";
+    }
+    if (!response) {
+      throw "Missing response!";
+    }
+    if (fields.length > 2) {
+      throw "Too many fields!";
+    }
 
-export const rpcParser: Parser<Token, VariableDeclaration<Reference>> = seq(
-  rpcDeclParser,
-  ({ name }) => {
-    return map((fields: Array<Field<Reference>>) => {
-      // Bad way of ensuring required fields!
-      const request = fields.find((field) => field.name === "request");
-      const response = fields.find((field) => field.name === "response");
-      if (!request) {
-        throw "Missing request!";
-      }
-      if (!response) {
-        throw "Missing response!";
-      }
-      if (fields.length > 2) {
-        throw "Too many fields!";
-      }
+    const rpc: RPC<Reference> = {
+      type: "rpc",
+      name: name,
+      request,
+      response,
+    };
 
-      const rpc: RPC<Reference> = {
-        type: "rpc",
-        name: name,
-        request,
-        response,
-      };
+    const decl: VariableDeclaration<Reference> = {
+      statementType: "declaration",
+      name,
+      value: rpc,
+    };
+    return decl;
+  })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser));
+});
 
-      const decl: VariableDeclaration<Reference> = {
-        statementType: "declaration",
-        name,
-        value: rpc,
-      };
-      return decl;
-    })(many(fieldLineParser));
-  }
-);
-
-const channelDeclParser = seq(matchToken<ChannelToken>("channel"), () =>
-  apFirst(matchToken<ColonToken>("colon"))(matchToken<NameToken>("name"))
-);
-
-export const channelParser: Parser<Token, VariableDeclaration<Reference>> = seq(
-  channelDeclParser,
+export const channelParser = indentingDeclarationParser(
+  "channel",
   ({ name }) => {
     return map((fields: Array<Field<Reference>>) => {
       // Bad way of ensuring required fields!
@@ -212,7 +196,7 @@ export const channelParser: Parser<Token, VariableDeclaration<Reference>> = seq(
         value: rpc,
       };
       return decl;
-    })(many(fieldLineParser));
+    })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser));
   }
 );
 
