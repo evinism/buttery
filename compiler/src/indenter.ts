@@ -30,7 +30,14 @@ export function indentify(tokens: Token[]): Token[] {
       out.push(currentToken);
     }
   }
+
   for (let j = 0; j < indents; j++) {
+    // lol end with a newline char to satisfy the temp shim solution in
+    // parser, which expects that the newline precedes every shift out
+    // TODO: Fix this
+    out.push({
+      token: "newline",
+    });
     out.push({
       token: "shiftOut",
     });

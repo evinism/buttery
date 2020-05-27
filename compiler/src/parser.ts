@@ -43,8 +43,12 @@ import {
   ImportToken,
   QuotedStringToken,
   FromToken,
+  ShiftInToken,
+  ShiftOutToken,
 } from "./lexer";
+import { indentify } from "./indenter";
 import { isRight } from "fp-ts/lib/Either";
+import { isLeft } from "fp-ts/lib/Either";
 
 // Dangerous function because casted
 const matchToken = <T extends BasicToken<unknown>>(tokenName: T["token"]) =>
@@ -94,32 +98,46 @@ export const fieldParser: Parser<Token, Field<Reference>> = seq(
 );
 
 export const fieldLineParser = seq(
-  seq(matchToken<NewLineToken>("newline"), () =>
-    matchToken<IndentToken>("indent")
-  ),
+  matchToken<NewLineToken>("newline"),
   () => fieldParser
 );
 
-const structDeclParser = seq(matchToken<StructToken>("struct"), () =>
-  apFirst(matchToken<ColonToken>("colon"))(matchToken<NameToken>("name"))
-);
+const indentingDeclarationParser = (
+  keywordTokenType: Token["token"],
+  innerParser: (
+    name: NameToken
+  ) => Parser<Token, VariableDeclaration<Reference>>
+) => {
+  const declStartParser = seq(matchToken<Token>(keywordTokenType), () =>
+    apFirst(
+      seq(matchToken<ColonToken>("colon"), () =>
+        seq(matchToken<NewLineToken>("newline"), () =>
+          matchToken<ShiftInToken>("shiftIn")
+        )
+      )
+    )(matchToken<NameToken>("name"))
+  );
 
-export const structParser: Parser<Token, VariableDeclaration<Reference>> = seq(
-  structDeclParser,
-  ({ name }) => {
-    return map((fields: Array<Field<Reference>>) => {
-      const struct: StructType<Reference> = {
-        type: "struct",
-        fields,
-      };
-      const decl: VariableDeclaration<Reference> = {
-        statementType: "declaration",
-        name,
-        value: struct,
-      };
-      return decl;
-    })(many(fieldLineParser));
-  }
+  const declEndParser = seq(matchToken<NewLineToken>("newline"), () =>
+    matchToken<ShiftOutToken>("shiftOut")
+  );
+
+  return apFirst(declEndParser)(seq(declStartParser, innerParser));
+};
+
+export const structParser = indentingDeclarationParser("struct", ({ name }) =>
+  map((fields: Array<Field<Reference>>) => {
+    const struct: StructType<Reference> = {
+      type: "struct",
+      fields,
+    };
+    const decl: VariableDeclaration<Reference> = {
+      statementType: "declaration",
+      name,
+      value: struct,
+    };
+    return decl;
+  })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser))
 );
 
 const rpcDeclParser = seq(matchToken<RPCToken>("rpc"), () =>
@@ -246,10 +264,11 @@ export const fileParser: (
 
 export function badParse(contents: string, fname: string) {
   const tokenized = lexer(stream(contents.split(""), 0));
-  if (!isRight(tokenized)) {
+  if (isLeft(tokenized)) {
     throw "tokenizer error!";
   }
-  return fileParser(fname)(stream(tokenized.right.value, 0));
+  const indented = indentify(tokenized.right.value);
+  return fileParser(fname)(stream(indented, 0));
 }
 
 function parse(contents: string): SurpcFile<Reference> {

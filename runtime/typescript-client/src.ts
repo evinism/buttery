@@ -1,9 +1,7 @@
-interface SurClientConfig {
-  
-}
+interface SurClientConfig {}
 
 class SurClient {
-  constructor(baseUrl, ) {
+  constructor(baseUrl) {
     this.baseUrl = baseUrl;
   }
 

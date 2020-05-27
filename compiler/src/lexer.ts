@@ -166,6 +166,11 @@ export const nameTokenParser: Parser<string, NameToken> = map(
   })
 )(stringMany1(alphanum));
 
+// Two special tokens to switch from contextful to context-free grammar.
+// These should replace all indents after going through indenter.
+export type ShiftInToken = BasicToken<"shiftIn">;
+export type ShiftOutToken = BasicToken<"shiftOut">;
+
 export type Token =
   | ImportToken
   | FromToken
@@ -179,6 +184,8 @@ export type Token =
   | ColonToken
   | NewLineToken
   | IndentToken
+  | ShiftInToken
+  | ShiftOutToken
   | CommaToken
   | OpenBracketToken
   | CloseBracketToken

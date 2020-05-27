@@ -20,6 +20,7 @@ import {
 } from "../ast";
 import { eof, seq, Parser, apFirst, map, sat } from "parser-ts/lib/Parser";
 import { Token, lexer } from "../lexer";
+import { indentify } from "../indenter";
 
 function eoffed<I, T>(parser: Parser<I, T>) {
   return apFirst(eof<I>())(parser);
@@ -34,7 +35,8 @@ const buildTestParser = <T>(parser: Parser<Token, T>) => (str: string) => {
   if (!isRight(tokens)) {
     throw "lexer error!";
   }
-  return eoffed(parser)(stream(tokens.right.value, 0));
+  const indented = indentify(tokens.right.value);
+  return eoffed(parser)(stream(indented, 0));
 };
 
 describe("Parsing", function () {
@@ -175,11 +177,6 @@ describe("Parsing", function () {
         },
       };
       chai.assert.deepEqual(ref, targetRef);
-    });
-
-    it("should fail parsing an unindented line", function () {
-      const parsed = parseField("myFieldName: number");
-      assert(isLeft(parsed));
     });
 
     it("should fail parsing a line with multiple optional decls", function () {
