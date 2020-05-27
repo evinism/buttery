@@ -113,9 +113,7 @@ const indentingDeclarationParser = (
     )(matchToken<NameToken>("name"))
   );
 
-  const declEndParser = seq(matchToken<NewLineToken>("newline"), () =>
-    matchToken<ShiftOutToken>("shiftOut")
-  );
+  const declEndParser = matchToken<ShiftOutToken>("shiftOut");
 
   return apFirst(declEndParser)(seq(declStartParser, innerParser));
 };
@@ -252,6 +250,7 @@ export function badParse(contents: string, fname: string) {
     throw "tokenizer error!";
   }
   const indented = indentify(tokenized.right.value);
+  console.log(JSON.stringify(indented, null, 2));
   return fileParser(fname)(stream(indented, 0));
 }
 
