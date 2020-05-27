@@ -10,7 +10,7 @@ import {
 } from "./ast";
 import path from "path";
 
-import { badParse } from "./parse";
+import { badParse } from "./parser";
 
 export function load(
   file: string,

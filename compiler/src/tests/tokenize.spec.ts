@@ -1,6 +1,6 @@
 import * as chai from "chai";
 import fs from "fs";
-import { tokenize, nameTokenParser } from "../tokenize";
+import { lexer, nameTokenParser } from "../lexer";
 import { stream } from "parser-ts/lib/Stream";
 import assert from "assert";
 import { isRight } from "fp-ts/lib/Either";
@@ -8,7 +8,7 @@ import { isRight } from "fp-ts/lib/Either";
 describe("Tokenizing", function () {
   describe("Featureful file", function () {
     it("allows whitespace before newlines", function () {
-      const parsed = tokenize(stream("hi  \n \n\n \nhi".split(""), 0));
+      const parsed = lexer(stream("hi  \n \n\n \nhi".split(""), 0));
 
       assert(isRight(parsed));
       const output = parsed.right.value;
@@ -31,7 +31,7 @@ describe("Tokenizing", function () {
     });
 
     it.skip("ignores whitespace at end of file", function () {
-      const parsed = tokenize(stream("  ".split(""), 0));
+      const parsed = lexer(stream("  ".split(""), 0));
 
       assert(isRight(parsed));
       const output = parsed.right.value;
@@ -46,7 +46,7 @@ describe("Tokenizing", function () {
     });
 
     /*it.skip("correctly parses names", function () {
-      const parsed = tokenize(stream("import Bleep".split(""), 0));
+      const parsed = lexer(stream("import Bleep".split(""), 0));
 
       assert(isRight(parsed));
       const output = parsed.right.value;
@@ -63,10 +63,10 @@ describe("Tokenizing", function () {
 
     it("resolves tokens in party main correctly", function () {
       const contents = fs.readFileSync(
-        "./data/resolve/party/main.sur",
+        "../data/resolve/party/main.sur",
         "utf-8"
       );
-      const parsed = tokenize(stream(contents.split(""), 0));
+      const parsed = lexer(stream(contents.split(""), 0));
 
       assert(isRight(parsed));
       const output = parsed.right.value;
@@ -131,9 +131,9 @@ describe("Tokenizing", function () {
       chai.assert.deepEqual(expected, output);
     });
 
-    it("tokenizes references with lots of spaces everywhere", function () {
+    it("lexer references with lots of spaces everywhere", function () {
       const contents = "List  < Map <string  ,Cat  > >";
-      const parsed = tokenize(stream(contents.split(""), 0));
+      const parsed = lexer(stream(contents.split(""), 0));
 
       assert(isRight(parsed));
       const output = parsed.right.value;
@@ -173,9 +173,9 @@ describe("Tokenizing", function () {
       chai.assert.deepEqual(expected, output);
     });
 
-    it("tokenizes nested and multiple items", function () {
+    it("lexer nested and multiple items", function () {
       const contents = "field: Map<number, List<Dog>>";
-      const parsed = tokenize(stream(contents.split(""), 0));
+      const parsed = lexer(stream(contents.split(""), 0));
 
       assert(isRight(parsed));
       const output = parsed.right.value;
@@ -222,9 +222,9 @@ describe("Tokenizing", function () {
       chai.assert.deepEqual(expected, output);
     });
 
-    it("correctly tokenizes a simple field", function () {
+    it("correctly lexes a simple field", function () {
       const contents = "myFieldName: number";
-      const parsed = tokenize(stream(contents.split(""), 0));
+      const parsed = lexer(stream(contents.split(""), 0));
 
       assert(isRight(parsed));
       const output = parsed.right.value;
@@ -244,9 +244,9 @@ describe("Tokenizing", function () {
       chai.assert.deepEqual(expected, output);
     });
 
-    it("correctly tokenizes a simple struct", function () {
+    it("correctly lexes a simple struct", function () {
       const contents = "struct Hello:\n  fat: Dog\n  cat: Dog";
-      const parsed = tokenize(stream(contents.split(""), 0));
+      const parsed = lexer(stream(contents.split(""), 0));
 
       assert(isRight(parsed));
       const output = parsed.right.value;
@@ -298,12 +298,12 @@ describe("Tokenizing", function () {
       ];
       chai.assert.deepEqual(expected, output);
     });
-    it("correctly tokenizes an import with odd newlines", function () {
+    it("correctly lexes an import with odd newlines", function () {
       const contents = `import
   Bleep,
   Bleep2
 from "./this_path.sur"`;
-      const parsed = tokenize(stream(contents.split(""), 0));
+      const parsed = lexer(stream(contents.split(""), 0));
 
       assert(isRight(parsed));
       const output = parsed.right.value;

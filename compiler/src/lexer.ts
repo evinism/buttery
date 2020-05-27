@@ -188,7 +188,7 @@ const anyOf = <S, T>(parsers: Array<Parser<S, T>>) => {
   return parsers.reduceRight((acc, cur) => either(cur, () => acc), fail());
 };
 
-export const tokenize: Parser<string, Token[]> = seq(spaces, () =>
+export const lexer: Parser<string, Token[]> = seq(spaces, () =>
   apFirst(seq(spaces, () => eof<string>()))(
     many(
       anyOf<string, Token>([

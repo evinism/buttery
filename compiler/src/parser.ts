@@ -9,14 +9,6 @@ import {
   ImportStatement,
   Statement,
 } from "./ast";
-import { alphanum, char } from "parser-ts/lib/char";
-import {
-  string,
-  spaces1,
-  spaces,
-  many1 as stringMany1,
-  doubleQuotedString,
-} from "parser-ts/lib/string";
 import {
   seq,
   sepBy,
@@ -27,17 +19,15 @@ import {
   apFirst,
   many,
   fail,
-  many1,
   sat,
   either,
   eof,
 } from "parser-ts/lib/Parser";
 import { getMonoid } from "fp-ts/lib/Array";
-import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
 import { stream } from "parser-ts/lib/Stream";
 import {
   Token,
-  tokenize,
+  lexer,
   BasicToken,
   NameToken,
   OpenBracketToken,
@@ -53,7 +43,7 @@ import {
   ImportToken,
   QuotedStringToken,
   FromToken,
-} from "./tokenize";
+} from "./lexer";
 import { isRight } from "fp-ts/lib/Either";
 
 // Dangerous function because casted
@@ -255,7 +245,7 @@ export const fileParser: (
   );
 
 export function badParse(contents: string, fname: string) {
-  const tokenized = tokenize(stream(contents.split(""), 0));
+  const tokenized = lexer(stream(contents.split(""), 0));
   if (!isRight(tokenized)) {
     throw "tokenizer error!";
   }

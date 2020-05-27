@@ -7,7 +7,7 @@ import {
   channelParser,
   importParser,
   fileParser,
-} from "../parse";
+} from "../parser";
 import { stream } from "parser-ts/lib/Stream";
 import { isRight, isLeft } from "fp-ts/lib/Either";
 import * as chai from "chai";
@@ -19,7 +19,7 @@ import {
   SurpcFile,
 } from "../ast";
 import { eof, seq, Parser, apFirst, map, sat } from "parser-ts/lib/Parser";
-import { Token, tokenize } from "../tokenize";
+import { Token, lexer } from "../lexer";
 
 function eoffed<I, T>(parser: Parser<I, T>) {
   return apFirst(eof<I>())(parser);
@@ -30,9 +30,9 @@ function eoffed<I, T>(parser: Parser<I, T>) {
 ) => parser(stream(str.split(""), 0));*/
 
 const buildTestParser = <T>(parser: Parser<Token, T>) => (str: string) => {
-  const tokens = eoffed(tokenize)(stream(str.split(""), 0));
+  const tokens = eoffed(lexer)(stream(str.split(""), 0));
   if (!isRight(tokens)) {
-    throw "tokenizer error!";
+    throw "lexer error!";
   }
   return eoffed(parser)(stream(tokens.right.value, 0));
 };

@@ -6,7 +6,7 @@ import * as chai from "chai";
 describe("Generation", function () {
   describe("Typescript", function () {
     it("Types should be generated", function () {
-      const ast = load("./data/resolve/party/main.sur");
+      const ast = load("../data/resolve/party/main.sur");
       const bleep = gen(ast);
       const expected = fs.readFileSync(
         "./src/generators/typescript-client/tests/expected.ts.data",
