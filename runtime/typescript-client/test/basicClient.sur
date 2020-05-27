@@ -1,0 +1,11 @@
+struct Person:
+  name: string
+  friends List<string>
+
+struct HatRecommendation:
+  hatType: string
+  score: double
+
+rpc Cat:
+  request: Person
+  response: List<HatRecommendation>
