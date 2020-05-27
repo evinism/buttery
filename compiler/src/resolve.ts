@@ -98,6 +98,9 @@ function resolveRef(
   if (resolvedDecl.value.type === "rpc") {
     throw new Error("Rpcs cannot be referenced as types");
   }
+  if (resolvedDecl.value.type === "service") {
+    throw new Error("Services cannot be referenced as types");
+  }
   return resolvedDecl.value;
 }
 
@@ -114,6 +117,9 @@ function resolveDecl(
 
   const qResolveRev = (ref: Reference) =>
     resolveRef(ref, context, nextReffedVars);
+
+  const qResolveDecl = (ref: VariableDeclaration<Reference>) =>
+    resolveDecl(ref, context, nextReffedVars);
 
   let newVal: VarRHS<Representable>;
   if (decl.value.type === "channel") {
@@ -147,6 +153,14 @@ function resolveDecl(
         optional: response.optional,
         baseType: qResolveRev(response.baseType),
       },
+    };
+  } else if (decl.value.type === "service") {
+    const { type, name, variables } = decl.value;
+
+    newVal = {
+      type,
+      name,
+      variables: variables.map(qResolveDecl),
     };
   } else {
     const { type, fields } = decl.value;

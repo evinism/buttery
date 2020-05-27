@@ -7,6 +7,7 @@ import {
   channelParser,
   importParser,
   fileParser,
+  serviceParser,
 } from "../parser";
 import { stream } from "parser-ts/lib/Stream";
 import { isRight, isLeft } from "fp-ts/lib/Either";
@@ -416,6 +417,70 @@ describe("Parsing", function () {
             name: "outgoing",
             optional: false,
           },
+        },
+      };
+      chai.assert.deepEqual(ref, targetRef);
+    });
+  });
+
+  describe("ServiceParser", () => {
+    const parseService = buildTestParser(serviceParser);
+    it("should correctly parse an rpc decl with complex types", function () {
+      const input = `service HiService:
+  rpc Hello:
+    request: List<Map<string, Dog>>
+    response: bool`;
+
+      const parsed = parseService(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      const ref = parsed.right.value;
+      const targetRef: VariableDeclaration<Reference> = {
+        name: "HiService",
+        statementType: "declaration",
+        value: {
+          name: "HiService",
+          type: "service",
+          variables: [
+            {
+              statementType: "declaration",
+              name: "Hello",
+              value: {
+                type: "rpc",
+                name: "Hello",
+                request: {
+                  baseType: {
+                    ref: "List",
+                    typeArgs: [
+                      {
+                        ref: "Map",
+                        typeArgs: [
+                          {
+                            ref: "string",
+                            typeArgs: [],
+                          },
+                          {
+                            ref: "Dog",
+                            typeArgs: [],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  name: "request",
+                  optional: false,
+                },
+                response: {
+                  baseType: {
+                    ref: "bool",
+                    typeArgs: [],
+                  },
+                  name: "response",
+                  optional: false,
+                },
+              },
+            },
+          ],
         },
       };
       chai.assert.deepEqual(ref, targetRef);

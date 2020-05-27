@@ -8,6 +8,7 @@ import {
   Channel,
   ImportStatement,
   Statement,
+  Service,
 } from "./ast";
 import {
   seq,
@@ -49,6 +50,7 @@ import {
 import { indentify } from "./indenter";
 import { isRight } from "fp-ts/lib/Either";
 import { isLeft } from "fp-ts/lib/Either";
+import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
 
 // Dangerous function because casted
 const matchToken = <T extends BasicToken<unknown>>(tokenName: T["token"]) =>
@@ -97,7 +99,7 @@ export const fieldParser: Parser<Token, Field<Reference>> = seq(
     )
 );
 
-const indentingDeclarationParser = (
+const indentingDeclarationParser = <T>(
   keywordTokenType: Token["token"],
   innerParser: (
     name: NameToken
@@ -198,6 +200,30 @@ export const channelParser = indentingDeclarationParser(
   }
 );
 
+export const serviceParser = indentingDeclarationParser(
+  "service",
+  ({ name }) => {
+    return map((variables: NonEmptyArray<VariableDeclaration<Reference>>) => {
+      const service: Service<Reference> = {
+        type: "service",
+        name,
+        variables,
+      };
+      const decl: VariableDeclaration<Reference> = {
+        statementType: "declaration",
+        name,
+        value: service,
+      };
+      return decl;
+    })(
+      sepBy1(
+        matchToken<NewLineToken>("newline"),
+        either(structParser, () => either(rpcParser, () => channelParser))
+      )
+    );
+  }
+);
+
 export const importParser: Parser<Token, ImportStatement> = seq(
   matchToken<ImportToken>("import"),
   () =>
@@ -250,7 +276,6 @@ export function badParse(contents: string, fname: string) {
     throw "tokenizer error!";
   }
   const indented = indentify(tokenized.right.value);
-  console.log(JSON.stringify(indented, null, 2));
   return fileParser(fname)(stream(indented, 0));
 }
 

@@ -61,7 +61,13 @@ export interface RPC<T> {
   response: Field<T>;
 }
 
-export type VarRHS<T> = Channel<T> | RPC<T> | StructType<T>;
+export interface Service<T> {
+  type: "service";
+  name: string;
+  variables: Array<VariableDeclaration<T>>;
+}
+
+export type VarRHS<T> = Channel<T> | RPC<T> | StructType<T> | Service<T>;
 
 export interface VariableDeclaration<T> {
   statementType: "declaration";

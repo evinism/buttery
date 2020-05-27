@@ -15,7 +15,6 @@ export function indentify(tokens: Token[]): Token[] {
       i > 0 &&
       tokens[i - currentIndentStreak - 1].token === "newline"
     ) {
-      //if (currentIndentStreak) {
       const deltaIndents = currentIndentStreak - indents;
       if (deltaIndents > 0) {
         for (let j = 0; j < deltaIndents; j++) {
@@ -35,7 +34,6 @@ export function indentify(tokens: Token[]): Token[] {
       }
       indents = currentIndentStreak;
       currentIndentStreak = 0;
-      //}
     }
     out.push(currentToken);
   }
