@@ -4,6 +4,7 @@ export enum Primitive {
   double = "double",
   boolean = "boolean",
   string = "string",
+  null = "null",
 }
 
 // Types!!
@@ -21,6 +22,10 @@ interface BooleanType {
 
 interface StringType {
   type: Primitive.string;
+}
+
+interface NullType {
+  type: Primitive.null;
 }
 
 interface MapType<T> {
@@ -90,6 +95,7 @@ export type Representable =
   | DoubleType
   | BooleanType
   | StringType
+  | NullType
   | MapType<Representable>
   | ListType<Representable>
   | StructType<Representable>;

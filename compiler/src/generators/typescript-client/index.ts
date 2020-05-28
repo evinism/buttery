@@ -99,5 +99,7 @@ const genTypeForRepresentable = (rep: Representable): string => {
       return "number";
     case Primitive.string:
       return "string";
+    case Primitive.null:
+      return "null";
   }
 };
