@@ -1,11 +1,9 @@
-import SurClient from './sur.runtime.ts';
+import {SurClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, buildRpcHandler} from './sur.runtime';
 
-export type Slot = {people: Array<{name: string, pronouns: Array<string>}>, startTime: number, endTime: number};
-export type AddToPartyResponse = {success: boolean, time?: {people: Array<{name: string, pronouns: Array<string>}>, startTime: number, endTime: number}};
-export type AddToParty = { request: {name: string, pronouns: Array<string>}, response: {success: boolean, time?: {people: Array<{name: string, pronouns: Array<string>}>, startTime: number, endTime: number}}};
+export const Slot = structNode({people: listNode(structNode({name: stringNode(), pronouns: listNode(stringNode())})), startTime: integerNode(), endTime: integerNode()});
+export const AddToPartyResponse = structNode({success: booleanNode(), time: structNode({people: listNode(structNode({name: stringNode(), pronouns: listNode(stringNode())})), startTime: integerNode(), endTime: integerNode()})});
+export const AddToParty = { request: structNode({name: stringNode(), pronouns: listNode(stringNode())}), response: structNode({success: booleanNode(), time: structNode({people: listNode(structNode({name: stringNode(), pronouns: listNode(stringNode())})), startTime: integerNode(), endTime: integerNode()})})};
 
-class Client extends SurClient {
-  AddToParty(data: {name: string, pronouns: Array<string>}): ({success: boolean, time?: {people: Array<{name: string, pronouns: Array<string>}>, startTime: number, endTime: number}}){
-    this.request(data);
-  }
+export default class Client extends SurClient {
+  AddToParty = buildRpcHandler("AddToParty", AddToParty.request, AddToParty.response);
 }
