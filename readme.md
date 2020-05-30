@@ -28,7 +28,7 @@ Let's say we're building a basic chat app over websockets.
 We can define the interface as follows:
 
 ```
-// chat.sur
+# chat.sur
 service ChatService:
   struct SendMessage:
     timestamp: integer
@@ -108,11 +108,11 @@ Declarations:
 - channel
 
 ```
-// This is a comment!
-// Imports can reference other files
+# This is a comment!
+# Imports can reference other files
 import Bleep, BleepRequest from "./some/file.sur"
 
-// Structs can be declared either outside or within a service
+# Structs can be declared either outside or within a service
 struct People:
   name: string
   areTheyChill: boolean
@@ -127,12 +127,12 @@ service BleepService:
     didItWork: boolean
     wereTheySurprised: boolean
 
-  // for oneoff request / response pairs.
+  # for oneoff request / response pairs.
   rpc Bleep:
     request: BleepRequest
     response: number
 
-  // for 2-way, continuous channel.
+  # for 2-way, continuous channel.
   channel PeopleISee
     incoming: List<integer>,
     outgoing: People

@@ -200,33 +200,39 @@ const anyOf = <S, T>(parsers: Array<Parser<S, T>>) => {
   return parsers.reduceRight((acc, cur) => either(cur, () => acc), fail());
 };
 
-export const lexer: Parser<string, Token[]> = seq(spaces, () =>
-  apFirst(seq(spaces, () => eof<string>()))(
-    many(
-      anyOf<string, Token>([
-        // alphanumeric keywords
-        importTokenParser,
-        fromTokenParser,
-        structTokenParser,
-        oneofTokenParser,
-        serviceTokenParser,
-        rpcTokenParser,
-        channelTokenParser,
-        optionalTokenParser,
+export const lexer: Parser<string, Token[]> = map(
+  // jank way of removing null tokens, which as of yet were unallowed
+  // in my naive scheme of 1 token per parser.
+  (tokens: Array<Token | void>) => tokens.filter(Boolean) as Token[]
+)(
+  seq(spaces, () =>
+    apFirst(seq(spaces, () => eof<string>()))(
+      many(
+        anyOf<string, Token | void>([
+          // alphanumeric keywords
+          importTokenParser,
+          fromTokenParser,
+          structTokenParser,
+          oneofTokenParser,
+          serviceTokenParser,
+          rpcTokenParser,
+          channelTokenParser,
+          optionalTokenParser,
 
-        // non-alphanumeric
-        quotedStringTokenParser,
-        colonTokenParser,
-        commaTokenParser,
-        periodTokenParser,
-        openBracketTokenParser,
-        closeBracketTokenParser,
+          // non-alphanumeric
+          quotedStringTokenParser,
+          colonTokenParser,
+          commaTokenParser,
+          periodTokenParser,
+          openBracketTokenParser,
+          closeBracketTokenParser,
 
-        // alphanumeric, defaults
-        newlineTokenParser,
-        indentParser,
-        nameTokenParser,
-      ])
+          // alphanumeric, defaults
+          newlineTokenParser,
+          indentParser,
+          nameTokenParser,
+        ])
+      )
     )
   )
 );

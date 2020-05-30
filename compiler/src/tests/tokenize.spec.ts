@@ -333,4 +333,49 @@ from "./this_path.sur"`;
       chai.assert.deepEqual(expected, output);
     });
   });
+
+  it("correctly ignores comments", function () {
+    const contents = "myFieldName: number # lololol comment time";
+    const parsed = lexer(stream(contents.split(""), 0));
+
+    assert(isRight(parsed));
+    const output = parsed.right.value;
+    const expected = [
+      {
+        name: "myFieldName",
+        token: "name",
+      },
+      {
+        token: "colon",
+      },
+      {
+        name: "number",
+        token: "name",
+      },
+    ];
+    chai.assert.deepEqual(expected, output);
+  });
+
+  it("keeps newlines after comments", function () {
+    const contents = `myFieldName: number # lololol comment time
+myFavoriteField: string`;
+    const parsed = lexer(stream(contents.split(""), 0));
+
+    assert(isRight(parsed));
+    const output = parsed.right.value;
+    const expected = [
+      {
+        name: "myFieldName",
+        token: "name",
+      },
+      {
+        token: "colon",
+      },
+      {
+        name: "number",
+        token: "name",
+      },
+    ];
+    chai.assert.deepEqual(expected, output);
+  });
 });
