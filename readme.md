@@ -48,12 +48,23 @@ And consume the generated files in a sample client and server:
 
 ```
 // client.ts on the frontend
+import {ChatService} from './sur/chat.gen.ts'
+
+const client = new ChatService('https://example.com');
+const chatConnection = client.Chat();
+
+chatConnection.onMessage((msg) => {
+  console.log(msg.content);
+});
+
+chatConnection.send({timestamp: Date.now(), content: 'Hello, world!'});
 
 ```
 
 ```
 // routes.ts on the backend (with Express)
 
+// [tbd]
 ```
 
 ### Sample patterns of places where Sur could be used:
@@ -81,6 +92,7 @@ Primitives:
 - boolean
 - double
 - string
+- null
 
 Builtin Types:
 
