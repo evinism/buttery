@@ -37,11 +37,13 @@ export function structNode<R extends {}>(
     if (!validate(r)) {
       return;
     }
-    return entries
-      .map(([key, child]) => {
-        `"${key}": ${child.serialize(r[key])}`;
-      })
-      .join(",");
+    return (
+      "{" +
+      entries
+        .map(([key, child]) => `"${key}": ${child.serialize(r[key])}`)
+        .join(",") +
+      "}"
+    );
   };
 
   const deserialize = (data: string): R => {
@@ -64,9 +66,13 @@ export function listNode<R>(valueDefn: SurNode<R>): SurNode<R[]> {
     if (!Array.isArray(toValidate)) {
       return false;
     }
-    return !!(toValidate as unknown[]).find(
-      (entry) => !valueDefn.validate(entry)
-    );
+
+    for (let entry of toValidate as unknown[]) {
+      if (!valueDefn.validate(entry)) {
+        return false;
+      }
+    }
+    return true;
   };
   const serialize = (r: R[]) => {
     if (!validate(r)) {
@@ -89,9 +95,11 @@ export function listNode<R>(valueDefn: SurNode<R>): SurNode<R[]> {
   };
 }
 
+type KeyType = "string" | "integer" | "double";
+
 export function mapNode<R>(
   valueDefn: SurNode<R>,
-  keyType: Primitive
+  keyType: KeyType
 ): SurNode<{ [key: string]: R }> {
   throw "Not implemented!";
 }
@@ -168,7 +176,7 @@ export function stringNode(): SurNode<string> {
     if (!validate(r)) {
       return;
     }
-    return r.toString();
+    return JSON.stringify(r.toString());
   };
 
   const deserialize = (data: string): string => {
@@ -258,8 +266,9 @@ export function buildRpcHandler<Req, Res>(
   requestNode: SurNode<Req>,
   responseNode: SurNode<Res>
 ) {
-  return (value: Req): Promise<Res> =>
-    this.request(requestName, value, requestNode, responseNode);
+  return function Request(value: Req): Promise<Res> {
+    return this.request(requestName, value, requestNode, responseNode);
+  };
 }
 
 export class SurClient {
@@ -283,6 +292,8 @@ export class SurClient {
     if (!body) {
       throw "Unacceptable Body Type";
     }
-    return this.requester(targetUrl, body).then(responseNode.deserialize);
+    return this.requester(targetUrl, body).then((result) => {
+      return responseNode.deserialize(result);
+    });
   }
 }

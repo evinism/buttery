@@ -19,7 +19,7 @@ export const gen: CodeGenerator = (file) => {
 
 ${nodeDecls}
 
-class Client extends SurClient {
+export default class Client extends SurClient {
 ${methodDecls}
 }
 `;
@@ -91,7 +91,8 @@ const genTypeForRepresentable = (rep: Representable): string => {
     case "struct":
       const structString = rep.fields
         .map((fields) => {
-          const optionalStr = fields.optional ? "?" : "";
+          // Not working right now!
+          const optionalStr = ""; //fields.optional ? "?" : "";
           const val = genTypeForRepresentable(fields.baseType);
           return `${fields.name}${optionalStr}: ${val}`;
         })
