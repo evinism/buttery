@@ -1,4 +1,4 @@
-import SurClient from 'surpc-client';
+import SurClient from './sur.runtime.ts';
 
 export type Slot = {people: Array<{name: string, pronouns: Array<string>}>, startTime: number, endTime: number};
 export type AddToPartyResponse = {success: boolean, time?: {people: Array<{name: string, pronouns: Array<string>}>, startTime: number, endTime: number}};

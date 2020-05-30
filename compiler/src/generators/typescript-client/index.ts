@@ -6,6 +6,7 @@ import {
   Primitive,
 } from "../../ast";
 import path from "path";
+import fs from "fs";
 
 export const gen: CodeGenerator = (file) => {
   const typeDecls = file.variables.map(generateTypeDeclaration).join("\n");
@@ -14,7 +15,7 @@ export const gen: CodeGenerator = (file) => {
     .filter(Boolean)
     .join("\n");
 
-  const content = `import SurClient from 'surpc-client';
+  const content = `import SurClient from './sur.runtime.ts';
 
 ${typeDecls}
 
@@ -25,8 +26,15 @@ ${methodDecls}
 
   return [
     {
-      fileName: `${path.basename(file.path)}.ts`,
+      fileName: `${path.basename(file.path)}.gen.ts`,
       content,
+    },
+    {
+      fileName: "sur_runtime.ts",
+      content: fs.readFileSync(
+        "./src/generators/typescript-client/sur_runtime.ts",
+        "utf8"
+      ),
     },
   ];
 };
