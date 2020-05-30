@@ -1,7 +1,3 @@
-import { array } from "fp-ts/lib/Array";
-import { Primitive } from "../../ast";
-
-//
 interface SurNode<R> {
   validate: (toValidate: unknown) => toValidate is R;
   serialize: (r: R) => string | undefined;
@@ -257,6 +253,15 @@ const defaultRequester = (url, body) =>
     body,
   }).then((response) => response.text());
 
+export function buildRpcHandler<Req, Res>(
+  requestName: string,
+  requestNode: SurNode<Req>,
+  responseNode: SurNode<Res>
+) {
+  return (value: Req): Promise<Res> =>
+    this.request(requestName, value, requestNode, responseNode);
+}
+
 export class SurClient {
   constructor(baseUrl: string, surClientConfig?: SurClientConfig) {
     this.baseUrl = baseUrl;
@@ -267,12 +272,12 @@ export class SurClient {
   surpcApiNamespace = "sur-api";
   requester: (url: string, body: string) => Promise<string>;
 
-  request<A, N, T>(
+  request<Req, Res>(
     requestName: string,
-    requestValue: A,
-    requestNode: SurNode<A>,
-    responseNode: SurNode<T>
-  ): Promise<T> {
+    requestValue: Req,
+    requestNode: SurNode<Req>,
+    responseNode: SurNode<Res>
+  ): Promise<Res> {
     const targetUrl = `${this.baseUrl}/${this.surpcApiNamespace}/${requestName}`;
     const body = requestNode.serialize(requestValue);
     if (!body) {

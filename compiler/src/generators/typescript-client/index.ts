@@ -9,15 +9,15 @@ import path from "path";
 import fs from "fs";
 
 export const gen: CodeGenerator = (file) => {
-  const typeDecls = file.variables.map(generateTypeDeclaration).join("\n");
+  const nodeDecls = file.variables.map(generateNodeDeclaration).join("\n");
   const methodDecls = file.variables
     .map(generateClassMethod)
     .filter(Boolean)
     .join("\n");
 
-  const content = `import SurClient from './sur.runtime.ts';
+  const content = `import {SurClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, buildRpcHandler} from './sur.runtime';
 
-${typeDecls}
+${nodeDecls}
 
 class Client extends SurClient {
 ${methodDecls}
@@ -30,9 +30,9 @@ ${methodDecls}
       content,
     },
     {
-      fileName: "sur_runtime.ts",
+      fileName: "sur.runtime.ts",
       content: fs.readFileSync(
-        "./src/generators/typescript-client/sur_runtime.ts",
+        "./src/generators/typescript-client/sur.runtime.ts",
         "utf8"
       ),
     },
@@ -40,7 +40,7 @@ ${methodDecls}
 };
 
 const generateClassMethod = (decl: VariableDeclaration<Representable>) => {
-  // Lol this should be
+  // Lol this should be better.
   if (decl.value.type === "struct") {
     return "";
   }
@@ -48,18 +48,16 @@ const generateClassMethod = (decl: VariableDeclaration<Representable>) => {
   if (rpcOrChannel.type === "rpc") {
     const reqType = genTypeForRepresentable(rpcOrChannel.request.baseType);
     const resType = genTypeForRepresentable(rpcOrChannel.response.baseType);
-    return `  ${decl.name}(data: ${reqType}): (${resType}){
-    this.request(data);
-  }`;
+    return `  ${decl.name} = buildRpcHandler("${decl.name}", ${rpcOrChannel.name}.request, ${rpcOrChannel.name}.response);`;
   }
 };
 
-const generateTypeDeclaration = (
+const generateNodeDeclaration = (
   varDecl: VariableDeclaration<Representable>
 ): string => {
   const { name, value: rhs } = varDecl;
   const rhsType = genTypeForRhs(rhs);
-  return `export type ${name} = ${rhsType};`;
+  return `export const ${name} = ${rhsType};`;
 };
 
 const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
@@ -83,13 +81,13 @@ const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
 const genTypeForRepresentable = (rep: Representable): string => {
   switch (rep.type) {
     case "list":
-      return `Array<${genTypeForRepresentable(rep.value)}>`;
+      return `listNode(${genTypeForRepresentable(rep.value)})`;
     case "map":
       const primRef = {
         type: rep.key,
       };
       const val = genTypeForRepresentable(rep.value);
-      return `{[key: ${genTypeForRepresentable(primRef)}]: ${val}}`;
+      throw "Not yet implemented!";
     case "struct":
       const structString = rep.fields
         .map((fields) => {
@@ -98,16 +96,16 @@ const genTypeForRepresentable = (rep: Representable): string => {
           return `${fields.name}${optionalStr}: ${val}`;
         })
         .join(", ");
-      return `{${structString}}`;
+      return `structNode({${structString}})`;
     case Primitive.boolean:
-      return "boolean";
+      return "booleanNode()";
     case Primitive.double:
-      return "number";
+      return "doubleNode()";
     case Primitive.integer:
-      return "number";
+      return "integerNode()";
     case Primitive.string:
-      return "string";
+      return "stringNode()";
     case Primitive.null:
-      return "null";
+      return "nullNode()";
   }
 };
