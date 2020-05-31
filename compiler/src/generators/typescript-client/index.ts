@@ -31,10 +31,9 @@ ${methodDecls}
     },
     {
       fileName: "sur.runtime.ts",
-      content: fs.readFileSync(
-        "./src/generators/typescript-client/sur.runtime.ts",
-        "utf8"
-      ),
+      content:
+        fs.readFileSync("../runtimes/ts-shared/nodes.ts", "utf8") +
+        fs.readFileSync("../runtimes/ts-client/sur.runtime.ts", "utf8"),
     },
   ];
 };

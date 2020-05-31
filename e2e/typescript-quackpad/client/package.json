@@ -1,0 +1,21 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "evin",
+  "license": "MIT",
+  "dependencies": {
+    "@types/websocket": "^1.0.0",
+    "node-fetch": "^2.6.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.3",
+    "websocket": "^1.0.31",
+    "ws": "^7.3.0"
+  },
+  "scripts": {
+    "start": "./gen.sh && ts-node index.ts"
+  },
+  "devDependencies": {
+    "@types/ws": "^7.2.4"
+  }
+}
