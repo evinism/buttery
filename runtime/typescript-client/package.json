@@ -1,8 +1,0 @@
-{
-  "name": "surpc-client",
-  "version": "0.0.1",
-  "description": "TS client for surpc",
-  "main": "index.js",
-  "author": "evinism",
-  "license": "MIT"
-}

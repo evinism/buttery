@@ -18,11 +18,6 @@ class Pipe<T> {
   }
 }
 
-interface TwoWayPipe<X, Y> {
-  send: Pipe<X>;
-  recv: Pipe<Y>;
-}
-
 /* Nodes */
 interface SurNode<R> {
   validate: (toValidate: unknown) => toValidate is R;
@@ -282,7 +277,7 @@ type SocketStatus =
   | "connecting"
   | "open"
   | "waitingToRetry"
-  | "error"
+  | "broken"
   | "closed"; // Intentionally closed by user
 
 type SocketEvent =
@@ -329,6 +324,11 @@ class StableSocket {
         this.setStatus("closed");
       }
     };
+    this.socket.onerror = (ev) => {
+      console.warn("Underlying Socket Error");
+      this.setStatus("broken");
+      this.close();
+    };
   }
 
   private setStatus(newStatus: SocketStatus) {
@@ -371,6 +371,47 @@ class StableSocket {
   }
 }
 
+class SurChannelConnection<Send, Recv> {
+  constructor(url, sendNode: SurNode<Send>, recvNode: SurNode<Recv>) {
+    this.sendNode = sendNode;
+    this.recvNode = recvNode;
+    this.stableSocket = new StableSocket(url);
+    this.recvPipe = new Pipe<Recv>();
+    this.broken = false;
+    this.stableSocket.listen((msg) => {
+      if (msg.type === "message") {
+        const deserialized = recvNode.deserialize(msg.data.data);
+        this.recvPipe.fire(deserialized);
+      }
+      if (msg.type === "status" && msg.status === "broken") {
+        this.broken = true;
+      }
+    });
+  }
+
+  sendNode: SurNode<Send>;
+  recvNode: SurNode<Recv>;
+  stableSocket: StableSocket;
+  recvPipe: Pipe<Recv>;
+  broken: boolean;
+
+  send(data: Send) {
+    if (this.broken) {
+      throw "Pipe broken!";
+    }
+    const serialized = this.sendNode.serialize(data);
+    this.stableSocket.send(serialized);
+  }
+
+  listen(listener: (Recv) => unknown) {
+    this.recvPipe.listen(listener);
+  }
+
+  unlisten(listener: (Recv) => unknown) {
+    this.recvPipe.listen(listener);
+  }
+}
+
 /* */
 
 interface SurClientConfig {
@@ -393,13 +434,13 @@ export function buildRpcHandler<Req, Res>(
   };
 }
 
-export function buildChannelHandler<Req, Res>(
+export function buildChannelHandler<Send, Recv>(
   requestName: string,
-  incomingNode: SurNode<Req>,
-  outgoingNode: SurNode<Res>
+  sendNode: SurNode<Send>,
+  recvNode: SurNode<Recv>
 ) {
-  return function Connect(): Promise<Res> {
-    return this.connect(requestName, incomingNode, outgoingNode);
+  return function Connect(): SurChannelConnection<Send, Recv> {
+    return this.connect(requestName, sendNode, recvNode);
   };
 }
 
@@ -429,5 +470,15 @@ export class SurClient {
     });
   }
 
-  connect<Send, Recv>(requestName: string): {};
+  connect<Send, Recv>(
+    requestName: string,
+    sendNode: SurNode<Send>,
+    recvNode: SurNode<Recv>
+  ) {
+    return new SurChannelConnection(
+      `${this.baseUrl}/${this.surpcApiNamespace}/${requestName}`,
+      sendNode,
+      recvNode
+    );
+  }
 }

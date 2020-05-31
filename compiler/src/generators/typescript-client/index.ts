@@ -46,9 +46,10 @@ const generateClassMethod = (decl: VariableDeclaration<Representable>) => {
   }
   const rpcOrChannel = decl.value;
   if (rpcOrChannel.type === "rpc") {
-    const reqType = genTypeForRepresentable(rpcOrChannel.request.baseType);
-    const resType = genTypeForRepresentable(rpcOrChannel.response.baseType);
     return `  ${decl.name} = buildRpcHandler("${decl.name}", ${rpcOrChannel.name}.request, ${rpcOrChannel.name}.response);`;
+  }
+  if (rpcOrChannel.type === "channel") {
+    return `  ${decl.name} = buildChannelHandler("${decl.name}", ${rpcOrChannel.name}.incoming, ${rpcOrChannel.name}.outgoing);`;
   }
 };
 
