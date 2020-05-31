@@ -1,3 +1,29 @@
+/* Utils */
+class Pipe<T> {
+  listeners: Array<(arg: T) => unknown> = [];
+  fire(arg: T) {
+    this.listeners.forEach((listener) => {
+      listener(arg);
+    });
+  }
+
+  listen(subscriber: (arg: T) => unknown) {
+    this.listeners.push(subscriber);
+  }
+
+  unlisten(toUnlisten: (arg: T) => unknown) {
+    this.listeners = this.listeners.filter(
+      (listener) => listener !== toUnlisten
+    );
+  }
+}
+
+interface TwoWayPipe<X, Y> {
+  send: Pipe<X>;
+  recv: Pipe<Y>;
+}
+
+/* Nodes */
 interface SurNode<R> {
   validate: (toValidate: unknown) => toValidate is R;
   serialize: (r: R) => string | undefined;
@@ -251,6 +277,102 @@ export function nullNode(): SurNode<boolean> {
   };
 }
 
+/* === End nodes, begin core runtime abstractions === */
+type SocketStatus =
+  | "connecting"
+  | "open"
+  | "waitingToRetry"
+  | "error"
+  | "closed"; // Intentionally closed by user
+
+type SocketEvent =
+  | {
+      type: "message";
+      data: MessageEvent;
+    }
+  | {
+      type: "status";
+      status: SocketStatus; // Not sure what to put here.
+    };
+
+class StableSocket {
+  constructor(url) {
+    this.eventPipe = new Pipe<SocketEvent>();
+    this.url = url;
+  }
+
+  private retryDelay = 1000; // really should exp backoff here but whatevs.
+  private shouldRetry = true;
+  private url: string;
+  private socket: WebSocket;
+  private eventPipe: Pipe<SocketEvent>;
+  private sendBuffer: string[];
+
+  buildSocket() {
+    this.setStatus("connecting");
+    this.socket = new WebSocket(this.url);
+    this.socket.onmessage = (msg: MessageEvent) => {
+      this.eventPipe.fire({
+        type: "message",
+        data: msg,
+      });
+    };
+    this.socket.onopen = () => {
+      this.setStatus("open");
+      this.flush();
+    };
+    this.socket.onclose = () => {
+      if (this.shouldRetry) {
+        this.setStatus("waitingToRetry");
+        setTimeout(() => this.buildSocket, this.retryDelay);
+      } else {
+        this.setStatus("closed");
+      }
+    };
+  }
+
+  private setStatus(newStatus: SocketStatus) {
+    this.eventPipe.fire({
+      type: "status",
+      status: newStatus,
+    });
+  }
+
+  private flush() {
+    if (this.socket.readyState !== this.socket.OPEN) {
+      return;
+    }
+    for (let msg of this.sendBuffer) {
+      this.socket.send(msg);
+    }
+    this.sendBuffer = [];
+  }
+
+  // i don't know why out of 65536, but it just felt right.
+  //nonce = Math.floor(Math.random() * 65536);
+  send(msg: string) {
+    this.sendBuffer.push(msg);
+    this.flush();
+  }
+
+  listen(listener: (arg: SocketEvent) => unknown) {
+    this.eventPipe.listen(listener);
+  }
+
+  unlisten(listener: (arg: SocketEvent) => unknown) {
+    this.eventPipe.unlisten(listener);
+  }
+
+  close() {
+    // one final flush for last measure!
+    this.flush();
+    this.shouldRetry = false;
+    this.socket.close();
+  }
+}
+
+/* */
+
 interface SurClientConfig {
   requester?: (url: string, body: string) => Promise<string>;
 }
@@ -268,6 +390,16 @@ export function buildRpcHandler<Req, Res>(
 ) {
   return function Request(value: Req): Promise<Res> {
     return this.request(requestName, value, requestNode, responseNode);
+  };
+}
+
+export function buildChannelHandler<Req, Res>(
+  requestName: string,
+  incomingNode: SurNode<Req>,
+  outgoingNode: SurNode<Res>
+) {
+  return function Connect(): Promise<Res> {
+    return this.connect(requestName, incomingNode, outgoingNode);
   };
 }
 
@@ -296,4 +428,6 @@ export class SurClient {
       return responseNode.deserialize(result);
     });
   }
+
+  connect<Send, Recv>(requestName: string): {};
 }
