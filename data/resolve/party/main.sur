@@ -13,3 +13,15 @@ rpc AddToParty:
   request: Person
   response: AddToPartyResponse
 
+struct ChatMessage:
+  time: integer
+  content: string
+
+struct ChatUpdate:
+  time: integer
+  content: string
+  author: Person
+
+channel Chat:
+  incoming: ChatMessage
+  outgoing: ChatUpdate

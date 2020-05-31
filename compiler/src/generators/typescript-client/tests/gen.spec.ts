@@ -26,6 +26,9 @@ describe("Generation", function () {
       child_process.exec(
         "ts-node ./src/generators/typescript-client/tests/driveTests.ts",
         (err, stdout, stderr) => {
+          if (err) {
+            throw err;
+          }
           chai.assert.equal(
             stdout,
             `body: {"name": "toby","pronouns": ["he","him"]}

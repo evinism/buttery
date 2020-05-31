@@ -1,4 +1,7 @@
-interface SurNode<R> {
+// Nodes for Sur
+// Consumed via ts-client and ts-express in a very ad-hoc method.
+
+export interface SurNode<R> {
   validate: (toValidate: unknown) => toValidate is R;
   serialize: (r: R) => string | undefined;
   deserialize: (data: string) => R | undefined;
@@ -249,51 +252,4 @@ export function nullNode(): SurNode<boolean> {
     serialize,
     deserialize,
   };
-}
-
-interface SurClientConfig {
-  requester?: (url: string, body: string) => Promise<string>;
-}
-
-const defaultRequester = (url, body) =>
-  fetch(url, {
-    method: "post",
-    body,
-  }).then((response) => response.text());
-
-export function buildRpcHandler<Req, Res>(
-  requestName: string,
-  requestNode: SurNode<Req>,
-  responseNode: SurNode<Res>
-) {
-  return function Request(value: Req): Promise<Res> {
-    return this.request(requestName, value, requestNode, responseNode);
-  };
-}
-
-export class SurClient {
-  constructor(baseUrl: string, surClientConfig?: SurClientConfig) {
-    this.baseUrl = baseUrl;
-    this.requester = surClientConfig.requester || defaultRequester;
-  }
-
-  baseUrl: string;
-  surpcApiNamespace = "sur-api";
-  requester: (url: string, body: string) => Promise<string>;
-
-  request<Req, Res>(
-    requestName: string,
-    requestValue: Req,
-    requestNode: SurNode<Req>,
-    responseNode: SurNode<Res>
-  ): Promise<Res> {
-    const targetUrl = `${this.baseUrl}/${this.surpcApiNamespace}/${requestName}`;
-    const body = requestNode.serialize(requestValue);
-    if (!body) {
-      throw "Unacceptable Body Type";
-    }
-    return this.requester(targetUrl, body).then((result) => {
-      return responseNode.deserialize(result);
-    });
-  }
 }

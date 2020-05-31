@@ -1,0 +1,8 @@
+{
+  "name": "sur-express",
+  "version": "1.0.0",
+  "description": "Sur runtime for express users",
+  "main": "index.js",
+  "author": "evin",
+  "license": "MIT"
+}

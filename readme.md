@@ -3,7 +3,8 @@
 Sur aims to be a minimalistic cross-language DSL for defining RPCs and channels.
 It's essentially a proto / grpc replacement for modern webstacks, with low
 barrier to entry and easy integration into existing products. Sur is specialized
-for use over http(s), but is technically transport-layer agnostic.
+for use over http(s) and websockets, but should technically be transport-layer
+agnostic.
 
 ### Scope of Sur
 
@@ -19,7 +20,8 @@ Sur aims to provide:
 Sur does not aim to provide:
 
 1. Strong protections against version skew of specific definitions.
-2. Highly size-optimized over-the-wire encodings.
+2. Highly size-optimized over-the-wire encodings -- Sur messages are valid JSON
+3. Support for non-evergreen browsers
 
 ### A simple example:
 
@@ -71,8 +73,8 @@ chatConnection.send({timestamp: Date.now(), content: 'Hello, world!'});
 
 - Backend to backend RPCs
 - Frontend requests to backend services
+- As a wrapper around websockets for server push
 - Easy multiplexing of multiple services through a single host
-- Websockets
 
 ### CLI:
 

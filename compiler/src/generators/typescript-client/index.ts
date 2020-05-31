@@ -15,7 +15,7 @@ export const gen: CodeGenerator = (file) => {
     .filter(Boolean)
     .join("\n");
 
-  const content = `import {SurClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, buildRpcHandler} from './sur.runtime';
+  const content = `import {SurClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, buildRpcHandler, buildChannelHandler} from './sur.runtime';
 
 ${nodeDecls}
 
@@ -31,10 +31,9 @@ ${methodDecls}
     },
     {
       fileName: "sur.runtime.ts",
-      content: fs.readFileSync(
-        "./src/generators/typescript-client/sur.runtime.ts",
-        "utf8"
-      ),
+      content:
+        fs.readFileSync("../runtimes/ts-shared/nodes.ts", "utf8") +
+        fs.readFileSync("../runtimes/ts-client/sur.runtime.ts", "utf8"),
     },
   ];
 };
@@ -46,9 +45,10 @@ const generateClassMethod = (decl: VariableDeclaration<Representable>) => {
   }
   const rpcOrChannel = decl.value;
   if (rpcOrChannel.type === "rpc") {
-    const reqType = genTypeForRepresentable(rpcOrChannel.request.baseType);
-    const resType = genTypeForRepresentable(rpcOrChannel.response.baseType);
     return `  ${decl.name} = buildRpcHandler("${decl.name}", ${rpcOrChannel.name}.request, ${rpcOrChannel.name}.response);`;
+  }
+  if (rpcOrChannel.type === "channel") {
+    return `  ${decl.name} = buildChannelHandler("${decl.name}", ${rpcOrChannel.name}.incoming, ${rpcOrChannel.name}.outgoing);`;
   }
 };
 
