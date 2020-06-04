@@ -31,15 +31,10 @@ ${methodDecls}
     },
     {
       fileName: "sur.runtime.ts",
-      content:
-        fs.readFileSync(
-          __dirname + "/../../../ext/ts-shared/nodes.ts",
-          "utf8"
-        ) +
-        fs.readFileSync(
-          __dirname + "/../../../ext/ts-client/sur.runtime.ts",
-          "utf8"
-        ),
+      content: fs.readFileSync(
+        __dirname + "/../../../ext/ts-client/sur.runtime.ts",
+        "utf8"
+      ),
     },
   ];
 };
