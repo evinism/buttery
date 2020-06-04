@@ -23,6 +23,20 @@ Sur does not aim to provide:
 2. Highly size-optimized over-the-wire encodings -- Sur messages are valid JSON
 3. Support for non-evergreen browsers
 
+### Sur Target Support
+
+Sur Clients
+| Target | Target Description | Support |
+|---|---|---|
+| ts-client | Generated Typescript for use in browsers | Partial |
+| python-client | Generated code for Python Client | None |
+
+Sur Servers
+| Target | Target Description | Support |
+|---|---|---|
+| ts-express | Generated Typescript for use in express backends | None |
+| django | Generated code for use in Django backends | None |
+
 ### A simple example:
 
 Let's say we're building a basic chat app over websockets.
@@ -51,6 +65,7 @@ And consume the generated files in a sample client and server:
 ```
 // client.ts on the frontend
 import {ChatService} from './sur/chat.gen.ts'
+
 
 const client = new ChatService('https://example.com');
 const chatConnection = client.Chat();
