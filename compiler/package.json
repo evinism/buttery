@@ -1,6 +1,6 @@
 {
   "name": "surpc",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Simple, usable RPC codegen CLI",
   "main": "src/cli.ts",
   "author": "evinism@gmail.com",
