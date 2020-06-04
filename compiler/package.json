@@ -1,10 +1,18 @@
 {
   "name": "surpc",
   "version": "0.0.1",
-  "description": "Simple, usable RPC utility",
-  "main": "index.ts",
+  "description": "Simple, usable RPC codegen CLI",
+  "main": "src/cli.ts",
   "author": "evinism@gmail.com",
   "license": "MIT",
+  "bin": {
+    "sur": "./bin/sur.js"
+  },
+  "files": [
+    "lib/**/*",
+    "bin/**/*",
+    "ext/**/*"
+  ],
   "dependencies": {
     "@types/mocha": "^7.0.2",
     "@types/yargs": "^15.0.5",
@@ -21,6 +29,8 @@
   },
   "scripts": {
     "test": "mocha --require ts-node/register",
-    "sur": "ts-node ./index.ts"
+    "sur": "ts-node ./src/cli.ts",
+    "prepack": "tsc",
+    "build": "tsc"
   }
 }

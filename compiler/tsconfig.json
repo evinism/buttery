@@ -2,8 +2,9 @@
   "compilerOptions": {
     "outDir": "./lib",
     "rootDir": "./src",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "module": "commonjs"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "src/**/*.data.ts"]
+  "exclude": ["node_modules", "src/**/*.data.ts", "src/**/*.spec.ts"]
 }

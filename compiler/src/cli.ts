@@ -42,4 +42,5 @@ const argv = yargs
       });
     }
   )
+  .demandCommand()
   .help().argv;
