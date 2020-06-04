@@ -78,6 +78,8 @@ chatConnection.send({timestamp: Date.now(), content: 'Hello, world!'});
 
 ### CLI:
 
+Installation via npm, e.g. `npm install -g surpc`
+
 Sur's CLI is very simple right now:
 
 `sur generate <target environment> -f [files`
