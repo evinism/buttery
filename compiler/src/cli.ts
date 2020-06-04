@@ -1,6 +1,6 @@
 import yargs from "yargs";
-import { generators } from "./src/generators";
-import { generateCmd } from "./src/commands";
+import { generators } from "./generators";
+import { generateCmd } from "./commands";
 
 const argv = yargs
   .scriptName("sur")

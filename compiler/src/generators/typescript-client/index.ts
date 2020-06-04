@@ -32,8 +32,8 @@ ${methodDecls}
     {
       fileName: "sur.runtime.ts",
       content:
-        fs.readFileSync("../runtimes/ts-shared/nodes.ts", "utf8") +
-        fs.readFileSync("../runtimes/ts-client/sur.runtime.ts", "utf8"),
+        fs.readFileSync("./ext/ts-shared/nodes.ts", "utf8") +
+        fs.readFileSync("./ext/ts-client/sur.runtime.ts", "utf8"),
     },
   ];
 };

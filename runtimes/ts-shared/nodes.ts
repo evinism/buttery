@@ -7,6 +7,18 @@ export interface SurNode<R> {
   deserialize: (data: string) => R | undefined;
 }
 
+export interface RPCNode<Req, Res> {
+  name: string;
+  request: SurNode<Req>;
+  response: SurNode<Res>;
+}
+
+export interface ChannelNode<Send, Recv> {
+  name: string;
+  send: Send;
+  recv: Recv;
+}
+
 export function structNode<R extends {}>(
   decl: { [key in keyof R]: SurNode<R[key]> }
 ): SurNode<R> {

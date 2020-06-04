@@ -4,5 +4,10 @@
   "description": "Sur runtime for express users",
   "main": "index.js",
   "author": "evin",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@types/express": "^4.17.6",
+    "@types/node": "^14.0.6",
+    "ws": "^7.3.0"
+  }
 }

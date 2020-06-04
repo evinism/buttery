@@ -11,7 +11,7 @@ describe("Generation", function () {
       const ast = load("../data/resolve/party/main.sur");
       const bleep = gen(ast);
       const expected = fs.readFileSync(
-        "./src/generators/typescript-client/tests/expected.ts.data",
+        "./src/generators/typescript-client/tests/expected.data.ts",
         "utf8"
       );
       chai.assert.equal(expected, bleep[0].content);
@@ -24,7 +24,7 @@ describe("Generation", function () {
         outputDir: "sur-genfiles",
       });
       child_process.exec(
-        "ts-node ./src/generators/typescript-client/tests/driveTests.ts",
+        "ts-node ./src/generators/typescript-client/tests/driveTests.data.ts",
         (err, stdout, stderr) => {
           if (err) {
             throw err;
