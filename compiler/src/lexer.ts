@@ -1,14 +1,3 @@
-import {
-  SurpcFile,
-  StructType,
-  Field,
-  Reference,
-  VariableDeclaration,
-  RPC,
-  Channel,
-  ImportStatement,
-  Statement,
-} from "./ast";
 import { alphanum, char } from "parser-ts/lib/char";
 import {
   string,
@@ -19,9 +8,7 @@ import {
 } from "parser-ts/lib/string";
 import {
   seq,
-  sepBy1,
   map,
-  maybe,
   Parser,
   apFirst,
   many,
@@ -31,10 +18,6 @@ import {
   either,
   eof,
 } from "parser-ts/lib/Parser";
-import { getMonoid } from "fp-ts/lib/Array";
-import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
-import { stream } from "parser-ts/lib/Stream";
-import { apSecond } from "fp-ts/lib/Option";
 
 const spaceRe = /^\s$/;
 

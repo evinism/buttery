@@ -9,9 +9,12 @@ import path from "path";
 import fs from "fs";
 
 export const gen: CodeGenerator = (file) => {
-  const nodeDecls = file.variables.map(generateNodeDeclaration).join("\n");
-  const methodDecls = file.variables
-    .map(generateClassMethod)
+  const nodeDecls = file.variables
+    .map(generateNodeDeclaration)
+    .filter(Boolean)
+    .join("\n");
+  const classDecls = file.variables
+    .map(generateServiceClass)
     .filter(Boolean)
     .join("\n");
 
@@ -19,9 +22,7 @@ export const gen: CodeGenerator = (file) => {
 
 ${nodeDecls}
 
-export default class Client extends SurClient {
-${methodDecls}
-}
+${classDecls}
 `;
 
   return [
@@ -37,6 +38,21 @@ ${methodDecls}
       ),
     },
   ];
+};
+
+const generateServiceClass = (decl: VariableDeclaration<Representable>) => {
+  const value = decl.value;
+  if (!(value.type === "service")) {
+    return "";
+  }
+  const methodDecls = value.variables
+    .map(generateClassMethod)
+    .filter(Boolean)
+    .join("\n");
+  return `export class ${value.name}Client extends SurClient {
+${methodDecls}
+}
+`;
 };
 
 const generateClassMethod = (decl: VariableDeclaration<Representable>) => {
@@ -58,6 +74,9 @@ const generateNodeDeclaration = (
 ): string => {
   const { name, value: rhs } = varDecl;
   const rhsType = genTypeForRhs(rhs);
+  if (rhs.type === "service") {
+    return rhsType;
+  }
   return `export const ${name} = ${rhsType};`;
 };
 
@@ -75,6 +94,15 @@ const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
     }
     case "struct": {
       return genTypeForRepresentable(rhs);
+    }
+    // Right now, services will have a name conflict when vars are defined
+    // inside and outside of services. This will have to change as part of
+    // alpha release
+    case "service": {
+      return rhs.variables
+        .map(generateNodeDeclaration)
+        .filter(Boolean)
+        .join("\n");
     }
   }
 };

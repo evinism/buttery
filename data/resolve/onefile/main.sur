@@ -2,16 +2,17 @@ struct Person:
   name: string
   sonicFast: boolean
 
-rpc FindFastest:
-  request: List<Person>
-  response: Person
-
 struct Message:
   author: Person
   timestamp: integer
   contents: string
   reacts: Map<string, Person>
 
-channel Chat:
-  incoming: Message
-  outgoing: Message
+service OneFileService:
+  rpc FindFastest:
+    request: List<Person>
+    response: Person
+
+  channel Chat:
+    incoming: Message
+    outgoing: Message

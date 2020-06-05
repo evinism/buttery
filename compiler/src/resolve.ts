@@ -20,11 +20,7 @@ export function load(
     throw new Error("Cycle detected between files!");
   }
   const parseResult = badParse(fs.readFileSync(file, "utf8"), file);
-  if (isRight(parseResult)) {
-    return resolve(parseResult.right.value);
-  } else {
-    throw `Failed to parse file ${file}`;
-  }
+  return resolve(parseResult);
 }
 
 function resolveRef(

@@ -5,316 +5,273 @@ describe("Resolving", function () {
   describe("Single File", function () {
     it("resolves vars in oneFile correctly", function () {
       const output = load("../data/resolve/onefile/main.sur");
-
       chai.assert.deepEqual(output, {
-        imports: [],
         path: "../data/resolve/onefile/main.sur",
+        imports: [],
         variables: [
           {
-            name: "Person",
             statementType: "declaration",
+            name: "Person",
             value: {
+              type: "struct",
               fields: [
+                { name: "name", optional: false, baseType: { type: "string" } },
                 {
-                  baseType: {
-                    type: "string",
-                  },
-                  name: "name",
-                  optional: false,
-                },
-                {
-                  baseType: {
-                    type: "boolean",
-                  },
                   name: "sonicFast",
                   optional: false,
+                  baseType: { type: "boolean" },
                 },
               ],
-              type: "struct",
             },
           },
           {
-            name: "FindFastest",
             statementType: "declaration",
-            value: {
-              name: "FindFastest",
-              request: {
-                baseType: {
-                  type: "list",
-                  value: {
-                    fields: [
-                      {
-                        baseType: {
-                          type: "string",
-                        },
-                        name: "name",
-                        optional: false,
-                      },
-                      {
-                        baseType: {
-                          type: "boolean",
-                        },
-                        name: "sonicFast",
-                        optional: false,
-                      },
-                    ],
-                    type: "struct",
-                  },
-                },
-                name: "request",
-                optional: false,
-              },
-              response: {
-                baseType: {
-                  fields: [
-                    {
-                      baseType: {
-                        type: "string",
-                      },
-                      name: "name",
-                      optional: false,
-                    },
-                    {
-                      baseType: {
-                        type: "boolean",
-                      },
-                      name: "sonicFast",
-                      optional: false,
-                    },
-                  ],
-                  type: "struct",
-                },
-                name: "response",
-                optional: false,
-              },
-              type: "rpc",
-            },
-          },
-          {
             name: "Message",
-            statementType: "declaration",
             value: {
+              type: "struct",
               fields: [
                 {
-                  baseType: {
-                    fields: [
-                      {
-                        baseType: {
-                          type: "string",
-                        },
-                        name: "name",
-                        optional: false,
-                      },
-                      {
-                        baseType: {
-                          type: "boolean",
-                        },
-                        name: "sonicFast",
-                        optional: false,
-                      },
-                    ],
-                    type: "struct",
-                  },
                   name: "author",
                   optional: false,
+                  baseType: {
+                    type: "struct",
+                    fields: [
+                      {
+                        name: "name",
+                        optional: false,
+                        baseType: { type: "string" },
+                      },
+                      {
+                        name: "sonicFast",
+                        optional: false,
+                        baseType: { type: "boolean" },
+                      },
+                    ],
+                  },
                 },
                 {
-                  baseType: {
-                    type: "integer",
-                  },
                   name: "timestamp",
                   optional: false,
+                  baseType: { type: "integer" },
                 },
                 {
-                  baseType: {
-                    type: "string",
-                  },
                   name: "contents",
                   optional: false,
+                  baseType: { type: "string" },
                 },
                 {
-                  baseType: {
-                    key: "string",
-                    type: "map",
-                    value: {
-                      fields: [
-                        {
-                          baseType: {
-                            type: "string",
-                          },
-                          name: "name",
-                          optional: false,
-                        },
-                        {
-                          baseType: {
-                            type: "boolean",
-                          },
-                          name: "sonicFast",
-                          optional: false,
-                        },
-                      ],
-                      type: "struct",
-                    },
-                  },
                   name: "reacts",
                   optional: false,
+                  baseType: {
+                    type: "map",
+                    key: "string",
+                    value: {
+                      type: "struct",
+                      fields: [
+                        {
+                          name: "name",
+                          optional: false,
+                          baseType: { type: "string" },
+                        },
+                        {
+                          name: "sonicFast",
+                          optional: false,
+                          baseType: { type: "boolean" },
+                        },
+                      ],
+                    },
+                  },
                 },
               ],
-              type: "struct",
             },
           },
           {
-            name: "Chat",
             statementType: "declaration",
+            name: "OneFileService",
             value: {
-              incoming: {
-                baseType: {
-                  fields: [
-                    {
-                      baseType: {
-                        fields: [
-                          {
-                            baseType: {
-                              type: "string",
-                            },
-                            name: "name",
-                            optional: false,
-                          },
-                          {
-                            baseType: {
-                              type: "boolean",
-                            },
-                            name: "sonicFast",
-                            optional: false,
-                          },
-                        ],
-                        type: "struct",
-                      },
-                      name: "author",
+              type: "service",
+              name: "OneFileService",
+              variables: [
+                {
+                  statementType: "declaration",
+                  name: "FindFastest",
+                  value: {
+                    type: "rpc",
+                    name: "FindFastest",
+                    request: {
+                      name: "request",
                       optional: false,
-                    },
-                    {
                       baseType: {
-                        type: "integer",
-                      },
-                      name: "timestamp",
-                      optional: false,
-                    },
-                    {
-                      baseType: {
-                        type: "string",
-                      },
-                      name: "contents",
-                      optional: false,
-                    },
-                    {
-                      baseType: {
-                        key: "string",
-                        type: "map",
+                        type: "list",
                         value: {
+                          type: "struct",
                           fields: [
                             {
-                              baseType: {
-                                type: "string",
-                              },
                               name: "name",
                               optional: false,
+                              baseType: { type: "string" },
                             },
                             {
-                              baseType: {
-                                type: "boolean",
-                              },
                               name: "sonicFast",
                               optional: false,
+                              baseType: { type: "boolean" },
                             },
                           ],
-                          type: "struct",
                         },
                       },
-                      name: "reacts",
-                      optional: false,
                     },
-                  ],
-                  type: "struct",
-                },
-                name: "incoming",
-                optional: false,
-              },
-              name: "Chat",
-              outgoing: {
-                baseType: {
-                  fields: [
-                    {
+                    response: {
+                      name: "response",
+                      optional: false,
                       baseType: {
+                        type: "struct",
                         fields: [
                           {
-                            baseType: {
-                              type: "string",
-                            },
                             name: "name",
                             optional: false,
+                            baseType: { type: "string" },
                           },
                           {
-                            baseType: {
-                              type: "boolean",
-                            },
                             name: "sonicFast",
                             optional: false,
+                            baseType: { type: "boolean" },
                           },
                         ],
-                        type: "struct",
                       },
-                      name: "author",
-                      optional: false,
                     },
-                    {
-                      baseType: {
-                        type: "integer",
-                      },
-                      name: "timestamp",
-                      optional: false,
-                    },
-                    {
-                      baseType: {
-                        type: "string",
-                      },
-                      name: "contents",
-                      optional: false,
-                    },
-                    {
-                      baseType: {
-                        key: "string",
-                        type: "map",
-                        value: {
-                          fields: [
-                            {
-                              baseType: {
-                                type: "string",
-                              },
-                              name: "name",
-                              optional: false,
-                            },
-                            {
-                              baseType: {
-                                type: "boolean",
-                              },
-                              name: "sonicFast",
-                              optional: false,
-                            },
-                          ],
-                          type: "struct",
-                        },
-                      },
-                      name: "reacts",
-                      optional: false,
-                    },
-                  ],
-                  type: "struct",
+                  },
                 },
-                name: "outgoing",
-                optional: false,
-              },
-              type: "channel",
+                {
+                  statementType: "declaration",
+                  name: "Chat",
+                  value: {
+                    type: "channel",
+                    name: "Chat",
+                    incoming: {
+                      name: "incoming",
+                      optional: false,
+                      baseType: {
+                        type: "struct",
+                        fields: [
+                          {
+                            name: "author",
+                            optional: false,
+                            baseType: {
+                              type: "struct",
+                              fields: [
+                                {
+                                  name: "name",
+                                  optional: false,
+                                  baseType: { type: "string" },
+                                },
+                                {
+                                  name: "sonicFast",
+                                  optional: false,
+                                  baseType: { type: "boolean" },
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            name: "timestamp",
+                            optional: false,
+                            baseType: { type: "integer" },
+                          },
+                          {
+                            name: "contents",
+                            optional: false,
+                            baseType: { type: "string" },
+                          },
+                          {
+                            name: "reacts",
+                            optional: false,
+                            baseType: {
+                              type: "map",
+                              key: "string",
+                              value: {
+                                type: "struct",
+                                fields: [
+                                  {
+                                    name: "name",
+                                    optional: false,
+                                    baseType: { type: "string" },
+                                  },
+                                  {
+                                    name: "sonicFast",
+                                    optional: false,
+                                    baseType: { type: "boolean" },
+                                  },
+                                ],
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    outgoing: {
+                      name: "outgoing",
+                      optional: false,
+                      baseType: {
+                        type: "struct",
+                        fields: [
+                          {
+                            name: "author",
+                            optional: false,
+                            baseType: {
+                              type: "struct",
+                              fields: [
+                                {
+                                  name: "name",
+                                  optional: false,
+                                  baseType: { type: "string" },
+                                },
+                                {
+                                  name: "sonicFast",
+                                  optional: false,
+                                  baseType: { type: "boolean" },
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            name: "timestamp",
+                            optional: false,
+                            baseType: { type: "integer" },
+                          },
+                          {
+                            name: "contents",
+                            optional: false,
+                            baseType: { type: "string" },
+                          },
+                          {
+                            name: "reacts",
+                            optional: false,
+                            baseType: {
+                              type: "map",
+                              key: "string",
+                              value: {
+                                type: "struct",
+                                fields: [
+                                  {
+                                    name: "name",
+                                    optional: false,
+                                    baseType: { type: "string" },
+                                  },
+                                  {
+                                    name: "sonicFast",
+                                    optional: false,
+                                    baseType: { type: "boolean" },
+                                  },
+                                ],
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              ],
             },
           },
         ],

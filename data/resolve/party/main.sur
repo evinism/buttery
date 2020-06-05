@@ -9,10 +9,6 @@ struct AddToPartyResponse:
   success: boolean
   time: optional Slot
 
-rpc AddToParty:
-  request: Person
-  response: AddToPartyResponse
-
 struct ChatMessage:
   time: integer
   content: string
@@ -22,6 +18,11 @@ struct ChatUpdate:
   content: string
   author: Person
 
-channel Chat:
-  incoming: ChatMessage
-  outgoing: ChatUpdate
+service PartyService:
+  rpc AddToParty:
+    request: Person
+    response: AddToPartyResponse
+
+  channel Chat:
+    incoming: ChatMessage
+    outgoing: ChatUpdate

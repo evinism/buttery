@@ -537,6 +537,12 @@ struct WhoBloopedRequest:
 struct WhoBloopedResponse:
   scoop: Scoop
   bloopers: List<Bloopers>
+
+service BloopService:
+  rpc WhoBlooped:
+    request: WhoBloopedRequest
+    response: WhoBloopedResponse
+
 `;
 
       const parsed = parseFile(input);
@@ -544,73 +550,87 @@ struct WhoBloopedResponse:
       assert(isRight(parsed));
       const ref = parsed.right.value;
       const targetRef: SurpcFile<Reference> = {
+        path: "filename",
         imports: [
           {
-            imports: ["Bloop", "Scoop"],
-            path: "./some_path.sur",
             statementType: "import",
+            path: "./some_path.sur",
+            imports: ["Bloop", "Scoop"],
           },
         ],
-        path: "filename",
         variables: [
           {
-            name: "WhoBloopedRequest",
             statementType: "declaration",
+            name: "WhoBloopedRequest",
             value: {
+              type: "struct",
               fields: [
                 {
-                  baseType: {
-                    ref: "Bloop",
-                    typeArgs: [],
-                  },
                   name: "bloop",
                   optional: false,
+                  baseType: { ref: "Bloop", typeArgs: [] },
                 },
                 {
-                  baseType: {
-                    ref: "boolean",
-                    typeArgs: [],
-                  },
                   name: "includeExtras",
                   optional: true,
+                  baseType: { ref: "boolean", typeArgs: [] },
                 },
               ],
-              type: "struct",
             },
           },
           {
-            name: "WhoBloopedResponse",
             statementType: "declaration",
+            name: "WhoBloopedResponse",
             value: {
+              type: "struct",
               fields: [
                 {
-                  baseType: {
-                    ref: "Scoop",
-                    typeArgs: [],
-                  },
                   name: "scoop",
                   optional: false,
+                  baseType: { ref: "Scoop", typeArgs: [] },
                 },
                 {
-                  baseType: {
-                    ref: "List",
-                    typeArgs: [
-                      {
-                        ref: "Bloopers",
-                        typeArgs: [],
-                      },
-                    ],
-                  },
                   name: "bloopers",
                   optional: false,
+                  baseType: {
+                    ref: "List",
+                    typeArgs: [{ ref: "Bloopers", typeArgs: [] }],
+                  },
                 },
               ],
-              type: "struct",
+            },
+          },
+          {
+            statementType: "declaration",
+            name: "BloopService",
+            value: {
+              type: "service",
+              name: "BloopService",
+              variables: [
+                {
+                  statementType: "declaration",
+                  name: "WhoBlooped",
+                  value: {
+                    type: "rpc",
+                    name: "WhoBlooped",
+                    request: {
+                      name: "request",
+                      optional: false,
+                      baseType: { ref: "WhoBloopedRequest", typeArgs: [] },
+                    },
+                    response: {
+                      name: "response",
+                      optional: false,
+                      baseType: { ref: "WhoBloopedResponse", typeArgs: [] },
+                    },
+                  },
+                },
+              ],
             },
           },
         ],
       };
-      chai.assert.deepEqual(ref, targetRef);
+      chai.assert.deepEqual(targetRef, ref);
     });
   });
 });
