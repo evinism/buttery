@@ -50,6 +50,7 @@ const generateServiceClass = (decl: VariableDeclaration<Representable>) => {
     .filter(Boolean)
     .join("\n");
   return `export class ${value.name}Client extends SurClient {
+  serviceName = "${value.name}";
 ${methodDecls}
 }
 `;
