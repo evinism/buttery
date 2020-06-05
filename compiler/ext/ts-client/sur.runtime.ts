@@ -465,7 +465,7 @@ export class SurClient {
   }
 
   baseUrl: string;
-  surpcApiNamespace = "sur-api";
+  surpcApiNamespace = "__sur__";
   requester: (url: string, body: string) => Promise<string>;
 
   request<Req, Res>(
@@ -490,7 +490,7 @@ export class SurClient {
     recvNode: SurNode<Recv>
   ) {
     return new SurChannelConnection(
-      `${this.baseUrl}/${this.surpcApiNamespace}/${requestName}`,
+      `${this.baseUrl}/${this.surpcApiNamespace}/someService/${requestName}`,
       sendNode,
       recvNode
     );

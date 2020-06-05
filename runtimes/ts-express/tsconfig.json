@@ -1,1 +1,5 @@
-{ "types": ["node"] }
+{
+  "types": ["node"],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "src/**/*.data.ts", "src/**/*.spec.ts"]
+}
