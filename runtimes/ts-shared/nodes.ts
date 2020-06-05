@@ -8,12 +8,14 @@ export interface SurNode<R> {
 }
 
 export interface RPCNode<Req, Res> {
+  type: "rpcNode";
   name: string;
   request: SurNode<Req>;
   response: SurNode<Res>;
 }
 
 export interface ChannelNode<Send, Recv> {
+  type: "channelNode";
   name: string;
   send: Send;
   recv: Recv;
