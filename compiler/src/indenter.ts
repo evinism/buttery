@@ -1,6 +1,4 @@
 import { Token } from "./lexer";
-import { either } from "fp-ts/lib/Either";
-import { pop } from "fp-ts/lib/ReadonlyRecord";
 
 export function indentify(tokens: Token[]): Token[] {
   let indents = 0;

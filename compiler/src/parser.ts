@@ -35,12 +35,8 @@ import {
   CloseBracketToken,
   CommaToken,
   ColonToken,
-  IndentToken,
   NewLineToken,
   OptionalToken,
-  StructToken,
-  RPCToken,
-  ChannelToken,
   ImportToken,
   QuotedStringToken,
   FromToken,
@@ -49,9 +45,15 @@ import {
   PeriodToken,
 } from "./lexer";
 import { indentify } from "./indenter";
-import { isRight } from "fp-ts/lib/Either";
 import { isLeft } from "fp-ts/lib/Either";
 import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
+import { validate } from "./validator";
+import { ParseError } from "parser-ts/lib/ParseResult";
+
+const getParseErrorMessage = (error: ParseError<Token>) => {
+  const errorChar = error.input.buffer[error.input.cursor].token;
+  return `Parse Error: Expected ${error.expected}, but got ${errorChar}`;
+};
 
 // Dangerous function because casted
 const matchToken = <T extends BasicToken<unknown>>(tokenName: T["token"]) =>
@@ -258,7 +260,9 @@ const statementParser: Parser<Token, Statement<Reference>> = either<
   Token,
   Statement<Reference>
 >(importParser, () =>
-  either(structParser, () => either(rpcParser, () => channelParser))
+  either(structParser, () =>
+    either(serviceParser, () => either(rpcParser, () => channelParser))
+  )
 );
 
 export const fileParser: (
@@ -284,7 +288,12 @@ export function badParse(contents: string, fname: string) {
     throw "tokenizer error!";
   }
   const indented = indentify(tokenized.right.value);
-  return fileParser(fname)(stream(indented, 0));
+  const parsed = fileParser(fname)(stream(indented, 0));
+  if (isLeft(parsed)) {
+    throw new Error(getParseErrorMessage(parsed.left));
+  }
+  const validated = validate(parsed.right.value);
+  return validated;
 }
 
 function parse(contents: string): SurpcFile<Reference> {
