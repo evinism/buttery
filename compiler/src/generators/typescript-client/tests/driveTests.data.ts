@@ -1,6 +1,6 @@
-import Client from "../../../../sur-genfiles/main.sur.gen";
+import { PartyServiceClient } from "../../../../sur-genfiles/main.sur.gen";
 
-const client = new Client("lolol", {
+const client = new PartyServiceClient("lolol", {
   requester: (url, body) => {
     console.log("body: " + body);
     return Promise.resolve(`{
