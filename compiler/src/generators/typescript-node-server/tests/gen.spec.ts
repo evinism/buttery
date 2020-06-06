@@ -6,20 +6,20 @@ import * as chai from "chai";
 import child_process from "child_process";
 
 describe("Generation", function () {
-  describe("Typescript", function () {
+  describe("Node Server", function () {
     it("should generate types", function () {
       const ast = load("../data/resolve/party/main.sur");
       const bleep = gen(ast);
       const expected = fs.readFileSync(
-        "./src/generators/typescript-client/tests/expected.data.ts",
+        "./src/generators/typescript-node-server/tests/expected.data.ts",
         "utf8"
       );
       chai.assert.equal(expected, bleep[0].content);
     });
 
-    it("should generate a semi-functioning typescript client", function () {
+    it.skip("should generate a semi-functioning typescript client", function () {
       generateCmd({
-        target: "browser",
+        target: "ts-client",
         files: ["../data/resolve/party/main.sur"],
         outputDir: "sur-genfiles",
       });

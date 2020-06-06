@@ -1,6 +1,6 @@
 {
-  "name": "sur-express",
-  "version": "1.0.0",
+  "name": "sur-node",
+  "version": "0.0.1",
   "description": "Sur runtime for express users",
   "main": "index.js",
   "author": "evin",
