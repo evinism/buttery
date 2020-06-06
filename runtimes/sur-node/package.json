@@ -1,8 +1,9 @@
 {
   "name": "sur-node",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Sur runtime for express users",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "author": "evin",
   "license": "MIT",
   "devDependencies": {
@@ -23,6 +24,7 @@
     "typescript": "^3.9.5"
   },
   "scripts": {
+    "prepublish": "tsc",
     "test": "mocha --require ts-node/register"
   },
   "dependencies": {
