@@ -18,7 +18,7 @@ export const rpcHandler = (
   middleware?: Array<SurMiddleware>
 ) => async (request: http.IncomingMessage, response: http.ServerResponse) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
-  const path = url.pathname.split("/");
+  const path = url.pathname.split("/").slice(1);
 
   if (path[0] !== SUR_NAMESPACE) {
     // Irrelevant request, do nothing.
@@ -26,7 +26,7 @@ export const rpcHandler = (
   }
 
   if (path.length !== 3) {
-    response.statusCode = 400;
+    response.writeHead(400, { "Content-Type": "text/plain" });
     response.end("Malformed Sur URL");
     return;
   }
@@ -35,14 +35,16 @@ export const rpcHandler = (
     (service) => service.name === serviceName
   );
   if (!relevantService) {
-    response.statusCode = 404;
+    response.writeHead(404, { "Content-Type": "text/plain" });
+
     response.end(`No service with name ${serviceName} registered.`);
     return;
   }
 
   const rpcDef = relevantService.endpoints[requestName];
   if (!rpcDef) {
-    response.statusCode = 404;
+    response.writeHead(404, { "Content-Type": "text/plain" });
+
     response.end(
       `No RPC/Channel with name ${requestName} registered for ${serviceName}.`
     );
@@ -57,7 +59,18 @@ export const rpcHandler = (
   // Get the data as utf8 strings.
   // If an encoding is not set, Buffer objects will be received.
   request.setEncoding("utf8");
-  const body = await streamToString(request);
-  const parsed = rpcDef.request.deserialize(body);
-  response.end("Read " + JSON.stringify(parsed));
+  let parsed;
+  try {
+    const body = await streamToString(request);
+    parsed = rpcDef.request.deserialize(body);
+  } catch (e) {
+    console.warn("Malformed request resulted in: " + e);
+    response.statusCode = 400;
+    response.writeHead(400, { "Content-Type": "text/plain" });
+    response.end("Error occurred: " + e.message);
+    return;
+  }
+
+  response.writeHead(200, { "Content-Type": "application/json" });
+  response.end(JSON.stringify(parsed));
 };

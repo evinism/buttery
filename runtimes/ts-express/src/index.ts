@@ -4,7 +4,7 @@ import { EndpointBase, SurService, SurMiddleware } from "./types";
 import { rpcHandler } from "./rpc";
 
 // The below
-function attachSur<Endpoints extends EndpointBase>(
+export function attachSur<Endpoints extends EndpointBase>(
   server: http.Server,
   service: SurService<EndpointBase> | Array<SurService<EndpointBase>>,
   middleware?: Array<SurMiddleware>
