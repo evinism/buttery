@@ -1,5 +1,7 @@
 # Sur: Simple, unadorned cross-language DSL for defining RPCs
 
+### Warning: Sur is still in pre-alpha and is hardly suitable for any use
+
 Sur aims to be a minimalistic cross-language DSL for defining RPCs and channels.
 It's essentially a proto / grpc replacement for modern webstacks, with low
 barrier to entry and easy integration into existing products. Sur is specialized
@@ -29,13 +31,13 @@ Sur does not aim to provide:
 Sur Clients
 | Target | Target Description | Support |
 |---|---|---|
-| ts-client | Generated Typescript for use in browsers | Partial |
+| browser | Generated Typescript for use in browsers | Partial |
 | python-client | Generated code for Python Client | None |
 
 Sur Servers
 | Target | Target Description | Support |
 |---|---|---|
-| ts-express | Generated Typescript for use in express backends | None |
+| node | Generated Typescript for use in express backends | Partial |
 | django | Generated code for use in Django backends | None |
 
 ### A simple example:
@@ -65,7 +67,7 @@ And consume the generated files in a sample client and server:
 
 ```
 // client.ts on the frontend
-import {ChatService} from './sur/chat.gen.ts'
+import {ChatService} from './sur-genfiles/chat.gen.ts'
 
 
 const client = new ChatService('https://example.com');
@@ -80,9 +82,15 @@ chatConnection.send({timestamp: Date.now(), content: 'Hello, world!'});
 ```
 
 ```
-// routes.ts on the backend (with Express)
+// server.ts on the backend
+import {ChatService} from './sur-genfiles/chat.gen.ts'
 
-// [tbd]
+const onConnect = (connection) => ...;
+
+const surServer = new SurServer(PartyService);
+surServer.implement("Chat", onConnect);
+surServer.createHttpServer().listen(8080);
+
 ```
 
 ### Sample patterns of places where Sur could be used:
@@ -94,11 +102,11 @@ chatConnection.send({timestamp: Date.now(), content: 'Hello, world!'});
 
 ### CLI:
 
-Installation via npm, e.g. `npm install -g surpc`
+Installation via npm, e.g. `npm install -g sur-cli`
 
 Sur's CLI is very simple right now:
 
-`sur generate <target environment> -f [files`
+`sur generate <target environment> -f [files]`
 
 As an example call:
 
