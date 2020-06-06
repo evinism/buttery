@@ -3,8 +3,9 @@ import * as http from "http";
 import { EndpointBase, SurService, SurMiddleware } from "./types";
 import { createRpcHandler } from "./rpc";
 import { SUR_NAMESPACE } from "./constants";
-import { ChannelNode, RPCNode } from "./shared/nodes";
-import { RequestHandler } from "express";
+import { ChannelNode, RPCNode, SurNode } from "./shared/nodes";
+
+type ExtractNodeType<P> = P extends SurNode<infer T> ? T : never;
 
 function isSurPath(request: http.IncomingMessage) {
   const url = new URL(request.url, `http://${request.headers.host}`);
@@ -59,7 +60,11 @@ export class SurServer<Endpoints extends EndpointBase> {
     name: Z,
     handler: Endpoints[Z] extends ChannelNode<unknown, unknown>
       ? (connection: any) => unknown
-      : (request: any) => Promise<any>
+      : Endpoints[Z] extends RPCNode<unknown, unknown>
+      ? (
+          request: ExtractNodeType<Endpoints[Z]["request"]>
+        ) => Promise<ExtractNodeType<Endpoints[Z]["response"]>>
+      : never
   ) {
     if (this.service.endpoints[name].type === "channelNode") {
       this.channelImplementations[name] = handler;
@@ -72,7 +77,11 @@ export class SurServer<Endpoints extends EndpointBase> {
   }
 
   createHttpServer() {
-    const rpcHandler = createRpcHandler([this.service], this.middlewares);
+    const rpcHandler = createRpcHandler(
+      [this.service],
+      this.rpcImplementations,
+      this.middlewares
+    );
 
     const server = http.createServer((req, res) => {
       if (this.baseHandler && !isSurPath(req)) {

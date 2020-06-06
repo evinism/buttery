@@ -13,9 +13,10 @@ function streamToString(stream: Stream): Promise<string> {
   });
 }
 
-export const createRpcHandler = (
-  services: Array<SurService<EndpointBase>>,
-  middleware?: Array<SurMiddleware>
+export const createRpcHandler = <Endpoints extends EndpointBase>(
+  services: Array<SurService<Endpoints>>,
+  handlers: { [Key in keyof Endpoints]?: any },
+  middleware: Array<SurMiddleware>
 ) => async (request: http.IncomingMessage, response: http.ServerResponse) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
   const path = url.pathname.split("/").slice(1);
@@ -56,18 +57,34 @@ export const createRpcHandler = (
     return;
   }
 
-  // Get the data as utf8 strings.
-  // If an encoding is not set, Buffer objects will be received.
-  request.setEncoding("utf8");
+  const handler = handlers[requestName];
+  if (!handler) {
+    response.writeHead(501, { "Content-Type": "text/plain" });
+    response.end(`Sur RPC not implemented: ${relevantService}/${requestName}`);
+  }
+
   let parsed;
   try {
     const body = await streamToString(request);
     parsed = rpcDef.request.deserialize(body);
+    if (!parsed) {
+      throw "Invalid Body";
+    }
   } catch (e) {
     response.writeHead(400, { "Content-Type": "text/plain" });
     response.end("Error occurred: " + e.message);
+    return;
+  }
+
+  let result;
+  try {
+    result = rpcDef.response.serialize(await handler(parsed));
+  } catch (e) {
+    response.writeHead(500, { "Content-Type": "text/plain" });
+    response.end("Internal Server Error: " + e.message);
+    return;
   }
 
   response.writeHead(200, { "Content-Type": "application/json" });
-  response.end(JSON.stringify(parsed));
+  response.end(result);
 };
