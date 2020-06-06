@@ -55,12 +55,12 @@ const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
     case "channel": {
       const incoming = genTypeForRepresentable(rhs.incoming.baseType);
       const outgoing = genTypeForRepresentable(rhs.outgoing.baseType);
-      return `{ incoming: ${incoming}, outgoing: ${outgoing}}`;
+      return `{ type: "channelNode" as "channelNode", name: "${rhs.name}",incoming: ${incoming}, outgoing: ${outgoing}}`;
     }
     case "rpc": {
       const request = genTypeForRepresentable(rhs.request.baseType);
       const response = genTypeForRepresentable(rhs.response.baseType);
-      return `{ request: ${request}, response: ${response}}`;
+      return `{ type: "rpcNode" as "rpcNode", name: "${rhs.name}", request: ${request}, response: ${response}}`;
     }
     case "struct": {
       return genTypeForRepresentable(rhs);
@@ -73,7 +73,7 @@ const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
         rhs.variables.map(generateNodeDeclaration).filter(Boolean).join("\n") +
         `\nexport const ${rhs.name} = {name: "${
           rhs.name
-        }", variables: {${rhs.variables.map((decl) => decl.name).join(", ")}}};`
+        }", endpoints: {${rhs.variables.map((decl) => decl.name).join(", ")}}};`
       );
     }
   }

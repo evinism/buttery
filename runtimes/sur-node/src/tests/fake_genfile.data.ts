@@ -50,7 +50,7 @@ export const AddToParty = {
 };
 export const Chat = {
   type: "channelNode" as "channelNode",
-  name: "AddToParty",
+  name: "Chat",
   incoming: structNode({ time: integerNode(), content: stringNode() }),
   outgoing: structNode({
     time: integerNode(),
@@ -61,11 +61,7 @@ export const Chat = {
     }),
   }),
 };
-
 export const PartyService = {
   name: "PartyService",
-  endpoints: {
-    Chat: Chat,
-    AddToParty: AddToParty,
-  },
+  endpoints: { AddToParty, Chat },
 };

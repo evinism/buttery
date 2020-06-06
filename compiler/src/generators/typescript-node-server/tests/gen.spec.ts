@@ -14,6 +14,7 @@ describe("Generation", function () {
         "./src/generators/typescript-node-server/tests/expected.data.ts",
         "utf8"
       );
+      console.log(bleep[0].content);
       chai.assert.equal(expected, bleep[0].content);
     });
 
