@@ -34,7 +34,7 @@ export function structNode<R extends {}>(
     // No extra keys
     const toValidateEntries = Object.entries(toValidate);
     for (let [key] of toValidateEntries) {
-      if (decl[key] === undefined) {
+      if ((decl as { [K: string]: unknown })[key] === undefined) {
         console.warn(`Unexpected key ${key} in struct!`);
         return false;
       }
@@ -42,7 +42,9 @@ export function structNode<R extends {}>(
 
     // all existing keys are valid
     for (let [key] of entries) {
-      const keyIsValid = decl[key].validate(toValidate[key as string]);
+      const keyIsValid = decl[key].validate(
+        (toValidate as { [K in keyof R]: unknown })[key]
+      );
       if (!keyIsValid) {
         return false;
       }
@@ -63,7 +65,7 @@ export function structNode<R extends {}>(
     );
   };
 
-  const deserialize = (data: string): R => {
+  const deserialize = (data: string): R | undefined => {
     const parsed = JSON.parse(data) as unknown;
     if (!validate(parsed)) {
       return;
@@ -98,7 +100,7 @@ export function listNode<R>(valueDefn: SurNode<R>): SurNode<R[]> {
     return `[${r.map(valueDefn.serialize).join(",")}]`;
   };
 
-  const deserialize = (data: string): R[] => {
+  const deserialize = (data: string): R[] | undefined => {
     const parsed = JSON.parse(data) as unknown;
     if (!validate(parsed)) {
       return;
@@ -138,7 +140,7 @@ export function integerNode(): SurNode<number> {
     return r.toString();
   };
 
-  const deserialize = (data: string): number => {
+  const deserialize = (data: string): number | undefined => {
     const parsed = JSON.parse(data) as unknown;
     if (!validate(parsed)) {
       return;
@@ -167,7 +169,7 @@ export function doubleNode(): SurNode<number> {
     return r.toString();
   };
 
-  const deserialize = (data: string): number => {
+  const deserialize = (data: string): number | undefined => {
     const parsed = JSON.parse(data) as unknown;
     if (!validate(parsed)) {
       return;
@@ -196,7 +198,7 @@ export function stringNode(): SurNode<string> {
     return JSON.stringify(r.toString());
   };
 
-  const deserialize = (data: string): string => {
+  const deserialize = (data: string): string | undefined => {
     const parsed = JSON.parse(data) as unknown;
     if (!validate(parsed)) {
       return;
@@ -210,7 +212,7 @@ export function stringNode(): SurNode<string> {
   };
 }
 
-export function booleanNode(): SurNode<boolean> {
+export function booleanNode(): SurNode<boolean> | undefined {
   const validate = (toValidate: unknown): toValidate is boolean => {
     const isBoolean = typeof toValidate === "boolean";
     if (!isBoolean) {
@@ -225,7 +227,7 @@ export function booleanNode(): SurNode<boolean> {
     return r.toString();
   };
 
-  const deserialize = (data: string): boolean => {
+  const deserialize = (data: string): boolean | undefined => {
     const parsed = JSON.parse(data) as unknown;
     if (!validate(parsed)) {
       return;
@@ -239,7 +241,7 @@ export function booleanNode(): SurNode<boolean> {
   };
 }
 
-export function nullNode(): SurNode<boolean> {
+export function nullNode(): SurNode<null> {
   const validate = (toValidate: unknown): toValidate is null => {
     const isNull = toValidate === null;
     if (!isNull) {
@@ -247,14 +249,14 @@ export function nullNode(): SurNode<boolean> {
     }
     return isNull;
   };
-  const serialize = (r: null) => {
+  const serialize = (r: null): string | undefined => {
     if (!validate(r)) {
       return;
     }
-    return r;
+    return "null";
   };
 
-  const deserialize = (data: string): null => {
+  const deserialize = (data: string): null | undefined => {
     const parsed = JSON.parse(data) as unknown;
     if (!validate(parsed)) {
       return;

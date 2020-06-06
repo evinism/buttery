@@ -3,7 +3,9 @@
     "outDir": "./lib",
     "rootDir": "./src",
     "esModuleInterop": true,
-    "module": "commonjs"
+    "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
+    "strict": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "src/**/*.data.ts", "src/**/*.spec.ts"]

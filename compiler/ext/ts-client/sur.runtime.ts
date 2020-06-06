@@ -36,10 +36,10 @@ type SocketEvent =
     };
 
 class StableSocket {
-  constructor(url) {
+  constructor(url: string) {
     this.eventPipe = new Pipe<SocketEvent>();
     this.url = url;
-    this.buildSocket();
+    this.socket = this.buildSocket();
   }
 
   private retryDelay = 1000; // really should exp backoff here but whatevs.
@@ -75,6 +75,7 @@ class StableSocket {
       this.setStatus("broken");
       this.close();
     };
+    return this.socket;
   }
 
   private setStatus(newStatus: SocketStatus) {
@@ -118,7 +119,7 @@ class StableSocket {
 }
 
 class SurChannelConnection<Send, Recv> {
-  constructor(url, sendNode: SurNode<Send>, recvNode: SurNode<Recv>) {
+  constructor(url: string, sendNode: SurNode<Send>, recvNode: SurNode<Recv>) {
     this.sendNode = sendNode;
     this.recvNode = recvNode;
     this.stableSocket = new StableSocket(url);
@@ -127,7 +128,9 @@ class SurChannelConnection<Send, Recv> {
     this.stableSocket.listen((msg) => {
       if (msg.type === "message") {
         const deserialized = recvNode.deserialize(msg.data.data);
-        this.recvPipe.fire(deserialized);
+        if (deserialized) {
+          this.recvPipe.fire(deserialized);
+        }
       }
       if (msg.type === "status" && msg.status === "broken") {
         this.broken = true;
@@ -146,14 +149,16 @@ class SurChannelConnection<Send, Recv> {
       throw "Pipe broken!";
     }
     const serialized = this.sendNode.serialize(data);
-    this.stableSocket.send(serialized);
+    if (serialized) {
+      this.stableSocket.send(serialized);
+    }
   }
 
-  listen(listener: (Recv) => unknown) {
+  listen(listener: (arg: Recv) => unknown) {
     this.recvPipe.listen(listener);
   }
 
-  unlisten(listener: (Recv) => unknown) {
+  unlisten(listener: (arg: Recv) => unknown) {
     this.recvPipe.listen(listener);
   }
 }
@@ -164,7 +169,7 @@ interface SurClientConfig {
   requester?: (url: string, body: string) => Promise<string>;
 }
 
-const defaultRequester = (url, body) =>
+const defaultRequester = (url: string, body: string) =>
   fetch(url, {
     method: "post",
     body,
@@ -175,7 +180,7 @@ export function buildRpcHandler<Req, Res>(
   requestNode: SurNode<Req>,
   responseNode: SurNode<Res>
 ) {
-  return function Request(value: Req): Promise<Res> {
+  return function Request(this: SurClient, value: Req): Promise<Res> {
     return this.request(requestName, value, requestNode, responseNode);
   };
 }
@@ -185,7 +190,7 @@ export function buildChannelHandler<Send, Recv>(
   sendNode: SurNode<Send>,
   recvNode: SurNode<Recv>
 ) {
-  return function Connect(): SurChannelConnection<Send, Recv> {
+  return function Connect(this: SurClient): SurChannelConnection<Send, Recv> {
     return this.connect(requestName, sendNode, recvNode);
   };
 }
@@ -194,6 +199,7 @@ export class SurClient {
   constructor(baseUrl: string, surClientConfig: SurClientConfig = {}) {
     this.baseUrl = baseUrl;
     this.requester = surClientConfig.requester || defaultRequester;
+    this.serviceName = "TO_OVERRIDE";
   }
 
   baseUrl: string;
@@ -209,11 +215,15 @@ export class SurClient {
   ): Promise<Res> {
     const targetUrl = `${this.baseUrl}/${this.surpcApiNamespace}/${this.serviceName}/${requestName}`;
     const body = requestNode.serialize(requestValue);
-    if (!body) {
+    if (body === undefined) {
       throw "Unacceptable Body Type";
     }
     return this.requester(targetUrl, body).then((result) => {
-      return responseNode.deserialize(result);
+      const parsed = responseNode.deserialize(result);
+      if (parsed === undefined) {
+        throw "Was not able to parse server response";
+      }
+      return parsed;
     });
   }
 
