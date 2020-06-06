@@ -1,22 +1,19 @@
 import { PartyService } from "./fake_genfile.data";
-import { attachSur } from "../index";
-import * as http from "http";
 import * as chai from "chai";
+import { createSurServer } from "..";
 import express from "express";
 
-const app = express();
-app.get("/", (req, res) => res.send("ok"));
+const baseApp = express();
+baseApp.get("/", (req, res) => res.send("ok"));
 
 const request = require("supertest");
 
 describe("ts-server runtime", function () {
-  const server = http.createServer(app);
-  attachSur(server, PartyService);
+  const server = createSurServer(PartyService, baseApp);
 
   it("should accept preexisting urls", function (done) {
     request(server)
       .get("/")
-      //.post("__sur__/PartyService/AddToParty")
       .end(function (err, res) {
         chai.assert.equal(err, null);
         chai.assert.equal(res.status, 200);
@@ -29,7 +26,7 @@ describe("ts-server runtime", function () {
       .post("/__sur__/PartyService/AddToParty")
       .end(function (err, res) {
         chai.assert.equal(err, null);
-        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.status, 400);
         done();
       });
   });

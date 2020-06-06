@@ -13,7 +13,7 @@ function streamToString(stream: Stream): Promise<string> {
   });
 }
 
-export const rpcHandler = (
+export const createRpcHandler = (
   services: Array<SurService<EndpointBase>>,
   middleware?: Array<SurMiddleware>
 ) => async (request: http.IncomingMessage, response: http.ServerResponse) => {
@@ -64,11 +64,8 @@ export const rpcHandler = (
     const body = await streamToString(request);
     parsed = rpcDef.request.deserialize(body);
   } catch (e) {
-    console.warn("Malformed request resulted in: " + e);
-    response.statusCode = 400;
     response.writeHead(400, { "Content-Type": "text/plain" });
     response.end("Error occurred: " + e.message);
-    return;
   }
 
   response.writeHead(200, { "Content-Type": "application/json" });

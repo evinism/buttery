@@ -17,8 +17,8 @@ export interface RPCNode<Req, Res> {
 export interface ChannelNode<Send, Recv> {
   type: "channelNode";
   name: string;
-  send: Send;
-  recv: Recv;
+  incoming: Send;
+  outgoing: Recv;
 }
 
 export function structNode<R extends {}>(
