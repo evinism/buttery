@@ -1,6 +1,6 @@
 import { PartyService } from "./fake_genfile.data";
 import * as chai from "chai";
-import { createSurServer, SurServer } from "..";
+import { SurServer } from "..";
 import express from "express";
 
 const baseApp = express();
