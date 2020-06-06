@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "esModuleInterop": true
+    "target": "es5",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "declaration": true,
+    "outDir": "dist"
   },
   "types": ["node"],
   "include": ["src/**/*"],
