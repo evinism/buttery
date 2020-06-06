@@ -83,11 +83,12 @@ chatConnection.send({timestamp: Date.now(), content: 'Hello, world!'});
 
 ```
 // server.ts on the backend
+import {SurServer} from 'sur-node';
 import {ChatService} from './sur-genfiles/chat.gen.ts'
 
 const onConnect = (connection) => ...;
 
-const surServer = new SurServer(PartyService);
+const surServer = new SurServer(ChatService);
 surServer.implement("Chat", onConnect);
 surServer.createHttpServer().listen(8080);
 
