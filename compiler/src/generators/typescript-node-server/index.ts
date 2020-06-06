@@ -14,7 +14,7 @@ export const gen: CodeGenerator = (file) => {
     .filter(Boolean)
     .join("\n");
 
-  const content = `import {structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode} from 'sur-node';
+  const content = `import {structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode} from 'sur-node/dist/shared/nodes';
 
 ${nodeDecls}
 `;
