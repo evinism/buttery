@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "author": "evin",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "sur-cli": "^0.0.4"
+  }
 }

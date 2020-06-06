@@ -1,5 +1,5 @@
 {
-  "name": "surpc",
+  "name": "sur-cli",
   "version": "0.0.4",
   "description": "Simple, usable RPC codegen CLI",
   "main": "src/cli.ts",
