@@ -465,7 +465,8 @@ export class SurClient {
   }
 
   baseUrl: string;
-  surpcApiNamespace = "sur-api";
+  serviceName: string;
+  surpcApiNamespace = "__sur__";
   requester: (url: string, body: string) => Promise<string>;
 
   request<Req, Res>(
@@ -474,7 +475,7 @@ export class SurClient {
     requestNode: SurNode<Req>,
     responseNode: SurNode<Res>
   ): Promise<Res> {
-    const targetUrl = `${this.baseUrl}/${this.surpcApiNamespace}/${requestName}`;
+    const targetUrl = `${this.baseUrl}/${this.surpcApiNamespace}/${this.serviceName}/${requestName}`;
     const body = requestNode.serialize(requestValue);
     if (!body) {
       throw "Unacceptable Body Type";
@@ -490,7 +491,7 @@ export class SurClient {
     recvNode: SurNode<Recv>
   ) {
     return new SurChannelConnection(
-      `${this.baseUrl}/${this.surpcApiNamespace}/${requestName}`,
+      `${this.baseUrl}/${this.surpcApiNamespace}/${this.serviceName}/${requestName}`,
       sendNode,
       recvNode
     );

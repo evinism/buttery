@@ -8,6 +8,7 @@ export const AddToParty = { request: structNode({name: stringNode(), pronouns: l
 export const Chat = { incoming: structNode({time: integerNode(), content: stringNode()}), outgoing: structNode({time: integerNode(), content: stringNode(), author: structNode({name: stringNode(), pronouns: listNode(stringNode())})})};
 
 export class PartyServiceClient extends SurClient {
+  serviceName = "PartyService";
   AddToParty = buildRpcHandler("AddToParty", AddToParty.request, AddToParty.response);
   Chat = buildChannelHandler("Chat", Chat.incoming, Chat.outgoing);
 }

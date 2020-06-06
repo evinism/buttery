@@ -1,1 +1,8 @@
-{ "types": ["node"] }
+{
+  "compilerOptions": {
+    "esModuleInterop": true
+  },
+  "types": ["node"],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
