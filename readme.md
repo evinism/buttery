@@ -11,11 +11,12 @@ agnostic.
 Sur aims to provide:
 
 1. A lightweight language for defining over-the-network APIs.
-2. Codegen for clients and servers in a variety of languages.
-3. Parsing and validation of requests and responses.
-4. Basic reliability abstractions, such as retries and message buffers for 2-way
-   connections
+2. First-class support for full duplex communication.
+3. Codegen for clients and servers in a variety of languages.
+4. Parsing and validation of requests and responses.
 5. (when applicable) Cross-language, cross network boundary type safety.
+6. Basic reliability abstractions, such as retries and message buffers for 2-way
+   connections
 
 Sur does not aim to provide:
 
