@@ -18,6 +18,8 @@ class Pipe<T> {
   }
 }
 
+const httpToWs = (httpUrl: string) => httpUrl.replace(/^http/, "ws");
+
 type SocketStatus =
   | "connecting"
   | "open"
@@ -51,6 +53,7 @@ class StableSocket {
 
   buildSocket() {
     this.setStatus("connecting");
+
     this.socket = new WebSocket(this.url);
     this.socket.onmessage = (msg: MessageEvent) => {
       this.eventPipe.fire({
@@ -122,7 +125,7 @@ class SurChannelConnection<Send, Recv> {
   constructor(url: string, sendNode: SurNode<Send>, recvNode: SurNode<Recv>) {
     this.sendNode = sendNode;
     this.recvNode = recvNode;
-    this.stableSocket = new StableSocket(url);
+    this.stableSocket = new StableSocket(httpToWs(url));
     this.recvPipe = new Pipe<Recv>();
     this.broken = false;
     this.stableSocket.listen((msg) => {
