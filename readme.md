@@ -1,6 +1,6 @@
-# Sur: Simple, unadorned cross-language DSL for defining RPCs
+# Sur: Minimalistic cross-language DSL for defining RPCs
 
-### Warning: Sur is still in pre-alpha and is hardly suitable for any use
+### Warning: Sur is still in pre-alpha and is not (yet) suitable for production use. It CAN be used for side projects and game jams if you're feeling a hint brave.
 
 Sur aims to be a minimalistic cross-language DSL for defining RPCs and channels.
 It's essentially a proto / grpc replacement for modern webstacks, with low
@@ -31,13 +31,13 @@ Sur does not aim to provide:
 Sur Clients
 | Target | Target Description | Support |
 |---|---|---|
-| browser | Generated Typescript for use in browsers | Partial |
+| browser | Generated Typescript for use in browsers | Mostly Supported |
 | python-client | Generated code for Python Client | None |
 
 Sur Servers
 | Target | Target Description | Support |
 |---|---|---|
-| node | Generated Typescript for use in express backends | Partial |
+| node | Generated Typescript for use in express backends | Mostly Supported |
 | django | Generated code for use in Django backends | None |
 
 ### A simple example:
@@ -73,7 +73,7 @@ import {ChatService} from './sur-genfiles/chat.gen.ts'
 const client = new ChatService('https://example.com');
 const chatConnection = client.Chat();
 
-chatConnection.onMessage((msg) => {
+chatConnection.listen((msg) => {
   console.log(msg.content);
 });
 
@@ -86,10 +86,16 @@ chatConnection.send({timestamp: Date.now(), content: 'Hello, world!'});
 import {SurServer} from 'sur-node';
 import {ChatService} from './sur-genfiles/chat.gen.ts'
 
-const onConnect = (connection) => ...;
-
 const surServer = new SurServer(ChatService);
-surServer.implement("Chat", onConnect);
+surServer.implement("Chat", (connection) => {
+  connection.listen(msg => {
+    connection.send({
+      timetamp: Date.now(),
+      author: "Server"
+      content: 'Thanks for sending me a message!'
+    });
+  });
+});
 surServer.createHttpServer().listen(8080);
 
 ```
