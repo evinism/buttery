@@ -1,6 +1,6 @@
 {
   "name": "sur-cli",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Simple, usable RPC codegen CLI",
   "main": "src/cli.ts",
   "author": "evinism@gmail.com",
