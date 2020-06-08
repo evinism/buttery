@@ -17,8 +17,8 @@ export interface RPCNode<Req, Res> {
 export interface ChannelNode<Send, Recv> {
   type: "channelNode";
   name: string;
-  incoming: Send;
-  outgoing: Recv;
+  incoming: SurNode<Send>;
+  outgoing: SurNode<Recv>;
 }
 
 export function structNode<R extends {}>(
@@ -212,7 +212,7 @@ export function stringNode(): SurNode<string> {
   };
 }
 
-export function booleanNode(): SurNode<boolean> | undefined {
+export function booleanNode(): SurNode<boolean> {
   const validate = (toValidate: unknown): toValidate is boolean => {
     const isBoolean = typeof toValidate === "boolean";
     if (!isBoolean) {

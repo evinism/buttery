@@ -2,27 +2,11 @@ import { Server } from "ws";
 import * as http from "http";
 import { EndpointBase, SurService, SurMiddleware } from "./types";
 import { createRpcHandler } from "./rpc";
-import { SUR_NAMESPACE } from "./constants";
 import { ChannelNode, RPCNode, SurNode } from "./shared/nodes";
+import { createChannelHandler, SurSocket } from "./channel";
+import { isSurPath } from "./util";
 
 type ExtractNodeType<P> = P extends SurNode<infer T> ? T : never;
-
-function isSurPath(request: http.IncomingMessage) {
-  const url = new URL(request.url, `http://${request.headers.host}`);
-  const path = url.pathname.split("/").slice(1);
-  if (path[0] !== SUR_NAMESPACE) {
-    return false;
-  }
-  return true;
-}
-
-type ChannelHandler<Send, Recv, Node extends ChannelNode<Send, Recv>> = (
-  num: number
-) => Promise<Send>;
-
-type RpcHandler<Req, Res, Node extends RPCNode<Req, Res>> = (
-  node: Node
-) => (req: Req) => Promise<Res>;
 
 export class SurServer<Endpoints extends EndpointBase> {
   constructor(service: SurService<Endpoints>) {
@@ -31,11 +15,10 @@ export class SurServer<Endpoints extends EndpointBase> {
   }
 
   service: SurService<Endpoints>;
-  baseHandler: (req: http.IncomingMessage, res: http.ServerResponse) => unknown;
+  baseHandler:
+    | ((req: http.IncomingMessage, res: http.ServerResponse) => unknown)
+    | undefined;
   middlewares = [];
-  handlerNodes: {
-    [Key in keyof Endpoints]: Endpoints[Key];
-  };
 
   rpcImplementations: {
     [Key in keyof Endpoints]?: (request: any) => Promise<any>;
@@ -59,7 +42,12 @@ export class SurServer<Endpoints extends EndpointBase> {
   implement<Z extends keyof Endpoints>(
     name: Z,
     handler: Endpoints[Z] extends ChannelNode<unknown, unknown>
-      ? (connection: any) => unknown
+      ? (
+          connection: SurSocket<
+            ExtractNodeType<Endpoints[Z]["incoming"]>,
+            ExtractNodeType<Endpoints[Z]["outgoing"]>
+          >
+        ) => unknown
       : Endpoints[Z] extends RPCNode<unknown, unknown>
       ? (
           request: ExtractNodeType<Endpoints[Z]["request"]>
@@ -91,8 +79,16 @@ export class SurServer<Endpoints extends EndpointBase> {
       rpcHandler(req, res);
     });
 
-    const wss = new Server({ server });
+    const channelHandler = createChannelHandler(
+      [this.service],
+      this.channelImplementations,
+      this.middlewares
+    )(server);
 
     return server;
+  }
+
+  listen(...args) {
+    return this.createHttpServer().listen(...args);
   }
 }

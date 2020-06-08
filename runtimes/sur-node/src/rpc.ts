@@ -2,30 +2,19 @@ import * as http from "http";
 import { SurService, SurMiddleware, EndpointBase } from "./types";
 import { SUR_NAMESPACE } from "./constants";
 import { Stream } from "stream";
-
-// Thanks stackoverflow!
-function streamToString(stream: Stream): Promise<string> {
-  const chunks = [];
-  return new Promise((resolve, reject) => {
-    stream.on("data", (chunk) => chunks.push(chunk));
-    stream.on("error", reject);
-    stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
-  });
-}
+import { isSurPath, streamToString } from "./util";
 
 export const createRpcHandler = <Endpoints extends EndpointBase>(
   services: Array<SurService<Endpoints>>,
   handlers: { [Key in keyof Endpoints]?: any },
   middleware: Array<SurMiddleware>
 ) => async (request: http.IncomingMessage, response: http.ServerResponse) => {
-  const url = new URL(request.url, `http://${request.headers.host}`);
-  const path = url.pathname.split("/").slice(1);
-
-  if (path[0] !== SUR_NAMESPACE) {
+  if (!isSurPath(request)) {
     // Irrelevant request, do nothing.
     return;
   }
 
+  const path = (request.url || "").split("/").slice(1);
   if (path.length !== 3) {
     response.writeHead(400, { "Content-Type": "text/plain" });
     response.end("Malformed Sur URL");
@@ -52,15 +41,15 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
     return;
   }
 
-  if (rpcDef.type !== "rpcNode") {
-    // Should be handled by channels.
-    return;
-  }
-
   const handler = handlers[requestName];
   if (!handler) {
     response.writeHead(501, { "Content-Type": "text/plain" });
     response.end(`Sur RPC not implemented: ${relevantService}/${requestName}`);
+  }
+
+  if (rpcDef.type !== "rpcNode") {
+    // Should be handled by channels.
+    return;
   }
 
   let parsed;

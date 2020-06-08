@@ -9,4 +9,4 @@ export interface SurService<Endpoints extends EndpointBase> {
   endpoints: Endpoints;
 }
 
-export type SurMiddleware = (req: any, res) => {};
+export type SurMiddleware = (req: any, res: any) => {};
