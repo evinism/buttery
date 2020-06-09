@@ -1,0 +1,13 @@
+service A:
+  struct B:
+    fieldB1: string
+    fieldB2: integer
+
+  rpc C:
+    request: B
+    response: B
+
+service D:
+  rpc E:
+    request: A.B
+    response: A.B
