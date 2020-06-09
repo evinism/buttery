@@ -25,20 +25,9 @@ Sur does not aim to provide:
 1. Strong protections against version skew of specific definitions.
 2. Highly size-optimized over-the-wire encodings -- Sur messages are valid JSON
 3. Support for non-evergreen browsers
+### Installation:
 
-### Sur Target Support
-
-Sur Clients
-| Target | Target Description | Support |
-|---|---|---|
-| browser | Generated Typescript for use in browsers | Mostly Supported |
-| python-client | Generated code for Python Client | None |
-
-Sur Servers
-| Target | Target Description | Support |
-|---|---|---|
-| node | Generated Typescript for use in express backends | Mostly Supported |
-| django | Generated code for use in Django backends | None |
+Installation via npm, e.g. `npm install -g sur-cli`
 
 ### A simple example:
 
@@ -108,16 +97,27 @@ surServer.createHttpServer().listen(8080);
 - Easy multiplexing of multiple services through a single host
 
 ### CLI:
-
-Installation via npm, e.g. `npm install -g sur-cli`
-
 Sur's CLI is very simple right now:
 
 `sur generate <target environment> -f [files]`
 
 As an example call:
 
-`sur generate ts-client -f ./path/to/file.sur`
+`sur generate browser -f ./path/to/file.sur`
+
+### Sur Target Support
+
+Sur Clients
+| Target | Target Description | Support |
+|---|---|---|
+| browser | Generated Typescript for use in browsers | Mostly Supported |
+| python-client | Generated code for Python Client | None |
+
+Sur Servers
+| Target | Target Description | Support |
+|---|---|---|
+| node | Generated Typescript for use in express backends | Mostly Supported |
+| django | Generated code for use in Django backends | None |
 
 ### Sample of features
 
