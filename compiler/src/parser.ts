@@ -55,6 +55,28 @@ const getParseErrorMessage = (error: ParseError<Token>) => {
   return `Parse Error: Expected ${error.expected}, but got ${errorChar}`;
 };
 
+const errorPadding = 30;
+const getTokenizerErrorMessage = (error: ParseError<string>) => {
+  const { buffer, cursor } = error.input;
+  const start = Math.max(0, cursor - errorPadding);
+  const end = Math.min(buffer.length - 1, cursor + errorPadding);
+
+  const pre = buffer
+    .slice(start, cursor)
+    .join("")
+    .replace(/^(.*\n)*\s*/g, "");
+  const post = buffer
+    .slice(cursor + 1, end)
+    .join("")
+    .replace(/(\n.*)*$/g, "");
+  return `Tokenizer Error: Expected ${error.expected}, but got "${
+    buffer[cursor]
+  }":
+${pre}${buffer[cursor]}${post}
+${" ".repeat(pre.length)}^
+`;
+};
+
 // Dangerous function because casted
 const matchToken = <T extends BasicToken<unknown>>(tokenName: T["token"]) =>
   map((x) => x as T)(
@@ -294,7 +316,7 @@ export const fileParser: (
 export function badParse(contents: string, fname: string) {
   const tokenized = lexer(stream(contents.split(""), 0));
   if (isLeft(tokenized)) {
-    throw "tokenizer error!";
+    throw new Error(getTokenizerErrorMessage(tokenized.left));
   }
   const indented = indentify(tokenized.right.value);
   const parsed = fileParser(fname)(stream(indented, 0));
