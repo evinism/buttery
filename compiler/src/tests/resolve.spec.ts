@@ -299,4 +299,11 @@ describe("Resolving", function () {
       chai.assert.deepEqual({}, output);
     });
   });
+
+  describe("Namespace resolution", function () {
+    it("is able to resolve references with namespaces", function () {
+      const output = load("../data/resolve/namespace/ns1.sur");
+      chai.assert.equal(!!output, true);
+    });
+  });
 });

@@ -24,9 +24,10 @@ export function load(
 }
 
 function resolveRef(
-  { ref, typeArgs }: Reference,
+  { ref, typeArgs, namespace }: Reference,
   context: SurpcFile<Reference>,
-  prevReffedVars: string[]
+  prevReffedVars: string[],
+  namespaceContext?: string
 ): Representable {
   const primitive = Primitive[ref] as Primitive | undefined;
   if (primitive) {
@@ -78,11 +79,42 @@ function resolveRef(
     }
     resolvedDecl = resolvedVar;
   } else {
-    // Look in locally defined variables
-    const decl = context.variables.find(({ name }) => name === ref);
+    let decl: VariableDeclaration<Reference> | undefined;
+
+    // First try to resolve via looking in a namespace
+    if (namespace) {
+      const nsRef = context.variables.find(({ name }) => name === namespace);
+      if (nsRef) {
+        if (nsRef.value.type !== "service") {
+          throw new Error(
+            `Attempted to dereference a ${nsRef.value.type}. Dot syntax only works on services`
+          );
+        }
+        decl = nsRef.value.variables.find(({ name }) => name === ref);
+      }
+    }
+
+    // Then try to resolve via looking up within the current namespace
+    if (!decl && namespaceContext) {
+      const nsRef = context.variables.find(
+        ({ name }) => name === namespaceContext
+      );
+      if (nsRef && nsRef.value.type === "service") {
+        decl = nsRef.value.variables.find(({ name }) => name === ref);
+      } else {
+        throw new Error(
+          "Somehow current namespace context didnt refer to a service"
+        );
+      }
+    }
+
+    // Then try to find it outside of the namespace
+    if (!decl) {
+      decl = context.variables.find(({ name }) => name === ref);
+    }
 
     if (!decl) {
-      throw new Error(`Could not find type ${ref}`);
+      throw new Error(`Unresolved reference ${ref}`);
     }
 
     resolvedDecl = resolveDecl(decl, context, prevReffedVars);
@@ -103,7 +135,8 @@ function resolveRef(
 function resolveDecl(
   decl: VariableDeclaration<Reference>,
   context: SurpcFile<Reference>,
-  prevReffedVars: string[]
+  prevReffedVars: string[],
+  currentNamespace?: string // What namespace are we currently in?
 ): VariableDeclaration<Representable> {
   if (prevReffedVars.includes(decl.name)) {
     throw new Error("Cycle detected in var!");
@@ -112,10 +145,7 @@ function resolveDecl(
   nextReffedVars.push(decl.name);
 
   const qResolveRev = (ref: Reference) =>
-    resolveRef(ref, context, nextReffedVars);
-
-  const qResolveDecl = (ref: VariableDeclaration<Reference>) =>
-    resolveDecl(ref, context, nextReffedVars);
+    resolveRef(ref, context, nextReffedVars, currentNamespace);
 
   let newVal: VarRHS<Representable>;
   if (decl.value.type === "channel") {
@@ -156,7 +186,9 @@ function resolveDecl(
     newVal = {
       type,
       name,
-      variables: variables.map(qResolveDecl),
+      variables: variables.map((ref: VariableDeclaration<Reference>) =>
+        resolveDecl(ref, context, nextReffedVars, name)
+      ),
     };
   } else {
     const { type, fields } = decl.value;

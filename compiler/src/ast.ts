@@ -103,6 +103,7 @@ export type Representable =
 // Or references
 export interface Reference {
   ref: string;
+  namespace?: string; // Everything before a dot.
   typeArgs: Reference[];
 }
 

@@ -71,12 +71,21 @@ const refNameParser: Parser<Token, NonEmptyArray<NameToken>> = sepBy1(
 export const refParser: Parser<Token, Reference> = seq(
   refNameParser,
   (tokenArr) =>
-    map((typeArgs: Array<Reference>) => ({
-      // not excellent, but whatever.
-      // TODO: Proper namespacing!
-      ref: tokenArr.map(({ name }) => name).join("."),
-      typeArgs,
-    }))(
+    map((typeArgs: Array<Reference>) => {
+      if (tokenArr.length > 2) {
+        throw "References to namespaces of namespaces are not allowed";
+      }
+      const refToken = tokenArr.pop();
+      const nsToken = tokenArr.pop();
+      const ref: Reference = {
+        ref: refToken.name,
+        typeArgs,
+      };
+      if (nsToken) {
+        ref.namespace = nsToken.name;
+      }
+      return ref;
+    })(
       maybe(getMonoid<Reference>())(
         apFirst(matchToken<CloseBracketToken>("closebracket"))(
           seq(matchToken<OpenBracketToken>("openbracket"), () =>
