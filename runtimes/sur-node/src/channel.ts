@@ -1,4 +1,4 @@
-import { SurService, SurMiddleware, EndpointBase } from "./types";
+import { SurService, EndpointBase, SurServerOptions } from "./types";
 import { Server as WebsocketServer } from "ws";
 import { isSurPath } from "./util";
 import * as http from "http";
@@ -50,7 +50,7 @@ const handleConnection = <Incoming, Outgoing>(
 export const createChannelHandler = <Endpoints extends EndpointBase>(
   services: Array<SurService<Endpoints>>,
   handlers: { [Key in keyof Endpoints]?: any },
-  middleware: Array<SurMiddleware>
+  options: SurServerOptions
 ) => (server: http.Server) => {
   const wss = new WebsocketServer({
     noServer: true,

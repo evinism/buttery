@@ -1,18 +1,23 @@
 import * as http from "http";
-import { SurService, SurMiddleware, EndpointBase } from "./types";
-import { SUR_NAMESPACE } from "./constants";
-import { Stream } from "stream";
+import {
+  SurService,
+  SurMiddleware,
+  EndpointBase,
+  SurServerOptions,
+} from "./types";
 import { isSurPath, streamToString } from "./util";
 
 export const createRpcHandler = <Endpoints extends EndpointBase>(
   services: Array<SurService<Endpoints>>,
   handlers: { [Key in keyof Endpoints]?: any },
-  middleware: Array<SurMiddleware>
+  options: SurServerOptions
 ) => async (request: http.IncomingMessage, response: http.ServerResponse) => {
   if (!isSurPath(request)) {
     // Irrelevant request, do nothing.
     return;
   }
+
+  const headers = options?.rpc?.headers || {};
 
   const path = (request.url || "").split("/").slice(1);
   if (path.length !== 3) {
@@ -25,7 +30,10 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
     (service) => service.name === serviceName
   );
   if (!relevantService) {
-    response.writeHead(404, { "Content-Type": "text/plain" });
+    response.writeHead(
+      404,
+      Object.assign({ "Content-Type": "text/plain" }, headers)
+    );
 
     response.end(`No service with name ${serviceName} registered.`);
     return;
@@ -33,7 +41,10 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
 
   const rpcDef = relevantService.endpoints[requestName];
   if (!rpcDef) {
-    response.writeHead(404, { "Content-Type": "text/plain" });
+    response.writeHead(
+      404,
+      Object.assign({ "Content-Type": "text/plain" }, headers)
+    );
 
     response.end(
       `No RPC/Channel with name ${requestName} registered for ${serviceName}.`
@@ -43,7 +54,10 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
 
   const handler = handlers[requestName];
   if (!handler) {
-    response.writeHead(501, { "Content-Type": "text/plain" });
+    response.writeHead(
+      501,
+      Object.assign({ "Content-Type": "text/plain" }, headers)
+    );
     response.end(`Sur RPC not implemented: ${relevantService}/${requestName}`);
   }
 
@@ -60,7 +74,10 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
       throw "Invalid Body";
     }
   } catch (e) {
-    response.writeHead(400, { "Content-Type": "text/plain" });
+    response.writeHead(
+      400,
+      Object.assign({ "Content-Type": "text/plain" }, headers)
+    );
     response.end("Error occurred: " + e.message);
     return;
   }
@@ -69,11 +86,17 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
   try {
     result = rpcDef.response.serialize(await handler(parsed));
   } catch (e) {
-    response.writeHead(500, { "Content-Type": "text/plain" });
+    response.writeHead(
+      500,
+      Object.assign({ "Content-Type": "text/plain" }, headers)
+    );
     response.end("Internal Server Error: " + e.message);
     return;
   }
 
-  response.writeHead(200, { "Content-Type": "application/json" });
+  response.writeHead(
+    200,
+    Object.assign({ "Content-Type": "application/json" }, headers)
+  );
   response.end(result);
 };

@@ -10,3 +10,10 @@ export interface SurService<Endpoints extends EndpointBase> {
 }
 
 export type SurMiddleware = (req: any, res: any) => {};
+
+export interface SurServerOptions {
+  middlewares?: SurMiddleware[];
+  rpc?: {
+    headers?: { [key: string]: string };
+  };
+}

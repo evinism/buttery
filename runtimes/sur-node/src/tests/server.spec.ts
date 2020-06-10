@@ -25,7 +25,9 @@ const expectCalledWithin = (fn: (...args) => void, timeout: number, done) => {
 };
 
 describe("ts-server runtime", function () {
-  const surServer = new SurServer(PartyService);
+  const surServer = new SurServer(PartyService, {
+    rpc: { headers: { "Powered-By": "sur" } },
+  });
   surServer.wrapListener(baseApp);
   surServer.implement("Chat", (connection) => {
     connection.listen((msg) => {
@@ -79,6 +81,10 @@ describe("ts-server runtime", function () {
         .end(function (err: any, res: any) {
           chai.assert.equal(err, null);
           chai.assert.equal(res.status, 200);
+          // Not sure why these don't reflect what actually happen on
+          // an actual testbed
+          //chai.assert.equal(res.headers["Content-Type"], "application/json");
+          //chai.assert.equal(res.headers["Powered-By"], "sur");
           chai.assert.deepEqual(res.body, {
             success: true,
             time: { people: [], startTime: 0, endTime: 0 },

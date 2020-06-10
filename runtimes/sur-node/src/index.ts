@@ -1,6 +1,11 @@
 import { Server } from "ws";
 import * as http from "http";
-import { EndpointBase, SurService, SurMiddleware } from "./types";
+import {
+  EndpointBase,
+  SurService,
+  SurMiddleware,
+  SurServerOptions,
+} from "./types";
 import { createRpcHandler } from "./rpc";
 import { ChannelNode, RPCNode, SurNode } from "./shared/nodes";
 import { createChannelHandler, SurSocket } from "./channel";
@@ -9,16 +14,17 @@ import { isSurPath } from "./util";
 type ExtractNodeType<P> = P extends SurNode<infer T> ? T : never;
 
 export class SurServer<Endpoints extends EndpointBase> {
-  constructor(service: SurService<Endpoints>) {
+  constructor(service: SurService<Endpoints>, options: SurServerOptions = {}) {
     // will extend beyond one service, soon enough :)
     this.service = service;
+    this.options = options;
   }
 
   service: SurService<Endpoints>;
   baseHandler:
     | ((req: http.IncomingMessage, res: http.ServerResponse) => unknown)
     | undefined;
-  middlewares = [];
+  options: SurServerOptions;
 
   rpcImplementations: {
     [Key in keyof Endpoints]?: (request: any) => Promise<any>;
@@ -35,7 +41,10 @@ export class SurServer<Endpoints extends EndpointBase> {
   }
 
   use(middleware: SurMiddleware) {
-    this.middlewares.push(middleware);
+    if (!this.options.middlewares) {
+      this.options.middlewares = [];
+    }
+    this.options.middlewares.push(middleware);
     return this;
   }
 
@@ -68,7 +77,7 @@ export class SurServer<Endpoints extends EndpointBase> {
     const rpcHandler = createRpcHandler(
       [this.service],
       this.rpcImplementations,
-      this.middlewares
+      this.options
     );
 
     const server = http.createServer((req, res) => {
@@ -82,7 +91,7 @@ export class SurServer<Endpoints extends EndpointBase> {
     const channelHandler = createChannelHandler(
       [this.service],
       this.channelImplementations,
-      this.middlewares
+      this.options
     )(server);
 
     return server;
