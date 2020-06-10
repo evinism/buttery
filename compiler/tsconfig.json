@@ -6,6 +6,6 @@
     "module": "commonjs",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "ext/**/*"],
   "exclude": ["node_modules", "src/**/*.data.ts", "src/**/*.spec.ts"]
 }

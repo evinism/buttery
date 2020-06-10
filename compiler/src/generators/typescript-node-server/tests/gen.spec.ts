@@ -14,11 +14,10 @@ describe("Generation", function () {
         "./src/generators/typescript-node-server/tests/expected.data.ts",
         "utf8"
       );
-      console.log(bleep[0].content);
       chai.assert.equal(expected, bleep[0].content);
     });
 
-    it.skip("should generate a semi-functioning typescript client", function () {
+    it.skip("should generate a semi-functioning typescript server", function () {
       generateCmd({
         target: "ts-client",
         files: ["../data/resolve/party/main.sur"],

@@ -114,13 +114,70 @@ export function listNode<R>(valueDefn: SurNode<R>): SurNode<R[]> {
   };
 }
 
-type KeyType = "string" | "integer" | "double";
+type KeyType = "string" | "integer" | "double" | "boolean";
 
-export function mapNode<R>(
-  valueDefn: SurNode<R>,
+const validateKey: { [type in KeyType]: (arg: string) => boolean } = {
+  string: (key) => key !== "",
+  integer: (key) => parseInt(key, 10).toString() === key,
+  double: (key) => parseFloat(key).toString() === key,
+  boolean: (key) => key === "true" || key === "false",
+};
+
+export function mapNode<R extends { [key: string]: SurNode<unknown> }>(
+  valueDefn: R[string],
   keyType: KeyType
-): SurNode<{ [key: string]: R }> {
-  throw "Not implemented!";
+): SurNode<R> {
+  const validate = (toValidate: unknown): toValidate is R => {
+    if (typeof toValidate !== "object" || toValidate === null) {
+      return false;
+    }
+
+    // Validate all keys
+    const keysValid = Object.keys(toValidate)
+      .map(toValidate[keyType])
+      .every(Boolean);
+
+    if (!keysValid) {
+      return false;
+    }
+
+    // all existing keys are valid
+    for (let value of Object.values(toValidate)) {
+      const valueIsValid = valueDefn.validate(value);
+      if (!valueIsValid) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const serialize = (r: R) => {
+    if (!validate(r)) {
+      return;
+    }
+    const entries = Object.entries(r);
+    return (
+      "{" +
+      entries
+        .map(([key, value]) => `"${key}": ${value.serialize(r[key])}`)
+        .join(",") +
+      "}"
+    );
+  };
+
+  const deserialize = (data: string): R | undefined => {
+    const parsed = JSON.parse(data) as unknown;
+    if (!validate(parsed)) {
+      return;
+    }
+    return parsed;
+  };
+
+  return {
+    validate,
+    serialize,
+    deserialize,
+  };
 }
 
 // Primitive nodes!
