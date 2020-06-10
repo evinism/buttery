@@ -134,7 +134,7 @@ export function mapNode<R extends { [key: string]: SurNode<unknown> }>(
 
     // Validate all keys
     const keysValid = Object.keys(toValidate)
-      .map(toValidate[keyType])
+      .map(validateKey[keyType])
       .every(Boolean);
 
     if (!keysValid) {
