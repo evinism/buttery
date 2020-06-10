@@ -224,7 +224,7 @@ export class SurClient {
   baseUrl: string;
   serviceName: string;
   surpcApiNamespace = "__sur__";
-  rpcConfig: RpcConfig;
+  rpcConfig?: RpcConfig;
   requester: (url: string, body: string, config: RpcConfig) => Promise<string>;
 
   request<Req, Res>(
