@@ -1,7 +1,8 @@
 import { PartyServiceClient } from "../../../../sur-genfiles/main.sur.gen";
 
 const client = new PartyServiceClient("lolol", {
-  requester: (url, body) => {
+  requester: (url, body, headers) => {
+    console.log("headers: " + JSON.stringify(headers));
     console.log("body: " + body);
     return Promise.resolve(`{
       "success": true,
@@ -14,6 +15,9 @@ const client = new PartyServiceClient("lolol", {
         "endTime": 110
       }
     }`);
+  },
+  rpcHeaders: {
+    PoweredBy: "sur",
   },
 });
 

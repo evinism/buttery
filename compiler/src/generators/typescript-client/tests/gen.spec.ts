@@ -17,7 +17,7 @@ describe("Generation", function () {
       chai.assert.equal(expected, bleep[0].content);
     });
 
-    it("should generate a semi-functioning typescript client", function () {
+    it("should generate a semi-functioning typescript client", function (done) {
       generateCmd({
         target: "browser",
         files: ["../data/resolve/party/main.sur"],
@@ -31,11 +31,13 @@ describe("Generation", function () {
           }
           chai.assert.equal(
             stdout,
-            `body: {"name": "toby","pronouns": ["he","him"]}
+            `headers: {"PoweredBy":"sur"}
+body: {"name": "toby","pronouns": ["he","him"]}
 res: {"success":true,"time":{"people":[{"name":"toby","pronouns":["he","him"]}],"startTime":100,"endTime":110}}
 `
           );
           chai.assert.equal(stderr, "");
+          done();
         }
       );
     });

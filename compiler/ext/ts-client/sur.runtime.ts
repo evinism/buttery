@@ -169,13 +169,23 @@ class SurChannelConnection<Send, Recv> {
 /* */
 
 interface SurClientConfig {
-  requester?: (url: string, body: string) => Promise<string>;
+  requester?: (
+    url: string,
+    body: string,
+    headers?: { [key: string]: string }
+  ) => Promise<string>;
+  rpcHeaders?: { [key: string]: string };
 }
 
-const defaultRequester = (url: string, body: string) =>
+const defaultRequester = (
+  url: string,
+  body: string,
+  headers?: { [key: string]: string }
+) =>
   fetch(url, {
     method: "post",
     body,
+    headers,
   }).then((response) => response.text());
 
 export function buildRpcHandler<Req, Res>(
@@ -202,13 +212,19 @@ export class SurClient {
   constructor(baseUrl: string, surClientConfig: SurClientConfig = {}) {
     this.baseUrl = baseUrl;
     this.requester = surClientConfig.requester || defaultRequester;
+    this.rpcHeaders = surClientConfig.rpcHeaders;
     this.serviceName = "TO_OVERRIDE";
   }
 
   baseUrl: string;
   serviceName: string;
   surpcApiNamespace = "__sur__";
-  requester: (url: string, body: string) => Promise<string>;
+  rpcHeaders: { [key: string]: string };
+  requester: (
+    url: string,
+    body: string,
+    headers?: { [key: string]: string }
+  ) => Promise<string>;
 
   request<Req, Res>(
     requestName: string,
@@ -221,7 +237,7 @@ export class SurClient {
     if (body === undefined) {
       throw "Unacceptable Body Type";
     }
-    return this.requester(targetUrl, body).then((result) => {
+    return this.requester(targetUrl, body, this.rpcHeaders).then((result) => {
       const parsed = responseNode.deserialize(result);
       if (parsed === undefined) {
         throw "Was not able to parse server response";
