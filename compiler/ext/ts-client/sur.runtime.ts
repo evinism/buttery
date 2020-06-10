@@ -168,24 +168,29 @@ class SurChannelConnection<Send, Recv> {
 
 /* */
 
-interface SurClientConfig {
+interface RpcConfig {
   requester?: (
     url: string,
     body: string,
-    headers?: { [key: string]: string }
+    config?: RpcConfig
   ) => Promise<string>;
-  rpcHeaders?: { [key: string]: string };
+  mode?: string;
+  cache?: string;
+  credentials?: string;
+  headers?: { [key: string]: string };
+  redirect?: string;
+  referrerPolicy?: string;
 }
 
-const defaultRequester = (
-  url: string,
-  body: string,
-  headers?: { [key: string]: string }
-) =>
+interface SurClientConfig {
+  rpc?: RpcConfig;
+}
+
+const defaultRequester = (url: string, body: string, config: RpcConfig = {}) =>
   fetch(url, {
     method: "post",
     body,
-    headers,
+    headers: config.headers,
   }).then((response) => response.text());
 
 export function buildRpcHandler<Req, Res>(
@@ -211,20 +216,16 @@ export function buildChannelHandler<Send, Recv>(
 export class SurClient {
   constructor(baseUrl: string, surClientConfig: SurClientConfig = {}) {
     this.baseUrl = baseUrl;
-    this.requester = surClientConfig.requester || defaultRequester;
-    this.rpcHeaders = surClientConfig.rpcHeaders;
+    this.requester = surClientConfig.rpc?.requester || defaultRequester;
+    this.rpcConfig = surClientConfig.rpc;
     this.serviceName = "TO_OVERRIDE";
   }
 
   baseUrl: string;
   serviceName: string;
   surpcApiNamespace = "__sur__";
-  rpcHeaders: { [key: string]: string };
-  requester: (
-    url: string,
-    body: string,
-    headers?: { [key: string]: string }
-  ) => Promise<string>;
+  rpcConfig: RpcConfig;
+  requester: (url: string, body: string, config: RpcConfig) => Promise<string>;
 
   request<Req, Res>(
     requestName: string,
@@ -237,7 +238,7 @@ export class SurClient {
     if (body === undefined) {
       throw "Unacceptable Body Type";
     }
-    return this.requester(targetUrl, body, this.rpcHeaders).then((result) => {
+    return this.requester(targetUrl, body, this.rpcConfig).then((result) => {
       const parsed = responseNode.deserialize(result);
       if (parsed === undefined) {
         throw "Was not able to parse server response";

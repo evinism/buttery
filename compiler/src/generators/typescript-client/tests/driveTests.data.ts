@@ -1,10 +1,11 @@
 import { PartyServiceClient } from "../../../../sur-genfiles/main.sur.gen";
 
 const client = new PartyServiceClient("lolol", {
-  requester: (url, body, headers) => {
-    console.log("headers: " + JSON.stringify(headers));
-    console.log("body: " + body);
-    return Promise.resolve(`{
+  rpc: {
+    requester: (url, body, config) => {
+      console.log("config: " + JSON.stringify(config));
+      console.log("body: " + body);
+      return Promise.resolve(`{
       "success": true,
       "time": {
         "people": [{
@@ -15,9 +16,10 @@ const client = new PartyServiceClient("lolol", {
         "endTime": 110
       }
     }`);
-  },
-  rpcHeaders: {
-    PoweredBy: "sur",
+    },
+    headers: {
+      PoweredBy: "sur",
+    },
   },
 });
 

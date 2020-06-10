@@ -31,7 +31,7 @@ describe("Generation", function () {
           }
           chai.assert.equal(
             stdout,
-            `headers: {"PoweredBy":"sur"}
+            `config: {"headers":{"PoweredBy":"sur"}}
 body: {"name": "toby","pronouns": ["he","him"]}
 res: {"success":true,"time":{"people":[{"name":"toby","pronouns":["he","him"]}],"startTime":100,"endTime":110}}
 `
