@@ -41,10 +41,10 @@ export class SurSocket<Incoming, Outgoing> extends Pipe<Incoming> {
 const handleConnection = <Incoming, Outgoing>(
   socket: WebSocket,
   request: http.IncomingMessage,
-  handler: (connection: any) => void,
+  handler: (connection: any, request: http.IncomingMessage) => void,
   channelDef: ChannelNode<Incoming, Outgoing>
 ) => {
-  handler(new SurSocket(socket, channelDef));
+  handler(new SurSocket(socket, channelDef), request);
 };
 
 export const createChannelHandler = <Endpoints extends EndpointBase>(

@@ -41,7 +41,7 @@ describe("ts-server runtime", function () {
       });
     });
   });
-  surServer.implement("AddToParty", (z) => {
+  surServer.implement("AddToParty", (_) => {
     return Promise.resolve({
       success: true,
       time: {

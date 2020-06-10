@@ -27,11 +27,17 @@ export class SurServer<Endpoints extends EndpointBase> {
   options: SurServerOptions;
 
   rpcImplementations: {
-    [Key in keyof Endpoints]?: (request: any) => Promise<any>;
+    [Key in keyof Endpoints]?: (
+      request: any,
+      httpRequest: http.IncomingMessage
+    ) => Promise<any>;
   } = {};
 
   channelImplementations: {
-    [Key in keyof Endpoints]?: (connection: any) => void;
+    [Key in keyof Endpoints]?: (
+      connection: any,
+      httpRequest: http.IncomingMessage
+    ) => void;
   } = {};
 
   wrapListener(
@@ -55,11 +61,13 @@ export class SurServer<Endpoints extends EndpointBase> {
           connection: SurSocket<
             ExtractNodeType<Endpoints[Z]["incoming"]>,
             ExtractNodeType<Endpoints[Z]["outgoing"]>
-          >
+          >,
+          request: http.IncomingMessage
         ) => unknown
       : Endpoints[Z] extends RPCNode<unknown, unknown>
       ? (
-          request: ExtractNodeType<Endpoints[Z]["request"]>
+          message: ExtractNodeType<Endpoints[Z]["request"]>,
+          request: http.IncomingMessage
         ) => Promise<ExtractNodeType<Endpoints[Z]["response"]>>
       : never
   ) {
@@ -67,7 +75,10 @@ export class SurServer<Endpoints extends EndpointBase> {
       this.channelImplementations[name] = handler;
     } else if (this.service.endpoints[name].type === "rpcNode") {
       // Don't know why this cast is necessary
-      this.rpcImplementations[name] = handler as (request: any) => Promise<any>;
+      this.rpcImplementations[name] = handler as (
+        request: any,
+        httpRequest: http.IncomingMessage
+      ) => Promise<any>;
     } else {
       throw `Unknown rpc or channel ${name}`;
     }

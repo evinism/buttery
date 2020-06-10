@@ -84,7 +84,7 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
 
   let result;
   try {
-    result = rpcDef.response.serialize(await handler(parsed));
+    result = rpcDef.response.serialize(await handler(parsed, request));
   } catch (e) {
     response.writeHead(
       500,
