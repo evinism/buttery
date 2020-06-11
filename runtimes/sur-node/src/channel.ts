@@ -41,76 +41,70 @@ export class SurSocket<Incoming, Outgoing> extends Pipe<Incoming> {
 const handleConnection = <Incoming, Outgoing>(
   socket: WebSocket,
   request: http.IncomingMessage,
-  handler: (connection: any) => void,
+  handler: (connection: any, request: http.IncomingMessage) => void,
   channelDef: ChannelNode<Incoming, Outgoing>
 ) => {
-  handler(new SurSocket(socket, channelDef));
+  handler(new SurSocket(socket, channelDef), request);
 };
 
-export const createChannelHandler = <Endpoints extends EndpointBase>(
+export const createUpgradeHandler = <Endpoints extends EndpointBase>(
   services: Array<SurService<Endpoints>>,
   handlers: { [Key in keyof Endpoints]?: any },
   options: SurServerOptions
-) => (server: http.Server) => {
+) => {
   const wss = new WebsocketServer({
     noServer: true,
   });
 
-  server.on(
-    "upgrade",
-    (request: http.IncomingMessage, socket: Socket, head: Buffer) => {
-      if (!isSurPath(request)) {
-        // Already taken care of by a different handler!
-        return;
-      }
-
-      const path = (request.url || "").split("/").slice(1);
-      if (path.length !== 3) {
-        socket.destroy(new Error("Malformed Sur URL"));
-        return;
-      }
-      const [_, serviceName, requestName] = path;
-      const relevantService = services.find(
-        (service) => service.name === serviceName
-      );
-      if (!relevantService) {
-        socket.destroy(
-          new Error(`No service with name ${serviceName} registered.`)
-        );
-        return;
-      }
-
-      const channelDef = relevantService.endpoints[requestName];
-      if (!channelDef) {
-        socket.destroy(
-          new Error(
-            `No Channel with name ${requestName} registered for ${serviceName}.`
-          )
-        );
-        return;
-      }
-
-      if (channelDef.type === "rpcNode") {
-        socket.destroy(
-          new Error(`Tried to connect to RPC ${requestName} via a websocket.`)
-        );
-      }
-
-      const handler = handlers[requestName];
-      if (!handler) {
-        socket.destroy(
-          new Error(
-            `Sur RPC not implemented: ${relevantService}/${requestName}`
-          )
-        );
-      }
-
-      wss.handleUpgrade(request, socket, head, (ws) => {
-        wss.emit("connection", ws, request, handler, channelDef);
-      });
-    }
-  );
-
-  // Type safety is lost across this boundary. Be careful!
   wss.on("connection", handleConnection);
+
+  return (request: http.IncomingMessage, socket: Socket, head: Buffer) => {
+    if (!isSurPath(request)) {
+      // Already taken care of by a different handler!
+      return;
+    }
+
+    const path = (request.url || "").split("/").slice(1);
+    if (path.length !== 3) {
+      socket.destroy(new Error("Malformed Sur URL"));
+      return;
+    }
+    const [_, serviceName, requestName] = path;
+    const relevantService = services.find(
+      (service) => service.name === serviceName
+    );
+    if (!relevantService) {
+      socket.destroy(
+        new Error(`No service with name ${serviceName} registered.`)
+      );
+      return;
+    }
+
+    const channelDef = relevantService.endpoints[requestName];
+    if (!channelDef) {
+      socket.destroy(
+        new Error(
+          `No Channel with name ${requestName} registered for ${serviceName}.`
+        )
+      );
+      return;
+    }
+
+    if (channelDef.type === "rpcNode") {
+      socket.destroy(
+        new Error(`Tried to connect to RPC ${requestName} via a websocket.`)
+      );
+    }
+
+    const handler = handlers[requestName];
+    if (!handler) {
+      socket.destroy(
+        new Error(`Sur RPC not implemented: ${relevantService}/${requestName}`)
+      );
+    }
+
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit("connection", ws, request, handler, channelDef);
+    });
+  };
 };

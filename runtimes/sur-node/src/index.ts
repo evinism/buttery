@@ -1,5 +1,5 @@
-import { Server } from "ws";
 import * as http from "http";
+import connect from "connect";
 import {
   EndpointBase,
   SurService,
@@ -8,8 +8,13 @@ import {
 } from "./types";
 import { createRpcHandler } from "./rpc";
 import { ChannelNode, RPCNode, SurNode } from "./shared/nodes";
-import { createChannelHandler, SurSocket } from "./channel";
+import { createUpgradeHandler, SurSocket } from "./channel";
 import { isSurPath } from "./util";
+import {
+  upgradeHandlerToResponseHandler,
+  responseHandlerToUpgradeHandler,
+  divertUpgrade,
+} from "./shims";
 
 type ExtractNodeType<P> = P extends SurNode<infer T> ? T : never;
 
@@ -18,20 +23,28 @@ export class SurServer<Endpoints extends EndpointBase> {
     // will extend beyond one service, soon enough :)
     this.service = service;
     this.options = options;
+    this.connectServer = connect();
   }
 
-  service: SurService<Endpoints>;
-  baseHandler:
+  private connectServer: connect.Server;
+  private service: SurService<Endpoints>;
+  private baseHandler:
     | ((req: http.IncomingMessage, res: http.ServerResponse) => unknown)
     | undefined;
-  options: SurServerOptions;
+  private options: SurServerOptions;
 
-  rpcImplementations: {
-    [Key in keyof Endpoints]?: (request: any) => Promise<any>;
+  private rpcImplementations: {
+    [Key in keyof Endpoints]?: (
+      request: any,
+      httpRequest: http.IncomingMessage
+    ) => Promise<any>;
   } = {};
 
-  channelImplementations: {
-    [Key in keyof Endpoints]?: (connection: any) => void;
+  private channelImplementations: {
+    [Key in keyof Endpoints]?: (
+      connection: any,
+      httpRequest: http.IncomingMessage
+    ) => void;
   } = {};
 
   wrapListener(
@@ -40,11 +53,8 @@ export class SurServer<Endpoints extends EndpointBase> {
     this.baseHandler = handler;
   }
 
-  use(middleware: SurMiddleware) {
-    if (!this.options.middlewares) {
-      this.options.middlewares = [];
-    }
-    this.options.middlewares.push(middleware);
+  use(middleware: connect.HandleFunction) {
+    this.connectServer.use(middleware);
     return this;
   }
 
@@ -55,11 +65,13 @@ export class SurServer<Endpoints extends EndpointBase> {
           connection: SurSocket<
             ExtractNodeType<Endpoints[Z]["incoming"]>,
             ExtractNodeType<Endpoints[Z]["outgoing"]>
-          >
+          >,
+          request: http.IncomingMessage
         ) => unknown
       : Endpoints[Z] extends RPCNode<unknown, unknown>
       ? (
-          request: ExtractNodeType<Endpoints[Z]["request"]>
+          message: ExtractNodeType<Endpoints[Z]["request"]>,
+          request: http.IncomingMessage
         ) => Promise<ExtractNodeType<Endpoints[Z]["response"]>>
       : never
   ) {
@@ -67,32 +79,53 @@ export class SurServer<Endpoints extends EndpointBase> {
       this.channelImplementations[name] = handler;
     } else if (this.service.endpoints[name].type === "rpcNode") {
       // Don't know why this cast is necessary
-      this.rpcImplementations[name] = handler as (request: any) => Promise<any>;
+      this.rpcImplementations[name] = handler as (
+        request: any,
+        httpRequest: http.IncomingMessage
+      ) => Promise<any>;
     } else {
       throw `Unknown rpc or channel ${name}`;
     }
   }
 
+  rpcFallback = (next: (req, res) => unknown) => (req, res) => {
+    if (!isSurPath(req)) {
+      if (this.baseHandler) {
+        this.baseHandler(req, res);
+        return;
+      } else {
+        res.statusCode = 404;
+        res.end("Requested a non-sur path without a base server specified");
+        return;
+      }
+    }
+    next(req, res);
+  };
+
   createHttpServer() {
+    const server = http.createServer();
+
     const rpcHandler = createRpcHandler(
       [this.service],
       this.rpcImplementations,
       this.options
     );
 
-    const server = http.createServer((req, res) => {
-      if (this.baseHandler && !isSurPath(req)) {
-        this.baseHandler(req, res);
-        return;
-      }
-      rpcHandler(req, res);
-    });
-
-    const channelHandler = createChannelHandler(
+    const upgradeHandler = createUpgradeHandler(
       [this.service],
       this.channelImplementations,
       this.options
-    )(server);
+    );
+
+    this.connectServer.use(
+      divertUpgrade(rpcHandler, upgradeHandlerToResponseHandler(upgradeHandler))
+    );
+
+    server.on("request", this.rpcFallback(this.connectServer));
+    server.on(
+      "upgrade",
+      responseHandlerToUpgradeHandler(this.rpcFallback(this.connectServer))
+    );
 
     return server;
   }

@@ -28,6 +28,13 @@ describe("ts-server runtime", function () {
   const surServer = new SurServer(PartyService, {
     rpc: { headers: { "Powered-By": "sur" } },
   });
+
+  surServer.use((req, res, next) => {
+    if (req.headers["failmeplz"]) {
+      next(new Error("Fail!"));
+    }
+    next();
+  });
   surServer.wrapListener(baseApp);
   surServer.implement("Chat", (connection) => {
     connection.listen((msg) => {
@@ -41,7 +48,7 @@ describe("ts-server runtime", function () {
       });
     });
   });
-  surServer.implement("AddToParty", (z) => {
+  surServer.implement("AddToParty", (_) => {
     return Promise.resolve({
       success: true,
       time: {
@@ -99,6 +106,21 @@ describe("ts-server runtime", function () {
         .end(function (err: any, res: any) {
           chai.assert.equal(err, null);
           chai.assert.equal(res.status, 501);
+          done();
+        });
+    });
+    it("should successfully reject RPCs failed by middleware", function (done) {
+      request(server)
+        .post("/__sur__/PartyService/AddToParty")
+        .set("failmeplz", "yus")
+        .send({ name: "john", pronouns: [] })
+        .end(function (err: any, res: any) {
+          chai.assert.equal(err, null);
+          chai.assert.equal(res.status, 500);
+          chai.assert.deepEqual(res.body, {
+            success: true,
+            time: { people: [], startTime: 0, endTime: 0 },
+          });
           done();
         });
     });
