@@ -1,5 +1,5 @@
-import { Server } from "ws";
 import * as http from "http";
+import connect from "connect";
 import {
   EndpointBase,
   SurService,
@@ -8,7 +8,7 @@ import {
 } from "./types";
 import { createRpcHandler } from "./rpc";
 import { ChannelNode, RPCNode, SurNode } from "./shared/nodes";
-import { createChannelHandler, SurSocket } from "./channel";
+import { createUpgradeHandler, SurSocket } from "./channel";
 import { isSurPath } from "./util";
 
 type ExtractNodeType<P> = P extends SurNode<infer T> ? T : never;
@@ -18,22 +18,24 @@ export class SurServer<Endpoints extends EndpointBase> {
     // will extend beyond one service, soon enough :)
     this.service = service;
     this.options = options;
+    this.connectServer = connect();
   }
 
-  service: SurService<Endpoints>;
-  baseHandler:
+  private connectServer: connect.Server;
+  private service: SurService<Endpoints>;
+  private baseHandler:
     | ((req: http.IncomingMessage, res: http.ServerResponse) => unknown)
     | undefined;
-  options: SurServerOptions;
+  private options: SurServerOptions;
 
-  rpcImplementations: {
+  private rpcImplementations: {
     [Key in keyof Endpoints]?: (
       request: any,
       httpRequest: http.IncomingMessage
     ) => Promise<any>;
   } = {};
 
-  channelImplementations: {
+  private channelImplementations: {
     [Key in keyof Endpoints]?: (
       connection: any,
       httpRequest: http.IncomingMessage
@@ -85,25 +87,33 @@ export class SurServer<Endpoints extends EndpointBase> {
   }
 
   createHttpServer() {
-    const rpcHandler = createRpcHandler(
-      [this.service],
-      this.rpcImplementations,
-      this.options
-    );
+    const server = http.createServer();
 
-    const server = http.createServer((req, res) => {
-      if (this.baseHandler && !isSurPath(req)) {
-        this.baseHandler(req, res);
-        return;
+    this.connectServer.use(
+      createRpcHandler([this.service], this.rpcImplementations, this.options)
+    );
+    server.on("request", (req, res) => {
+      if (!isSurPath(req)) {
+        if (this.baseHandler) {
+          this.baseHandler(req, res);
+          return;
+        } else {
+          res.statusCode = 404;
+          res.end("Requested a non-sur path without a base server specified");
+          return;
+        }
       }
-      rpcHandler(req, res);
+      this.connectServer(req, res);
     });
 
-    const channelHandler = createChannelHandler(
-      [this.service],
-      this.channelImplementations,
-      this.options
-    )(server);
+    server.on(
+      "upgrade",
+      createUpgradeHandler(
+        [this.service],
+        this.channelImplementations,
+        this.options
+      )
+    );
 
     return server;
   }
