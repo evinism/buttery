@@ -53,11 +53,8 @@ export class SurServer<Endpoints extends EndpointBase> {
     this.baseHandler = handler;
   }
 
-  use(middleware: SurMiddleware) {
-    if (!this.options.middlewares) {
-      this.options.middlewares = [];
-    }
-    this.options.middlewares.push(middleware);
+  use(middleware: connect.HandleFunction) {
+    this.connectServer.use(middleware);
     return this;
   }
 
