@@ -59,10 +59,6 @@ export const createUpgradeHandler = <Endpoints extends EndpointBase>(
   wss.on("connection", handleConnection);
 
   return (request: http.IncomingMessage, socket: Socket, head: Buffer) => {
-    // We use a response that's to be used on rejection. If the upgrade
-    // request gets to the upgrade, then this is thrown away.
-    const stemResponse = new http.ServerResponse(request);
-
     if (!isSurPath(request)) {
       // Already taken care of by a different handler!
       return;

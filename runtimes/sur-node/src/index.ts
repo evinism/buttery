@@ -10,6 +10,11 @@ import { createRpcHandler } from "./rpc";
 import { ChannelNode, RPCNode, SurNode } from "./shared/nodes";
 import { createUpgradeHandler, SurSocket } from "./channel";
 import { isSurPath } from "./util";
+import {
+  upgradeHandlerToResponseHandler,
+  responseHandlerToUpgradeHandler,
+  divertUpgrade,
+} from "./shims";
 
 type ExtractNodeType<P> = P extends SurNode<infer T> ? T : never;
 
@@ -115,12 +120,15 @@ export class SurServer<Endpoints extends EndpointBase> {
       this.options
     );
 
-    // This connectServer should divert to either RPCs or Channels
-    // depending on what happens here
-    this.connectServer.use(rpcHandler);
+    this.connectServer.use(
+      divertUpgrade(rpcHandler, upgradeHandlerToResponseHandler(upgradeHandler))
+    );
 
     server.on("request", this.rpcFallback(this.connectServer));
-    server.on("upgrade", upgradeHandler);
+    server.on(
+      "upgrade",
+      responseHandlerToUpgradeHandler(this.rpcFallback(this.connectServer))
+    );
 
     return server;
   }
