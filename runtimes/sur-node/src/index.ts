@@ -86,34 +86,41 @@ export class SurServer<Endpoints extends EndpointBase> {
     }
   }
 
+  rpcFallback = (next: (req, res) => unknown) => (req, res) => {
+    if (!isSurPath(req)) {
+      if (this.baseHandler) {
+        this.baseHandler(req, res);
+        return;
+      } else {
+        res.statusCode = 404;
+        res.end("Requested a non-sur path without a base server specified");
+        return;
+      }
+    }
+    next(req, res);
+  };
+
   createHttpServer() {
     const server = http.createServer();
 
-    this.connectServer.use(
-      createRpcHandler([this.service], this.rpcImplementations, this.options)
+    const rpcHandler = createRpcHandler(
+      [this.service],
+      this.rpcImplementations,
+      this.options
     );
-    server.on("request", (req, res) => {
-      if (!isSurPath(req)) {
-        if (this.baseHandler) {
-          this.baseHandler(req, res);
-          return;
-        } else {
-          res.statusCode = 404;
-          res.end("Requested a non-sur path without a base server specified");
-          return;
-        }
-      }
-      this.connectServer(req, res);
-    });
 
-    server.on(
-      "upgrade",
-      createUpgradeHandler(
-        [this.service],
-        this.channelImplementations,
-        this.options
-      )
+    const upgradeHandler = createUpgradeHandler(
+      [this.service],
+      this.channelImplementations,
+      this.options
     );
+
+    // This connectServer should divert to either RPCs or Channels
+    // depending on what happens here
+    this.connectServer.use(rpcHandler);
+
+    server.on("request", this.rpcFallback(this.connectServer));
+    server.on("upgrade", upgradeHandler);
 
     return server;
   }
