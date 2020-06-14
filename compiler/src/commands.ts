@@ -3,7 +3,7 @@ import fs from "fs";
 import { generators } from "./generators";
 import { GenFile } from "./generators/types";
 
-import { load } from "./resolve";
+import { load } from "./pipeline";
 
 interface GenerateCmdConfig {
   target: string;

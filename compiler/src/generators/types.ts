@@ -1,8 +1,8 @@
-import { SurpcFile, Representable } from "../ast";
+import { SurFile, Representable } from "../ast";
 
 export interface GenFile {
   fileName: string;
   content: string;
 }
 
-export type CodeGenerator = (file: SurpcFile<Representable>) => GenFile[];
+export type CodeGenerator = (file: SurFile<Representable>) => GenFile[];

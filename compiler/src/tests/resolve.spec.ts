@@ -1,4 +1,4 @@
-import { load } from "../resolve";
+import { load } from "../pipeline";
 import * as chai from "chai";
 
 describe("Resolving", function () {
@@ -287,9 +287,11 @@ describe("Resolving", function () {
   });
 
   describe("Circular Includes", function () {
-    it.skip("resolves vars in oneFile correctly", function () {
-      const output = load("../data/resolve/circular/a.sur");
-      chai.assert.deepEqual({}, output);
+    // TODO: Ensure a specific type of error
+    it("resolves vars in oneFile correctly", function () {
+      const output = chai.assert.throws(() =>
+        load("../data/resolve/circular/a.sur")
+      );
     });
   });
 

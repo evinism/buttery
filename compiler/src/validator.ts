@@ -1,16 +1,15 @@
 import {
-  SurpcFile,
+  SurFile,
   Reference,
   Service,
   VariableDeclaration,
   Channel,
 } from "./ast";
-import { serviceParser } from "./parser";
 
 // This enforces some constraints on Sur files.
 // These constraints shouldn't be considered part of the ast because they don't
 // represent the syntax structure!
-export function validate(file: SurpcFile<Reference>): SurpcFile<Reference> {
+export function validate(file: SurFile<Reference>): SurFile<Reference> {
   // Constraint 1: Top level var declarations should not include channel and rpc
   // definitions
   const hasOnlyStructsAndServices = file.variables.every(

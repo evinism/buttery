@@ -17,7 +17,7 @@ import {
   Field,
   VariableDeclaration,
   ImportStatement,
-  SurpcFile,
+  SurFile,
 } from "../ast";
 import { eof, seq, Parser, apFirst, map, sat } from "parser-ts/lib/Parser";
 import { Token, lexer } from "../lexer";
@@ -549,7 +549,7 @@ service BloopService:
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
-      const targetRef: SurpcFile<Reference> = {
+      const targetRef: SurFile<Reference> = {
         path: "filename",
         imports: [
           {

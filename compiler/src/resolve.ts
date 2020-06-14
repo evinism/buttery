@@ -1,7 +1,7 @@
 import fs from "fs";
 import { isRight } from "fp-ts/lib/Either";
 import {
-  SurpcFile,
+  SurFile,
   Representable,
   Reference,
   Primitive,
@@ -10,23 +10,14 @@ import {
 } from "./ast";
 import path from "path";
 
-import { badParse } from "./parser";
-
-export function load(
-  file: string,
-  loadedFiles: string[] = []
-): SurpcFile<Representable> {
-  if (loadedFiles.includes(file)) {
-    throw new Error("Cycle detected between files!");
-  }
-  const parseResult = badParse(fs.readFileSync(file, "utf8"), file);
-  return resolve(parseResult);
-}
+type LoadFn = (file: string) => SurFile<Reference>;
 
 function resolveRef(
   { ref, typeArgs, namespace }: Reference,
-  context: SurpcFile<Reference>,
+  context: SurFile<Reference>,
   prevReffedVars: string[],
+  prevReffedFiles: string[],
+  load: LoadFn,
   namespaceContext?: string
 ): Representable {
   const primitive = Primitive[ref] as Primitive | undefined;
@@ -43,7 +34,13 @@ function resolveRef(
     }
     return {
       type: "list",
-      value: resolveRef(typeArgs[0], context, prevReffedVars),
+      value: resolveRef(
+        typeArgs[0],
+        context,
+        prevReffedVars,
+        prevReffedFiles,
+        load
+      ),
     };
   }
   if (ref === "Map") {
@@ -57,7 +54,13 @@ function resolveRef(
     return {
       type: "map",
       key: mapKey,
-      value: resolveRef(typeArgs[1], context, prevReffedVars),
+      value: resolveRef(
+        typeArgs[1],
+        context,
+        prevReffedVars,
+        prevReffedFiles,
+        load
+      ),
     };
   }
 
@@ -72,12 +75,21 @@ function resolveRef(
       path.dirname(context.path),
       importStatement.path
     );
+    if (prevReffedFiles.includes(loadPath)) {
+      throw new Error(`Circular reference in files detected: ${loadPath}`);
+    }
     const file = load(loadPath);
-    const resolvedVar = file.variables.find((v) => v.name === ref);
-    if (!resolvedVar) {
+    const reffedVar = file.variables.find((v) => v.name === ref);
+    if (!reffedVar) {
       throw new Error(`File ${loadPath} does not define ${ref}`);
     }
-    resolvedDecl = resolvedVar;
+    resolvedDecl = resolveDecl(
+      reffedVar,
+      file,
+      [],
+      prevReffedFiles.concat(file.path),
+      load
+    );
   } else {
     let decl: VariableDeclaration<Reference> | undefined;
 
@@ -117,7 +129,13 @@ function resolveRef(
       throw new Error(`Unresolved reference ${ref}`);
     }
 
-    resolvedDecl = resolveDecl(decl, context, prevReffedVars);
+    resolvedDecl = resolveDecl(
+      decl,
+      context,
+      prevReffedVars,
+      prevReffedFiles,
+      load
+    );
   }
 
   if (resolvedDecl.value.type === "channel") {
@@ -134,8 +152,10 @@ function resolveRef(
 
 function resolveDecl(
   decl: VariableDeclaration<Reference>,
-  context: SurpcFile<Reference>,
+  context: SurFile<Reference>,
   prevReffedVars: string[],
+  prevReffedFiles: string[],
+  load: LoadFn,
   currentNamespace?: string // What namespace are we currently in?
 ): VariableDeclaration<Representable> {
   if (prevReffedVars.includes(decl.name)) {
@@ -145,7 +165,14 @@ function resolveDecl(
   nextReffedVars.push(decl.name);
 
   const qResolveRev = (ref: Reference) =>
-    resolveRef(ref, context, nextReffedVars, currentNamespace);
+    resolveRef(
+      ref,
+      context,
+      nextReffedVars,
+      prevReffedFiles,
+      load,
+      currentNamespace
+    );
 
   let newVal: VarRHS<Representable>;
   if (decl.value.type === "channel") {
@@ -187,7 +214,7 @@ function resolveDecl(
       type,
       name,
       variables: variables.map((ref: VariableDeclaration<Reference>) =>
-        resolveDecl(ref, context, nextReffedVars, name)
+        resolveDecl(ref, context, nextReffedVars, prevReffedFiles, load, name)
       ),
     };
   } else {
@@ -210,12 +237,13 @@ function resolveDecl(
 }
 
 export function resolve(
-  refFile: SurpcFile<Reference>
-): SurpcFile<Representable> {
+  refFile: SurFile<Reference>,
+  load: (file: string) => SurFile<Reference>
+): SurFile<Representable> {
   // circ reference betw. files solved in load()
   // so now we just have to solve it here.
   const newVars = refFile.variables.map((variable) =>
-    resolveDecl(variable, refFile, [])
+    resolveDecl(variable, refFile, [], [refFile.path], load)
   );
 
   return {

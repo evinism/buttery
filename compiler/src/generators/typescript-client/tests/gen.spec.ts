@@ -1,6 +1,6 @@
 import { gen } from "..";
 import { generateCmd } from "../../../commands";
-import { load } from "../../../resolve";
+import { load } from "../../../pipeline";
 import fs from "fs";
 import * as chai from "chai";
 import child_process from "child_process";

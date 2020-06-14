@@ -1,5 +1,5 @@
 import {
-  SurpcFile,
+  SurFile,
   StructType,
   Field,
   Reference,
@@ -296,9 +296,9 @@ const statementParser: Parser<Token, Statement<Reference>> = either<
   )
 );
 
-export const fileParser: (
-  path: string
-) => Parser<Token, SurpcFile<Reference>> = (path) =>
+export const fileParser: (path: string) => Parser<Token, SurFile<Reference>> = (
+  path
+) =>
   apFirst<Token, void>(
     seq(many(matchToken<NewLineToken>("newline")), () => eof())
   )(
@@ -327,6 +327,6 @@ export function badParse(contents: string, fname: string) {
   return validated;
 }
 
-function parse(contents: string): SurpcFile<Reference> {
-  throw "not implemented";
+export function parse(tokenStream: Token[], fname: string) {
+  return fileParser(fname)(stream(tokenStream, 0));
 }
