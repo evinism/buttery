@@ -10,6 +10,21 @@ import path from "path";
 
 type LoadFn = (file: string) => SurFile<Reference>;
 
+const getRepresentable = (
+  resolvedDecl: VariableDeclaration<Representable>
+): Representable => {
+  if (resolvedDecl.value.type === "channel") {
+    throw new Error("Channels cannot be referenced as types");
+  }
+  if (resolvedDecl.value.type === "rpc") {
+    throw new Error("Rpcs cannot be referenced as types");
+  }
+  if (resolvedDecl.value.type === "service") {
+    throw new Error("Services cannot be referenced as types");
+  }
+  return resolvedDecl.value;
+};
+
 function resolveRef(
   { ref, typeArgs, namespace }: Reference,
   context: SurFile<Reference>,
@@ -71,7 +86,6 @@ function resolveRef(
       statement.imports.includes(namespace || "")
   );
 
-  let resolvedDecl: VariableDeclaration<Representable>;
   if (importStatement) {
     const loadPath = path.resolve(
       path.dirname(context.path),
@@ -90,73 +104,66 @@ function resolveRef(
     // New namespace overrides old namespace defn.
     const newNamespace = namespace || namespaceContext;
 
-    resolvedDecl = resolveDecl(
-      reffedVar,
-      file,
-      [],
-      prevReffedFiles.concat(file.path),
-      load,
-      newNamespace
+    return getRepresentable(
+      resolveDecl(
+        reffedVar,
+        file,
+        [],
+        prevReffedFiles.concat(file.path),
+        load,
+        newNamespace
+      )
     );
-  } else {
-    let decl: VariableDeclaration<Reference> | undefined;
+  }
 
-    // First try to resolve via looking in a namespace
-    if (namespace) {
-      const nsRef = context.variables.find(({ name }) => name === namespace);
-      if (nsRef) {
-        if (nsRef.value.type !== "service") {
-          throw new Error(
-            `Attempted to dereference a ${nsRef.value.type}. Dot syntax only works on services`
-          );
-        }
-        decl = nsRef.value.variables.find(({ name }) => name === ref);
-      }
-    }
+  let decl: VariableDeclaration<Reference> | undefined;
 
-    // Then try to resolve via looking up within the current namespace
-    if (!decl && namespaceContext) {
-      const nsRef = context.variables.find(
-        ({ name }) => name === namespaceContext
-      );
-      if (nsRef && nsRef.value.type === "service") {
-        decl = nsRef.value.variables.find(({ name }) => name === ref);
-      } else {
+  // First try to resolve via looking in a namespace
+  if (namespace) {
+    const nsRef = context.variables.find(({ name }) => name === namespace);
+    if (nsRef) {
+      if (nsRef.value.type !== "service") {
         throw new Error(
-          "Somehow current namespace context didnt refer to a service"
+          `Attempted to dereference a ${nsRef.value.type}. Dot syntax only works on services`
         );
       }
+      decl = nsRef.value.variables.find(({ name }) => name === ref);
     }
+  }
 
-    // Then try to find it outside of the namespace
-    if (!decl) {
-      decl = context.variables.find(({ name }) => name === ref);
+  // Then try to resolve via looking up within the current namespace
+  if (!decl && namespaceContext) {
+    const nsRef = context.variables.find(
+      ({ name }) => name === namespaceContext
+    );
+    if (nsRef && nsRef.value.type === "service") {
+      decl = nsRef.value.variables.find(({ name }) => name === ref);
+    } else {
+      throw new Error(
+        "Somehow current namespace context didnt refer to a service"
+      );
     }
+  }
 
-    if (!decl) {
-      throw new Error(`Unresolved reference ${ref}`);
-    }
+  // Then try to find it outside of the namespace
+  if (!decl) {
+    decl = context.variables.find(({ name }) => name === ref);
+  }
 
-    resolvedDecl = resolveDecl(
+  if (!decl) {
+    throw new Error(`Unresolved reference ${ref}`);
+  }
+
+  return getRepresentable(
+    resolveDecl(
       decl,
       context,
       prevReffedVars,
       prevReffedFiles,
       load,
       namespaceContext
-    );
-  }
-
-  if (resolvedDecl.value.type === "channel") {
-    throw new Error("Channels cannot be referenced as types");
-  }
-  if (resolvedDecl.value.type === "rpc") {
-    throw new Error("Rpcs cannot be referenced as types");
-  }
-  if (resolvedDecl.value.type === "service") {
-    throw new Error("Services cannot be referenced as types");
-  }
-  return resolvedDecl.value;
+    )
+  );
 }
 
 function resolveDecl(
