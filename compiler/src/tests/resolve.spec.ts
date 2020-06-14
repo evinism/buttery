@@ -683,7 +683,7 @@ describe("Resolving", function () {
   });
 
   describe("Service descriptors", function () {
-    it("resolves vars in foodDelivery correctly", function () {
+    it.skip("resolves vars in foodDelivery correctly", function () {
       const output = load("../data/resolve/fooddelivery/order.sur");
       chai.assert.deepEqual({}, output);
     });

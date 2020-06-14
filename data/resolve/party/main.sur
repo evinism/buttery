@@ -18,7 +18,9 @@ struct ChatUpdate:
   content: string
   author: Person
 
-service PartyService:
+
+# Maintained by the PartyService team!
+service PartyService: 
   rpc AddToParty:
     request: Person
     response: AddToPartyResponse
