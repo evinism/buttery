@@ -392,7 +392,7 @@ from "./this_path.sur"`;
     });
   });
 
-  it.skip("correctly ignores comments", function () {
+  it("correctly ignores comments", function () {
     const contents = "myFieldName: number # lololol comment time";
     const parsed = lexer(stream(contents.split(""), 0));
 
@@ -414,7 +414,7 @@ from "./this_path.sur"`;
     chai.assert.deepEqual(expected, output);
   });
 
-  it.skip("keeps newlines after comments", function () {
+  it("keeps newlines after comments", function () {
     const contents = `myFieldName: number # lololol comment time
 myFavoriteField: string`;
     const parsed = lexer(stream(contents.split(""), 0));
@@ -431,6 +431,20 @@ myFavoriteField: string`;
       },
       {
         name: "number",
+        token: "name",
+      },
+      {
+        token: "newline",
+      },
+      {
+        name: "myFavoriteField",
+        token: "name",
+      },
+      {
+        token: "colon",
+      },
+      {
+        name: "string",
         token: "name",
       },
     ];

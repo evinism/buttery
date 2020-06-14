@@ -19,6 +19,10 @@ import {
   eof,
 } from "parser-ts/lib/Parser";
 
+function isNonNewline(char: string): boolean {
+  return char !== "\n";
+}
+
 const spaceRe = /^\s$/;
 
 function isNonNewlineSpace(char: string): boolean {
@@ -158,6 +162,10 @@ export const nameTokenParser: Parser<string, NameToken> = map(
 export type ShiftInToken = BasicToken<"shiftIn">;
 export type ShiftOutToken = BasicToken<"shiftOut">;
 
+export const commentParser: Parser<string, void> = map(() => undefined)(
+  seq(spaces, () => seq(char("#"), () => many(sat(isNonNewline))))
+);
+
 export type Token =
   | ImportToken
   | FromToken
@@ -192,6 +200,9 @@ export const lexer: Parser<string, Token[]> = map(
     apFirst(seq(spaces, () => eof<string>()))(
       many(
         anyOf<string, Token | void>([
+          // Comments take prescedence
+          commentParser,
+
           // alphanumeric keywords
           importTokenParser,
           fromTokenParser,
