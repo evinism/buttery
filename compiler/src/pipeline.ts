@@ -1,7 +1,7 @@
-import { SurFile, Reference, Representable } from "./ast";
+import { SurFile, Reference } from "./ast";
 import fs from "fs";
 import { resolve } from "./resolve";
-import { badParse, parse } from "./parser";
+import { parse } from "./parser";
 import { lexer, Token } from "./lexer";
 import { stream } from "parser-ts/lib/Stream";
 import { isLeft } from "fp-ts/lib/Either";
@@ -43,13 +43,19 @@ export function loadSurFile(fname: string): SurFile<Reference> {
   if (isLeft(tokenized)) {
     throw new Error(getTokenizerErrorMessage(tokenized.left));
   }
+
+  // This can't fail, fortunately!
   const indented = indentify(tokenized.right.value);
+
   const parsed = parse(indented, fname);
   if (isLeft(parsed)) {
     throw new Error(getParseErrorMessage(parsed.left));
   }
   const validated = validate(parsed.right.value);
-  return validated;
+  if (!isLeft(validated)) {
+    throw validated.right;
+  }
+  return validated.left;
 }
 
 export function load(path: string) {

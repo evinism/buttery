@@ -1,22 +1,22 @@
-import {
-  SurFile,
-  Reference,
-  Service,
-  VariableDeclaration,
-  Channel,
-} from "./ast";
+import { SurFile, Reference, Service, VariableDeclaration } from "./ast";
+
+import { left, right, Either } from "fp-ts/lib/Either";
 
 // This enforces some constraints on Sur files.
 // These constraints shouldn't be considered part of the ast because they don't
 // represent the syntax structure!
-export function validate(file: SurFile<Reference>): SurFile<Reference> {
+export function validate(
+  file: SurFile<Reference>
+): Either<SurFile<Reference>, Error> {
   // Constraint 1: Top level var declarations should not include channel and rpc
   // definitions
   const hasOnlyStructsAndServices = file.variables.every(
     (decl) => decl.value.type !== "rpc" && decl.value.type !== "channel"
   );
   if (!hasOnlyStructsAndServices) {
-    throw `${file.path} has rpc definitions outside of channels`;
+    return right(
+      new Error(`${file.path} has rpc definitions outside of channels`)
+    );
   }
 
   // Constraint 2: Service declarations should not include service declarations.
@@ -30,7 +30,7 @@ export function validate(file: SurFile<Reference>): SurFile<Reference> {
     );
 
   if (!noNestedServices) {
-    throw `Cannot nest services`;
+    return right(new Error(`Cannot nest services`));
   }
 
   // Constraint 3: There can't be repeated variable names
@@ -44,12 +44,16 @@ export function validate(file: SurFile<Reference>): SurFile<Reference> {
     }
   };
 
-  ensureNoRepeats(file.variables);
-  file.variables
-    .filter((decl) => decl.value.type === "service")
-    .forEach((decl) => {
-      ensureNoRepeats((decl.value as Service<unknown>).variables);
-    });
+  try {
+    ensureNoRepeats(file.variables);
+    file.variables
+      .filter((decl) => decl.value.type === "service")
+      .forEach((decl) => {
+        ensureNoRepeats((decl.value as Service<unknown>).variables);
+      });
+  } catch (e) {
+    return right(e);
+  }
 
-  return file;
+  return left(file);
 }

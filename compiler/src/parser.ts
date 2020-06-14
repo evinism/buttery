@@ -313,20 +313,6 @@ export const fileParser: (path: string) => Parser<Token, SurFile<Reference>> = (
     }))(sepBy(matchToken<NewLineToken>("newline"), statementParser))
   );
 
-export function badParse(contents: string, fname: string) {
-  const tokenized = lexer(stream(contents.split(""), 0));
-  if (isLeft(tokenized)) {
-    throw new Error(getTokenizerErrorMessage(tokenized.left));
-  }
-  const indented = indentify(tokenized.right.value);
-  const parsed = fileParser(fname)(stream(indented, 0));
-  if (isLeft(parsed)) {
-    throw new Error(getParseErrorMessage(parsed.left));
-  }
-  const validated = validate(parsed.right.value);
-  return validated;
-}
-
 export function parse(tokenStream: Token[], fname: string) {
   return fileParser(fname)(stream(tokenStream, 0));
 }
