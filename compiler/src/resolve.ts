@@ -30,6 +30,7 @@ function resolveRef(
     if (typeArgs.length !== 1) {
       throw `Wrong number of type arguments for a List (expected 1, got ${typeArgs.length})`;
     }
+    console.log("Resolving ref after this: ", typeArgs[0]);
     return {
       type: "list",
       value: resolveRef(
@@ -37,7 +38,8 @@ function resolveRef(
         context,
         prevReffedVars,
         prevReffedFiles,
-        load
+        load,
+        namespaceContext
       ),
     };
   }
@@ -57,14 +59,18 @@ function resolveRef(
         context,
         prevReffedVars,
         prevReffedFiles,
-        load
+        load,
+        namespaceContext
       ),
     };
   }
 
   // Look in imports! (should move external to this function.)
-  const importStatement = context.imports.find((statement) =>
-    statement.imports.includes(ref)
+  console.log("trying to resolve: ", ref, namespaceContext);
+  const importStatement = context.imports.find(
+    (statement) =>
+      statement.imports.includes(ref) ||
+      statement.imports.includes(namespace || "")
   );
 
   let resolvedDecl: VariableDeclaration<Representable>;
@@ -78,15 +84,21 @@ function resolveRef(
     }
     const file = load(loadPath);
     const reffedVar = file.variables.find((v) => v.name === ref);
+
     if (!reffedVar) {
       throw new Error(`File ${loadPath} does not define ${ref}`);
     }
+
+    // New namespace overrides old namespace defn.
+    const newNamespace = namespace || namespaceContext;
+
     resolvedDecl = resolveDecl(
       reffedVar,
       file,
       [],
       prevReffedFiles.concat(file.path),
-      load
+      load,
+      newNamespace
     );
   } else {
     let decl: VariableDeclaration<Reference> | undefined;
@@ -132,7 +144,8 @@ function resolveRef(
       context,
       prevReffedVars,
       prevReffedFiles,
-      load
+      load,
+      namespaceContext
     );
   }
 

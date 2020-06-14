@@ -12,4 +12,4 @@ service RestaurantService:
 
   rpc GetRestauraunts:
     request: boolean
-    response: List<Restauraunt>
+    response: List<Restaurant>
