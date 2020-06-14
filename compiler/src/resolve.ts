@@ -10,7 +10,7 @@ import path from "path";
 
 type LoadFn = (file: string) => SurFile<Reference>;
 
-const getRepresentable = (
+const getRepresentableFromVar = (
   resolvedDecl: VariableDeclaration<Representable>
 ): Representable => {
   if (resolvedDecl.value.type === "channel") {
@@ -25,8 +25,8 @@ const getRepresentable = (
   return resolvedDecl.value;
 };
 
-function resolveRef(
-  { ref, typeArgs, namespace }: Reference,
+function maybeGetBuiltin(
+  { ref, typeArgs }: Reference,
   context: SurFile<Reference>,
   prevReffedVars: string[],
   prevReffedFiles: string[],
@@ -78,6 +78,31 @@ function resolveRef(
       ),
     };
   }
+}
+
+function resolveRef(
+  refObject: Reference,
+  context: SurFile<Reference>,
+  prevReffedVars: string[],
+  prevReffedFiles: string[],
+  load: LoadFn,
+  namespaceContext?: string
+): Representable {
+  const { ref, namespace } = refObject;
+
+  // Builtins!
+  const maybeBuiltin = maybeGetBuiltin(
+    refObject,
+    context,
+    prevReffedVars,
+    prevReffedFiles,
+    load,
+    namespaceContext
+  );
+
+  if (maybeBuiltin) {
+    return maybeBuiltin;
+  }
 
   // Look in imports! (should move external to this function.)
   const importStatement = context.imports.find(
@@ -104,7 +129,7 @@ function resolveRef(
     // New namespace overrides old namespace defn.
     const newNamespace = namespace || namespaceContext;
 
-    return getRepresentable(
+    return getRepresentableFromVar(
       resolveDecl(
         reffedVar,
         file,
@@ -154,7 +179,7 @@ function resolveRef(
     throw new Error(`Unresolved reference ${ref}`);
   }
 
-  return getRepresentable(
+  return getRepresentableFromVar(
     resolveDecl(
       decl,
       context,
