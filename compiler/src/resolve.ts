@@ -30,7 +30,6 @@ function resolveRef(
     if (typeArgs.length !== 1) {
       throw `Wrong number of type arguments for a List (expected 1, got ${typeArgs.length})`;
     }
-    console.log("Resolving ref after this: ", typeArgs[0]);
     return {
       type: "list",
       value: resolveRef(
@@ -66,7 +65,6 @@ function resolveRef(
   }
 
   // Look in imports! (should move external to this function.)
-  console.log("trying to resolve: ", ref, namespaceContext);
   const importStatement = context.imports.find(
     (statement) =>
       statement.imports.includes(ref) ||
