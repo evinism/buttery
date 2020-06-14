@@ -1,5 +1,3 @@
-import fs from "fs";
-import { isRight } from "fp-ts/lib/Either";
 import {
   SurFile,
   Representable,

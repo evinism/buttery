@@ -28,7 +28,6 @@ import { getMonoid } from "fp-ts/lib/Array";
 import { stream } from "parser-ts/lib/Stream";
 import {
   Token,
-  lexer,
   BasicToken,
   NameToken,
   OpenBracketToken,
@@ -44,38 +43,7 @@ import {
   ShiftOutToken,
   PeriodToken,
 } from "./lexer";
-import { indentify } from "./indenter";
-import { isLeft } from "fp-ts/lib/Either";
 import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
-import { validate } from "./validator";
-import { ParseError } from "parser-ts/lib/ParseResult";
-
-const getParseErrorMessage = (error: ParseError<Token>) => {
-  const errorChar = error.input.buffer[error.input.cursor].token;
-  return `Parse Error: Expected ${error.expected}, but got ${errorChar}`;
-};
-
-const errorPadding = 30;
-const getTokenizerErrorMessage = (error: ParseError<string>) => {
-  const { buffer, cursor } = error.input;
-  const start = Math.max(0, cursor - errorPadding);
-  const end = Math.min(buffer.length - 1, cursor + errorPadding);
-
-  const pre = buffer
-    .slice(start, cursor)
-    .join("")
-    .replace(/^(.*\n)*\s*/g, "");
-  const post = buffer
-    .slice(cursor + 1, end)
-    .join("")
-    .replace(/(\n.*)*$/g, "");
-  return `Tokenizer Error: Expected ${error.expected}, but got "${
-    buffer[cursor]
-  }":
-${pre}${buffer[cursor]}${post}
-${" ".repeat(pre.length)}^
-`;
-};
 
 // Dangerous function because casted
 const matchToken = <T extends BasicToken<unknown>>(tokenName: T["token"]) =>

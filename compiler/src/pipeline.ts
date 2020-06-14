@@ -60,5 +60,6 @@ export function loadSurFile(fname: string): SurFile<Reference> {
 
 export function load(path: string) {
   const startFile = loadSurFile(path);
+  // This should be done via an either.
   return resolve(startFile, loadSurFile);
 }
