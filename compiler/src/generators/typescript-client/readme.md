@@ -1,9 +1,9 @@
-## Butter TypeScript client
+## Buttery TypeScript client
 
 Once implemented, the TypeScript client should work as follows:
 
 ```
-import ButterClient from './generatedFile';
+import ButteryClient from './generatedFile';
 
 const client = new Client('https://www.example.com');
 

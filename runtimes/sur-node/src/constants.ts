@@ -1,1 +1,1 @@
-export const BUTTER_NAMESPACE = "__butter__";
+export const Buttery_NAMESPACE = "__buttery__";

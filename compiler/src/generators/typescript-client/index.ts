@@ -18,7 +18,7 @@ export const gen: CodeGenerator = (file) => {
     .filter(Boolean)
     .join("\n");
 
-  const content = `import {ButterClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, buildRpcHandler, buildChannelHandler} from './butter.runtime';
+  const content = `import {ButteryClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, buildRpcHandler, buildChannelHandler} from './buttery.runtime';
 
 ${nodeDecls}
 
@@ -31,14 +31,14 @@ ${classDecls}
       content,
     },
     {
-      fileName: "butter.runtime.ts",
+      fileName: "buttery.runtime.ts",
       content:
         fs.readFileSync(
           __dirname + "/../../../ext/ts-client/nodes.ts",
           "utf8"
         ) +
         fs.readFileSync(
-          __dirname + "/../../../ext/ts-client/butter.runtime.ts",
+          __dirname + "/../../../ext/ts-client/buttery.runtime.ts",
           "utf8"
         ),
     },
@@ -54,7 +54,7 @@ const generateServiceClass = (decl: VariableDeclaration<Representable>) => {
     .map(generateClassMethod)
     .filter(Boolean)
     .join("\n");
-  return `export class ${value.name}Client extends ButterClient {
+  return `export class ${value.name}Client extends ButteryClient {
   serviceName = "${value.name}";
 ${methodDecls}
 }

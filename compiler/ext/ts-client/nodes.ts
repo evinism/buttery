@@ -1,7 +1,7 @@
-// Nodes for Butter
+// Nodes for Buttery
 // Consumed via ts-client and ts-express in a very ad-hoc method.
 
-export interface ButterNode<R> {
+export interface ButteryNode<R> {
   validate: (toValidate: unknown) => toValidate is R;
   serialize: (r: R) => string | undefined;
   deserialize: (data: string) => R | undefined;
@@ -10,21 +10,23 @@ export interface ButterNode<R> {
 export interface RPCNode<Req, Res> {
   type: "rpcNode";
   name: string;
-  request: ButterNode<Req>;
-  response: ButterNode<Res>;
+  request: ButteryNode<Req>;
+  response: ButteryNode<Res>;
 }
 
 export interface ChannelNode<Send, Recv> {
   type: "channelNode";
   name: string;
-  incoming: ButterNode<Send>;
-  outgoing: ButterNode<Recv>;
+  incoming: ButteryNode<Send>;
+  outgoing: ButteryNode<Recv>;
 }
 
 export function structNode<R extends {}>(
-  decl: { [key in keyof R]: ButterNode<R[key]> }
-): ButterNode<R> {
-  const entries = Object.entries(decl) as Array<[keyof R, ButterNode<unknown>]>;
+  decl: { [key in keyof R]: ButteryNode<R[key]> }
+): ButteryNode<R> {
+  const entries = Object.entries(decl) as Array<
+    [keyof R, ButteryNode<unknown>]
+  >;
 
   const validate = (toValidate: unknown): toValidate is R => {
     if (typeof toValidate !== "object" || toValidate === null) {
@@ -80,7 +82,7 @@ export function structNode<R extends {}>(
   };
 }
 
-export function listNode<R>(valueDefn: ButterNode<R>): ButterNode<R[]> {
+export function listNode<R>(valueDefn: ButteryNode<R>): ButteryNode<R[]> {
   const validate = (toValidate: unknown): toValidate is R[] => {
     if (!Array.isArray(toValidate)) {
       return false;
@@ -123,10 +125,10 @@ const validateKey: { [type in KeyType]: (arg: string) => boolean } = {
   boolean: (key) => key === "true" || key === "false",
 };
 
-export function mapNode<R extends { [key: string]: ButterNode<unknown> }>(
+export function mapNode<R extends { [key: string]: ButteryNode<unknown> }>(
   valueDefn: R[string],
   keyType: KeyType
-): ButterNode<R> {
+): ButteryNode<R> {
   const validate = (toValidate: unknown): toValidate is R => {
     if (typeof toValidate !== "object" || toValidate === null) {
       return false;
@@ -182,7 +184,7 @@ export function mapNode<R extends { [key: string]: ButterNode<unknown> }>(
 
 // Primitive nodes!
 // Lots of these can be reduced down.
-export function integerNode(): ButterNode<number> {
+export function integerNode(): ButteryNode<number> {
   const validate = (toValidate: unknown): toValidate is number => {
     const isInteger = typeof toValidate === "number" && toValidate % 1 === 0;
     if (!isInteger) {
@@ -211,7 +213,7 @@ export function integerNode(): ButterNode<number> {
   };
 }
 
-export function doubleNode(): ButterNode<number> {
+export function doubleNode(): ButteryNode<number> {
   const validate = (toValidate: unknown): toValidate is number => {
     const isDouble = typeof toValidate === "number";
     if (!isDouble) {
@@ -240,7 +242,7 @@ export function doubleNode(): ButterNode<number> {
   };
 }
 
-export function stringNode(): ButterNode<string> {
+export function stringNode(): ButteryNode<string> {
   const validate = (toValidate: unknown): toValidate is string => {
     const isString = typeof toValidate === "string";
     if (!isString) {
@@ -269,7 +271,7 @@ export function stringNode(): ButterNode<string> {
   };
 }
 
-export function booleanNode(): ButterNode<boolean> {
+export function booleanNode(): ButteryNode<boolean> {
   const validate = (toValidate: unknown): toValidate is boolean => {
     const isBoolean = typeof toValidate === "boolean";
     if (!isBoolean) {
@@ -298,7 +300,7 @@ export function booleanNode(): ButterNode<boolean> {
   };
 }
 
-export function nullNode(): ButterNode<null> {
+export function nullNode(): ButteryNode<null> {
   const validate = (toValidate: unknown): toValidate is null => {
     const isNull = toValidate === null;
     if (!isNull) {

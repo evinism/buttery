@@ -1,13 +1,13 @@
 import * as http from "http";
-import { ButterService, EndpointBase, ButterServerOptions } from "./types";
-import { isButterPath, streamToString } from "./util";
+import { ButteryService, EndpointBase, ButteryServerOptions } from "./types";
+import { isButteryPath, streamToString } from "./util";
 
 export const createRpcHandler = <Endpoints extends EndpointBase>(
-  services: Array<ButterService<Endpoints>>,
+  services: Array<ButteryService<Endpoints>>,
   handlers: { [Key in keyof Endpoints]?: any },
-  options: ButterServerOptions
+  options: ButteryServerOptions
 ) => async (request: http.IncomingMessage, response: http.ServerResponse) => {
-  if (!isButterPath(request)) {
+  if (!isButteryPath(request)) {
     // Irrelevant request, do nothing.
     return;
   }
@@ -17,7 +17,7 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
   const path = (request.url || "").split("/").slice(1);
   if (path.length !== 3) {
     response.writeHead(400, { "Content-Type": "text/plain" });
-    response.end("Malformed Butter URL");
+    response.end("Malformed Buttery URL");
     return;
   }
   const [_, serviceName, requestName] = path;
@@ -54,7 +54,7 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
       Object.assign({ "Content-Type": "text/plain" }, headers)
     );
     response.end(
-      `Butter RPC not implemented: ${relevantService}/${requestName}`
+      `Buttery RPC not implemented: ${relevantService}/${requestName}`
     );
   }
 

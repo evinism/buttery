@@ -1,4 +1,4 @@
-import Person from "./person.butter"
+import Person from "./person.buttery"
 
 struct Slot:
   people: List<Person>

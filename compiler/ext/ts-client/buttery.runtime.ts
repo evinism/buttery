@@ -121,11 +121,11 @@ class StableSocket {
   }
 }
 
-class ButterChannelConnection<Send, Recv> {
+class ButteryChannelConnection<Send, Recv> {
   constructor(
     url: string,
-    sendNode: ButterNode<Send>,
-    recvNode: ButterNode<Recv>
+    sendNode: ButteryNode<Send>,
+    recvNode: ButteryNode<Recv>
   ) {
     this.sendNode = sendNode;
     this.recvNode = recvNode;
@@ -145,8 +145,8 @@ class ButterChannelConnection<Send, Recv> {
     });
   }
 
-  sendNode: ButterNode<Send>;
-  recvNode: ButterNode<Recv>;
+  sendNode: ButteryNode<Send>;
+  recvNode: ButteryNode<Recv>;
   stableSocket: StableSocket;
   recvPipe: Pipe<Recv>;
   broken: boolean;
@@ -186,7 +186,7 @@ interface RpcConfig {
   referrerPolicy?: string;
 }
 
-interface ButterClientConfig {
+interface ButteryClientConfig {
   rpc?: RpcConfig;
 }
 
@@ -199,47 +199,47 @@ const defaultRequester = (url: string, body: string, config: RpcConfig = {}) =>
 
 export function buildRpcHandler<Req, Res>(
   requestName: string,
-  requestNode: ButterNode<Req>,
-  responseNode: ButterNode<Res>
+  requestNode: ButteryNode<Req>,
+  responseNode: ButteryNode<Res>
 ) {
-  return function Request(this: ButterClient, value: Req): Promise<Res> {
+  return function Request(this: ButteryClient, value: Req): Promise<Res> {
     return this.request(requestName, value, requestNode, responseNode);
   };
 }
 
 export function buildChannelHandler<Send, Recv>(
   requestName: string,
-  sendNode: ButterNode<Send>,
-  recvNode: ButterNode<Recv>
+  sendNode: ButteryNode<Send>,
+  recvNode: ButteryNode<Recv>
 ) {
   return function Connect(
-    this: ButterClient
-  ): ButterChannelConnection<Send, Recv> {
+    this: ButteryClient
+  ): ButteryChannelConnection<Send, Recv> {
     return this.connect(requestName, sendNode, recvNode);
   };
 }
 
-export class ButterClient {
-  constructor(baseUrl: string, ButterClientConfig: ButterClientConfig = {}) {
+export class ButteryClient {
+  constructor(baseUrl: string, ButteryClientConfig: ButteryClientConfig = {}) {
     this.baseUrl = baseUrl;
-    this.requester = ButterClientConfig.rpc?.requester || defaultRequester;
-    this.rpcConfig = ButterClientConfig.rpc;
+    this.requester = ButteryClientConfig.rpc?.requester || defaultRequester;
+    this.rpcConfig = ButteryClientConfig.rpc;
     this.serviceName = "TO_OVERRIDE";
   }
 
   baseUrl: string;
   serviceName: string;
-  butterApiNamespace = "__butter__";
+  butteryApiNamespace = "__buttery__";
   rpcConfig?: RpcConfig;
   requester: (url: string, body: string, config: RpcConfig) => Promise<string>;
 
   request<Req, Res>(
     requestName: string,
     requestValue: Req,
-    requestNode: ButterNode<Req>,
-    responseNode: ButterNode<Res>
+    requestNode: ButteryNode<Req>,
+    responseNode: ButteryNode<Res>
   ): Promise<Res> {
-    const targetUrl = `${this.baseUrl}/${this.butterApiNamespace}/${this.serviceName}/${requestName}`;
+    const targetUrl = `${this.baseUrl}/${this.butteryApiNamespace}/${this.serviceName}/${requestName}`;
     const body = requestNode.serialize(requestValue);
     if (body === undefined) {
       throw "Unacceptable Body Type";
@@ -255,11 +255,11 @@ export class ButterClient {
 
   connect<Send, Recv>(
     requestName: string,
-    sendNode: ButterNode<Send>,
-    recvNode: ButterNode<Recv>
+    sendNode: ButteryNode<Send>,
+    recvNode: ButteryNode<Recv>
   ) {
-    return new ButterChannelConnection(
-      `${this.baseUrl}/${this.butterApiNamespace}/${this.serviceName}/${requestName}`,
+    return new ButteryChannelConnection(
+      `${this.baseUrl}/${this.butteryApiNamespace}/${this.serviceName}/${requestName}`,
       sendNode,
       recvNode
     );

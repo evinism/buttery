@@ -4,9 +4,9 @@ import * as chai from "chai";
 describe("Resolving", function () {
   describe("Single File", function () {
     it("resolves vars in oneFile correctly", function () {
-      const output = load("../data/resolve/onefile/main.butter");
+      const output = load("../data/resolve/onefile/main.buttery");
       chai.assert.deepEqual(output, {
-        path: "../data/resolve/onefile/main.butter",
+        path: "../data/resolve/onefile/main.buttery",
         imports: [],
         variables: [
           {
@@ -281,9 +281,9 @@ describe("Resolving", function () {
 
   describe("Multiple Files", function () {
     it("resolves vars in party correctly", function () {
-      const output = load("../data/resolve/party/main.butter");
+      const output = load("../data/resolve/party/main.buttery");
       chai.assert.deepEqual(output, {
-        path: "../data/resolve/party/main.butter",
+        path: "../data/resolve/party/main.buttery",
         imports: [],
         variables: [
           {
@@ -676,22 +676,22 @@ describe("Resolving", function () {
   });
 
   describe("Circular Includes", function () {
-    // TODO: Enbuttere a specific type of error
+    // TODO: Enbutterye a specific type of error
     it("resolves vars in oneFile correctly", function () {
-      chai.assert.throws(() => load("../data/resolve/circular/a.butter"));
+      chai.assert.throws(() => load("../data/resolve/circular/a.buttery"));
     });
   });
 
   describe("Service descriptors", function () {
     it.skip("resolves vars in foodDelivery correctly", function () {
-      const output = load("../data/resolve/fooddelivery/order.butter");
+      const output = load("../data/resolve/fooddelivery/order.buttery");
       chai.assert.deepEqual({}, output);
     });
   });
 
   describe("Namespace resolution", function () {
     it("is able to resolve references with namespaces", function () {
-      const output = load("../data/resolve/namespace/ns1.butter");
+      const output = load("../data/resolve/namespace/ns1.buttery");
       chai.assert.equal(!!output, true);
     });
   });

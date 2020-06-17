@@ -1,5 +1,5 @@
-import RestaurantService from "./restaurant.butter"
-import User from "./user.butter"
+import RestaurantService from "./restaurant.buttery"
+import User from "./user.buttery"
 
 service OrderService:
   struct Order:

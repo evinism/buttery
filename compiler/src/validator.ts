@@ -1,13 +1,13 @@
-import { ButterFile, Reference, Service, VariableDeclaration } from "./ast";
+import { ButteryFile, Reference, Service, VariableDeclaration } from "./ast";
 
 import { left, right, Either } from "fp-ts/lib/Either";
 
-// This enforces some constraints on Butter files.
+// This enforces some constraints on Buttery files.
 // These constraints shouldn't be considered part of the ast because they don't
 // represent the syntax structure!
 export function validate(
-  file: ButterFile<Reference>
-): Either<ButterFile<Reference>, Error> {
+  file: ButteryFile<Reference>
+): Either<ButteryFile<Reference>, Error> {
   // Constraint 1: Top level var declarations should not include channel and rpc
   // definitions
   const hasOnlyStructsAndServices = file.variables.every(

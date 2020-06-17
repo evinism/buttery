@@ -1,8 +1,8 @@
-import { ButterFile, Representable } from "../ast";
+import { ButteryFile, Representable } from "../ast";
 
 export interface GenFile {
   fileName: string;
   content: string;
 }
 
-export type CodeGenerator = (file: ButterFile<Representable>) => GenFile[];
+export type CodeGenerator = (file: ButteryFile<Representable>) => GenFile[];

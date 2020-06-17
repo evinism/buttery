@@ -1,4 +1,4 @@
-import { PartyServiceClient } from "../../../../butter-genfiles/main.butter.gen";
+import { PartyServiceClient } from "../../../../buttery-genfiles/main.buttery.gen";
 
 const client = new PartyServiceClient("lolol", {
   rpc: {
@@ -18,7 +18,7 @@ const client = new PartyServiceClient("lolol", {
     }`);
     },
     headers: {
-      PoweredBy: "butter",
+      PoweredBy: "buttery",
     },
   },
 });

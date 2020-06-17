@@ -1,4 +1,4 @@
-import { ButterFile, Reference } from "./ast";
+import { ButteryFile, Reference } from "./ast";
 import fs from "fs";
 import { resolve } from "./resolve";
 import { parse } from "./parser";
@@ -36,7 +36,7 @@ ${" ".repeat(pre.length)}^
 `;
 };
 
-export function loadButterFile(fname: string): ButterFile<Reference> {
+export function loadButteryFile(fname: string): ButteryFile<Reference> {
   const contents = fs.readFileSync(fname, "utf8");
 
   const tokenized = lexer(stream(contents.split(""), 0));
@@ -59,7 +59,7 @@ export function loadButterFile(fname: string): ButterFile<Reference> {
 }
 
 export function load(path: string) {
-  const startFile = loadButterFile(path);
+  const startFile = loadButteryFile(path);
   // This should be done via an either.
-  return resolve(startFile, loadButterFile);
+  return resolve(startFile, loadButteryFile);
 }

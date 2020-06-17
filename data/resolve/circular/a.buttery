@@ -1,0 +1,4 @@
+import B from "./b.buttery"
+
+struct A:
+  b: B

@@ -63,7 +63,7 @@ describe("Tokenizing", function () {
 
     it("resolves tokens in party main correctly", function () {
       const contents = fs.readFileSync(
-        "../data/resolve/party/main.butter",
+        "../data/resolve/party/main.buttery",
         "utf-8"
       );
       const parsed = lexer(stream(contents.split(""), 0));
@@ -75,7 +75,7 @@ describe("Tokenizing", function () {
         { token: "import" },
         { token: "name", name: "Person" },
         { token: "from" },
-        { token: "quotedString", contents: "./person.butter" },
+        { token: "quotedString", contents: "./person.buttery" },
         { token: "newline" },
         { token: "struct" },
         { token: "name", name: "Slot" },
@@ -360,7 +360,7 @@ describe("Tokenizing", function () {
       const contents = `import
   Bleep,
   Bleep2
-from "./this_path.butter"`;
+from "./this_path.buttery"`;
       const parsed = lexer(stream(contents.split(""), 0));
 
       assert(isRight(parsed));
@@ -384,7 +384,7 @@ from "./this_path.butter"`;
           token: "from",
         },
         {
-          contents: "./this_path.butter",
+          contents: "./this_path.buttery",
           token: "quotedString",
         },
       ];

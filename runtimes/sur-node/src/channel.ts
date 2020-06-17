@@ -1,12 +1,12 @@
-import { ButterService, EndpointBase, ButterServerOptions } from "./types";
+import { ButteryService, EndpointBase, ButteryServerOptions } from "./types";
 import { Server as WebsocketServer } from "ws";
-import { isButterPath } from "./util";
+import { isButteryPath } from "./util";
 import * as http from "http";
 import { Socket } from "net";
 import { ChannelNode } from "./shared/nodes";
 import { Pipe } from "./util";
 
-export class ButterSocket<Incoming, Outgoing> extends Pipe<Incoming> {
+export class ButterySocket<Incoming, Outgoing> extends Pipe<Incoming> {
   constructor(socket: WebSocket, channelDef: ChannelNode<Incoming, Outgoing>) {
     super();
     this.socket = socket;
@@ -44,13 +44,13 @@ const handleConnection = <Incoming, Outgoing>(
   handler: (connection: any, request: http.IncomingMessage) => void,
   channelDef: ChannelNode<Incoming, Outgoing>
 ) => {
-  handler(new ButterSocket(socket, channelDef), request);
+  handler(new ButterySocket(socket, channelDef), request);
 };
 
 export const createUpgradeHandler = <Endpoints extends EndpointBase>(
-  services: Array<ButterService<Endpoints>>,
+  services: Array<ButteryService<Endpoints>>,
   handlers: { [Key in keyof Endpoints]?: any },
-  options: ButterServerOptions
+  options: ButteryServerOptions
 ) => {
   const wss = new WebsocketServer({
     noServer: true,
@@ -59,14 +59,14 @@ export const createUpgradeHandler = <Endpoints extends EndpointBase>(
   wss.on("connection", handleConnection);
 
   return (request: http.IncomingMessage, socket: Socket, head: Buffer) => {
-    if (!isButterPath(request)) {
+    if (!isButteryPath(request)) {
       // Already taken care of by a different handler!
       return;
     }
 
     const path = (request.url || "").split("/").slice(1);
     if (path.length !== 3) {
-      socket.destroy(new Error("Malformed Butter URL"));
+      socket.destroy(new Error("Malformed Buttery URL"));
       return;
     }
     const [_, serviceName, requestName] = path;
@@ -100,7 +100,7 @@ export const createUpgradeHandler = <Endpoints extends EndpointBase>(
     if (!handler) {
       socket.destroy(
         new Error(
-          `Butter RPC not implemented: ${relevantService}/${requestName}`
+          `Buttery RPC not implemented: ${relevantService}/${requestName}`
         )
       );
     }

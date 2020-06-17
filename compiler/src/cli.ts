@@ -3,7 +3,7 @@ import { generators } from "./generators";
 import { generateCmd } from "./commands";
 
 const argv = yargs
-  .scriptName("butter")
+  .scriptName("buttery")
   .usage("$0 <command>")
   .command(
     "generate <target> [options]",
@@ -17,19 +17,19 @@ const argv = yargs
           })
           .option("f", {
             alias: "files",
-            describe: "Input .butter files to parse",
+            describe: "Input .buttery files to parse",
             type: "array",
             demand: true,
             // also: count:true, requiresArg:true
           })
           /*.positional("files", {
-          describe: "Input .butter files to parse",
+          describe: "Input .buttery files to parse",
           normalize: true,
         })*/
           .option("o", {
             alias: "output",
             describe: "Output directory",
-            default: "./butter-genfiles",
+            default: "./buttery-genfiles",
             normalize: true,
           })
       );

@@ -1,4 +1,0 @@
-import B from "./b.butter"
-
-struct A:
-  b: B

@@ -4,15 +4,15 @@ export type EndpointBase = {
   [key: string]: RPCNode<unknown, unknown> | ChannelNode<unknown, unknown>;
 };
 
-export interface ButterService<Endpoints extends EndpointBase> {
+export interface ButteryService<Endpoints extends EndpointBase> {
   name: string;
   endpoints: Endpoints;
 }
 
-export type ButterMiddleware = (req: any, res: any) => {};
+export type ButteryMiddleware = (req: any, res: any) => {};
 
-export interface ButterServerOptions {
-  middlewares?: ButterMiddleware[];
+export interface ButteryServerOptions {
+  middlewares?: ButteryMiddleware[];
   rpc?: {
     headers?: { [key: string]: string };
   };

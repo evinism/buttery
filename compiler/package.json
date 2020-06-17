@@ -1,12 +1,12 @@
 {
-  "name": "butter-cli",
+  "name": "buttery-compiler",
   "version": "0.0.13",
   "description": "Simple, usable RPC codegen CLI",
   "main": "src/cli.ts",
   "author": "evinism@gmail.com",
   "license": "MIT",
   "bin": {
-    "butter": "./bin/butter.js"
+    "buttery": "./bin/buttery.js"
   },
   "files": [
     "lib/**/*",
@@ -29,7 +29,7 @@
   },
   "scripts": {
     "test": "mocha --require ts-node/register",
-    "butter": "ts-node ./src/cli.ts",
+    "buttery": "ts-node ./src/cli.ts",
     "prepack": "tsc",
     "build": "tsc"
   }

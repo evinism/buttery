@@ -1,22 +1,22 @@
 import * as http from "http";
 import connect from "connect";
-import { EndpointBase, ButterService, ButterServerOptions } from "./types";
+import { EndpointBase, ButteryService, ButteryServerOptions } from "./types";
 import { createRpcHandler } from "./rpc";
-import { ChannelNode, RPCNode, ButterNode } from "./shared/nodes";
-import { createUpgradeHandler, ButterSocket } from "./channel";
-import { isButterPath } from "./util";
+import { ChannelNode, RPCNode, ButteryNode } from "./shared/nodes";
+import { createUpgradeHandler, ButterySocket } from "./channel";
+import { isButteryPath } from "./util";
 import {
   upgradeHandlerToResponseHandler,
   responseHandlerToUpgradeHandler,
   divertUpgrade,
 } from "./shims";
 
-type ExtractNodeType<P> = P extends ButterNode<infer T> ? T : never;
+type ExtractNodeType<P> = P extends ButteryNode<infer T> ? T : never;
 
-export class ButterServer<Endpoints extends EndpointBase> {
+export class ButteryServer<Endpoints extends EndpointBase> {
   constructor(
-    service: ButterService<Endpoints>,
-    options: ButterServerOptions = {}
+    service: ButteryService<Endpoints>,
+    options: ButteryServerOptions = {}
   ) {
     // will extend beyond one service, soon enough :)
     this.service = service;
@@ -25,11 +25,11 @@ export class ButterServer<Endpoints extends EndpointBase> {
   }
 
   private connectServer: connect.Server;
-  private service: ButterService<Endpoints>;
+  private service: ButteryService<Endpoints>;
   private baseHandler:
     | ((req: http.IncomingMessage, res: http.ServerResponse) => unknown)
     | undefined;
-  private options: ButterServerOptions;
+  private options: ButteryServerOptions;
 
   private rpcImplementations: {
     [Key in keyof Endpoints]?: (
@@ -60,7 +60,7 @@ export class ButterServer<Endpoints extends EndpointBase> {
     name: Z,
     handler: Endpoints[Z] extends ChannelNode<unknown, unknown>
       ? (
-          connection: ButterSocket<
+          connection: ButterySocket<
             ExtractNodeType<Endpoints[Z]["incoming"]>,
             ExtractNodeType<Endpoints[Z]["outgoing"]>
           >,
@@ -87,13 +87,13 @@ export class ButterServer<Endpoints extends EndpointBase> {
   }
 
   rpcFallback = (next: (req, res) => unknown) => (req, res) => {
-    if (!isButterPath(req)) {
+    if (!isButteryPath(req)) {
       if (this.baseHandler) {
         this.baseHandler(req, res);
         return;
       } else {
         res.statusCode = 404;
-        res.end("Requested a non-butter path without a base server specified");
+        res.end("Requested a non-buttery path without a base server specified");
         return;
       }
     }
