@@ -1,5 +1,5 @@
 {
-  "name": "buttery-compiler",
+  "name": "buttery-cli",
   "version": "0.0.13",
   "description": "Simple, usable RPC codegen CLI",
   "main": "src/cli.ts",
