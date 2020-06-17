@@ -14,7 +14,7 @@ export const gen: CodeGenerator = (file) => {
     .filter(Boolean)
     .join("\n");
 
-  const content = `import {structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode} from 'sur-node/dist/shared/nodes';
+  const content = `import {structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode} from 'butter-node/dist/shared/nodes';
 
 ${nodeDecls}
 `;
@@ -25,14 +25,14 @@ ${nodeDecls}
       content,
     },
     {
-      fileName: "sur.runtime.ts",
+      fileName: "butter.runtime.ts",
       content:
         fs.readFileSync(
           __dirname + "/../../../ext/ts-client/nodes.ts",
           "utf8"
         ) +
         fs.readFileSync(
-          __dirname + "/../../../ext/ts-client/sur.runtime.ts",
+          __dirname + "/../../../ext/ts-client/butter.runtime.ts",
           "utf8"
         ),
     },

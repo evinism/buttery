@@ -1,4 +1,4 @@
-import { PartyServiceClient } from "../../../../sur-genfiles/main.sur.gen";
+import { PartyServiceClient } from "../../../../butter-genfiles/main.butter.gen";
 
 const client = new PartyServiceClient("lolol", {
   requester: (url, body) => {

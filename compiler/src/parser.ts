@@ -1,5 +1,5 @@
 import {
-  SurFile,
+  ButterFile,
   StructType,
   Field,
   Reference,
@@ -264,9 +264,9 @@ const statementParser: Parser<Token, Statement<Reference>> = either<
   )
 );
 
-export const fileParser: (path: string) => Parser<Token, SurFile<Reference>> = (
-  path
-) =>
+export const fileParser: (
+  path: string
+) => Parser<Token, ButterFile<Reference>> = (path) =>
   apFirst<Token, void>(
     seq(many(matchToken<NewLineToken>("newline")), () => eof())
   )(

@@ -1,9 +1,9 @@
-## Sur TypeScript client
+## Butter TypeScript client
 
 Once implemented, the TypeScript client should work as follows:
 
 ```
-import SurClient from './generatedFile';
+import ButterClient from './generatedFile';
 
 const client = new Client('https://www.example.com');
 

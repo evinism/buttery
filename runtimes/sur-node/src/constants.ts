@@ -1,1 +1,1 @@
-export const SUR_NAMESPACE = "__sur__";
+export const BUTTER_NAMESPACE = "__butter__";

@@ -1,11 +1,11 @@
 import * as http from "http";
-import { SUR_NAMESPACE } from "./constants";
+import { BUTTER_NAMESPACE } from "./constants";
 import { Stream } from "stream";
 
-export function isSurPath(request: http.IncomingMessage) {
+export function isButterPath(request: http.IncomingMessage) {
   const url = new URL(request.url || "", `http://${request.headers.host}`);
   const path = url.pathname.split("/").slice(1);
-  if (path[0] !== SUR_NAMESPACE) {
+  if (path[0] !== BUTTER_NAMESPACE) {
     return false;
   }
   return true;

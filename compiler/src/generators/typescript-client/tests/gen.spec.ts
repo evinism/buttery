@@ -8,7 +8,7 @@ import child_process from "child_process";
 describe("Generation", function () {
   describe("Typescript", function () {
     it("should generate types", function () {
-      const ast = load("../data/resolve/party/main.sur");
+      const ast = load("../data/resolve/party/main.butter");
       const bleep = gen(ast);
       const expected = fs.readFileSync(
         "./src/generators/typescript-client/tests/expected.data.ts",
@@ -20,8 +20,8 @@ describe("Generation", function () {
     it("should generate a semi-functioning typescript client", function (done) {
       generateCmd({
         target: "browser",
-        files: ["../data/resolve/party/main.sur"],
-        outputDir: "sur-genfiles",
+        files: ["../data/resolve/party/main.butter"],
+        outputDir: "butter-genfiles",
       });
       child_process.exec(
         "ts-node ./src/generators/typescript-client/tests/driveTests.data.ts",
@@ -31,7 +31,7 @@ describe("Generation", function () {
           }
           chai.assert.equal(
             stdout,
-            `config: {"headers":{"PoweredBy":"sur"}}
+            `config: {"headers":{"PoweredBy":"butter"}}
 body: {"name": "toby","pronouns": ["he","him"]}
 res: {"success":true,"time":{"people":[{"name":"toby","pronouns":["he","him"]}],"startTime":100,"endTime":110}}
 `

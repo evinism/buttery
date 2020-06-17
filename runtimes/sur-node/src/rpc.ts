@@ -1,18 +1,13 @@
 import * as http from "http";
-import {
-  SurService,
-  SurMiddleware,
-  EndpointBase,
-  SurServerOptions,
-} from "./types";
-import { isSurPath, streamToString } from "./util";
+import { ButterService, EndpointBase, ButterServerOptions } from "./types";
+import { isButterPath, streamToString } from "./util";
 
 export const createRpcHandler = <Endpoints extends EndpointBase>(
-  services: Array<SurService<Endpoints>>,
+  services: Array<ButterService<Endpoints>>,
   handlers: { [Key in keyof Endpoints]?: any },
-  options: SurServerOptions
+  options: ButterServerOptions
 ) => async (request: http.IncomingMessage, response: http.ServerResponse) => {
-  if (!isSurPath(request)) {
+  if (!isButterPath(request)) {
     // Irrelevant request, do nothing.
     return;
   }
@@ -22,7 +17,7 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
   const path = (request.url || "").split("/").slice(1);
   if (path.length !== 3) {
     response.writeHead(400, { "Content-Type": "text/plain" });
-    response.end("Malformed Sur URL");
+    response.end("Malformed Butter URL");
     return;
   }
   const [_, serviceName, requestName] = path;
@@ -58,7 +53,9 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
       501,
       Object.assign({ "Content-Type": "text/plain" }, headers)
     );
-    response.end(`Sur RPC not implemented: ${relevantService}/${requestName}`);
+    response.end(
+      `Butter RPC not implemented: ${relevantService}/${requestName}`
+    );
   }
 
   if (rpcDef.type !== "rpcNode") {

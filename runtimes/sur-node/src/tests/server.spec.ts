@@ -1,6 +1,6 @@
 import { PartyService } from "./fake_genfile.data";
 import * as chai from "chai";
-import { SurServer } from "..";
+import { ButterServer } from "..";
 import express from "express";
 import WebSocket from "ws";
 
@@ -25,18 +25,18 @@ const expectCalledWithin = (fn: (...args) => void, timeout: number, done) => {
 };
 
 describe("ts-server runtime", function () {
-  const surServer = new SurServer(PartyService, {
-    rpc: { headers: { "Powered-By": "sur" } },
+  const butterServer = new ButterServer(PartyService, {
+    rpc: { headers: { "Powered-By": "butter" } },
   });
 
-  surServer.use((req, res, next) => {
+  butterServer.use((req, res, next) => {
     if (req.headers["failmeplz"]) {
       next(new Error("Fail!"));
     }
     next();
   });
-  surServer.wrapListener(baseApp);
-  surServer.implement("Chat", (connection) => {
+  butterServer.wrapListener(baseApp);
+  butterServer.implement("Chat", (connection) => {
     connection.listen((msg) => {
       connection.send({
         time: msg.time,
@@ -48,7 +48,7 @@ describe("ts-server runtime", function () {
       });
     });
   });
-  surServer.implement("AddToParty", (_) => {
+  butterServer.implement("AddToParty", (_) => {
     return Promise.resolve({
       success: true,
       time: {
@@ -58,7 +58,7 @@ describe("ts-server runtime", function () {
       },
     });
   });
-  const server = surServer.createHttpServer();
+  const server = butterServer.createHttpServer();
 
   describe("rpcs", () => {
     it("should accept preexisting urls", function (done) {
@@ -73,7 +73,7 @@ describe("ts-server runtime", function () {
 
     it("should successfully reject invalid RPCs", function (done) {
       request(server)
-        .post("/__sur__/PartyService/AddToParty")
+        .post("/__butter__/PartyService/AddToParty")
         .end(function (err: any, res: any) {
           chai.assert.equal(err, null);
           chai.assert.equal(res.status, 400);
@@ -83,7 +83,7 @@ describe("ts-server runtime", function () {
 
     it("should successfully accept and handle valid RPCs", function (done) {
       request(server)
-        .post("/__sur__/PartyService/AddToParty")
+        .post("/__butter__/PartyService/AddToParty")
         .send({ name: "john", pronouns: [] })
         .end(function (err: any, res: any) {
           chai.assert.equal(err, null);
@@ -91,7 +91,7 @@ describe("ts-server runtime", function () {
           // Not sure why these don't reflect what actually happen on
           // an actual testbed
           //chai.assert.equal(res.headers["Content-Type"], "application/json");
-          //chai.assert.equal(res.headers["Powered-By"], "sur");
+          //chai.assert.equal(res.headers["Powered-By"], "butter");
           chai.assert.deepEqual(res.body, {
             success: true,
             time: { people: [], startTime: 0, endTime: 0 },
@@ -101,7 +101,7 @@ describe("ts-server runtime", function () {
     });
     it("should reject rpcs to channels", function (done) {
       request(server)
-        .post("/__sur__/PartyService/Chat")
+        .post("/__butter__/PartyService/Chat")
         .send({})
         .end(function (err: any, res: any) {
           chai.assert.equal(err, null);
@@ -111,7 +111,7 @@ describe("ts-server runtime", function () {
     });
     it("should successfully reject RPCs failed by middleware", function (done) {
       request(server)
-        .post("/__sur__/PartyService/AddToParty")
+        .post("/__butter__/PartyService/AddToParty")
         .set("failmeplz", "yus")
         .send({ name: "john", pronouns: [] })
         .end(function (err: any, res: any) {
@@ -130,7 +130,7 @@ describe("ts-server runtime", function () {
     let server = undefined;
 
     before((done) => {
-      server = surServer.listen(7575, () => {
+      server = butterServer.listen(7575, () => {
         done();
       });
     });
@@ -148,7 +148,7 @@ describe("ts-server runtime", function () {
     });
 
     it.skip("should fail to connect to incorrect urls", function (done) {
-      const socket = new WebSocket("ws://localhost:7575/__sur__/bogus");
+      const socket = new WebSocket("ws://localhost:7575/__butter__/bogus");
       socket.onerror = expectCalledWithin(
         (e) => {
           chai.assert.notEqual(e, null);
@@ -161,7 +161,7 @@ describe("ts-server runtime", function () {
 
     it("should echo back requests", function (done) {
       const socket = new WebSocket(
-        "ws://localhost:7575/__sur__/PartyService/Chat"
+        "ws://localhost:7575/__butter__/PartyService/Chat"
       );
       const cleanup = () => {
         socket.close();

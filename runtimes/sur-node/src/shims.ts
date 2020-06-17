@@ -12,7 +12,7 @@ type UpgradeHandler = (
   head: Buffer
 ) => unknown;
 
-const SUR_UPGRADE_REQUEST_KEY_NAME = "__sur_upgrade__";
+const BUTTER_UPGRADE_REQUEST_KEY_NAME = "__butter_upgrade__";
 
 // responseHandlerToUpgradeHandler creates the server response.
 export const responseHandlerToUpgradeHandler = (
@@ -23,7 +23,7 @@ export const responseHandlerToUpgradeHandler = (
   const dummyResponse = new http.ServerResponse(req);
   dummyResponse.assignSocket(socket);
 
-  req[SUR_UPGRADE_REQUEST_KEY_NAME] = {
+  req[BUTTER_UPGRADE_REQUEST_KEY_NAME] = {
     socket,
     head,
   };
@@ -34,11 +34,11 @@ export const responseHandlerToUpgradeHandler = (
 export const upgradeHandlerToResponseHandler = (
   upgradeHandler: UpgradeHandler
 ): ResponseHandler => (req, res) => {
-  if (!req[SUR_UPGRADE_REQUEST_KEY_NAME]) {
+  if (!req[BUTTER_UPGRADE_REQUEST_KEY_NAME]) {
     throw "Tried to convert a non-upgrade response to an upgrade handler!";
   }
-  const socket = req[SUR_UPGRADE_REQUEST_KEY_NAME].socket as Socket;
-  const head = req[SUR_UPGRADE_REQUEST_KEY_NAME].socket as Buffer;
+  const socket = req[BUTTER_UPGRADE_REQUEST_KEY_NAME].socket as Socket;
+  const head = req[BUTTER_UPGRADE_REQUEST_KEY_NAME].socket as Buffer;
   upgradeHandler(req, socket, head);
 };
 
@@ -46,7 +46,7 @@ export const divertUpgrade = (
   nonUpgrade: ResponseHandler,
   upgrade: ResponseHandler
 ): ResponseHandler => (req, res) => {
-  if (req[SUR_UPGRADE_REQUEST_KEY_NAME]) {
+  if (req[BUTTER_UPGRADE_REQUEST_KEY_NAME]) {
     upgrade(req, res);
   } else {
     nonUpgrade(req, res);

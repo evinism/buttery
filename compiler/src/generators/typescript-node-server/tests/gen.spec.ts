@@ -8,7 +8,7 @@ import child_process from "child_process";
 describe("Generation", function () {
   describe("Node Server", function () {
     it("should generate types", function () {
-      const ast = load("../data/resolve/party/main.sur");
+      const ast = load("../data/resolve/party/main.butter");
       const bleep = gen(ast);
       const expected = fs.readFileSync(
         "./src/generators/typescript-node-server/tests/expected.data.ts",
@@ -20,8 +20,8 @@ describe("Generation", function () {
     it.skip("should generate a semi-functioning typescript server", function () {
       generateCmd({
         target: "ts-client",
-        files: ["../data/resolve/party/main.sur"],
-        outputDir: "sur-genfiles",
+        files: ["../data/resolve/party/main.butter"],
+        outputDir: "butter-genfiles",
       });
       child_process.exec(
         "ts-node ./src/generators/typescript-client/tests/driveTests.data.ts",

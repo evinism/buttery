@@ -1,16 +1,16 @@
-# Sur: Minimalistic cross-language DSL for defining RPCs
+# Butter: Minimalistic cross-language DSL for defining RPCs
 
-### Warning: Sur is still in pre-alpha and is not (yet) suitable for production use. It CAN be used for side projects and game jams if you're feeling a hint brave.
+### Warning: Butter is still in pre-alpha and is not (yet) suitable for production use. It CAN be used for side projects and game jams if you're feeling a hint brave.
 
-Sur aims to be a minimalistic cross-language DSL for defining RPCs and channels.
+Butter aims to be a minimalistic cross-language DSL for defining RPCs and channels.
 It's essentially a proto / grpc replacement for modern webstacks, with low
-barrier to entry and easy integration into existing products. Sur is specialized
+barrier to entry and easy integration into existing products. Butter is specialized
 for use over http(s) and websockets, but should technically be transport-layer
 agnostic.
 
-### Scope of Sur
+### Scope of Butter
 
-Sur aims to provide:
+Butter aims to provide:
 
 1. A lightweight language for defining over-the-network APIs.
 2. First-class support for full duplex communication.
@@ -20,14 +20,15 @@ Sur aims to provide:
 6. Basic reliability abstractions, such as retries and message buffers for 2-way
    connections
 
-Sur does not aim to provide:
+Butter does not aim to provide:
 
 1. Strong protections against version skew of specific definitions.
-2. Highly size-optimized over-the-wire encodings -- Sur messages are valid JSON
+2. Highly size-optimized over-the-wire encodings -- Butter messages are valid JSON
 3. Support for non-evergreen browsers
+
 ### Installation:
 
-Installation via npm, e.g. `npm install -g sur-cli`
+Installation via npm, e.g. `npm install -g butter-cli`
 
 ### A simple example:
 
@@ -36,7 +37,7 @@ Let's say we're building a basic chat app over websockets.
 We can define the interface as follows:
 
 ```
-# chat.sur
+# chat.butter
 service ChatService:
   struct SendMessage:
     timestamp: integer
@@ -56,7 +57,7 @@ And consume the generated files in a sample client and server:
 
 ```
 // client.ts on the frontend
-import {ChatService} from './sur-genfiles/chat.gen.ts'
+import {ChatService} from './butter-genfiles/chat.gen.ts'
 
 
 const client = new ChatService('https://example.com');
@@ -72,11 +73,11 @@ chatConnection.send({timestamp: Date.now(), content: 'Hello, world!'});
 
 ```
 // server.ts on the backend
-import {SurServer} from 'sur-node';
-import {ChatService} from './sur-genfiles/chat.gen.ts'
+import {ButterServer} from 'butter-node';
+import {ChatService} from './butter-genfiles/chat.gen.ts'
 
-const surServer = new SurServer(ChatService);
-surServer.implement("Chat", (connection) => {
+const butterServer = new ButterServer(ChatService);
+butterServer.implement("Chat", (connection) => {
   connection.listen(msg => {
     connection.send({
       timetamp: Date.now(),
@@ -85,11 +86,11 @@ surServer.implement("Chat", (connection) => {
     });
   });
 });
-surServer.createHttpServer().listen(8080);
+butterServer.createHttpServer().listen(8080);
 
 ```
 
-### Sample patterns of places where Sur could be used:
+### Sample patterns of places where Butter could be used:
 
 - Backend to backend RPCs
 - Frontend requests to backend services
@@ -97,23 +98,24 @@ surServer.createHttpServer().listen(8080);
 - Easy multiplexing of multiple services through a single host
 
 ### CLI:
-Sur's CLI is very simple right now:
 
-`sur generate <target environment> -f [files]`
+Butter's CLI is very simple right now:
+
+`butter generate <target environment> -f [files]`
 
 As an example call:
 
-`sur generate browser -f ./path/to/file.sur`
+`butter generate browser -f ./path/to/file.butter`
 
-### Sur Target Support
+### Butter Target Support
 
-Sur Clients
+Butter Clients
 | Target | Target Description | Support |
 |---|---|---|
 | browser | Generated Typescript for use in browsers | Mostly Supported |
 | python-client | Generated code for Python Client | None |
 
-Sur Servers
+Butter Servers
 | Target | Target Description | Support |
 |---|---|---|
 | node | Generated Typescript for use in express backends | Mostly Supported |
@@ -145,7 +147,7 @@ Declarations:
 ```
 # This is a comment!
 # Imports can reference other files
-import Bleep, BleepRequest from "./some/file.sur"
+import Bleep, BleepRequest from "./some/file.butter"
 
 # Structs can be declared either outside or within a service
 struct People:

@@ -4,9 +4,9 @@ import * as chai from "chai";
 describe("Resolving", function () {
   describe("Single File", function () {
     it("resolves vars in oneFile correctly", function () {
-      const output = load("../data/resolve/onefile/main.sur");
+      const output = load("../data/resolve/onefile/main.butter");
       chai.assert.deepEqual(output, {
-        path: "../data/resolve/onefile/main.sur",
+        path: "../data/resolve/onefile/main.butter",
         imports: [],
         variables: [
           {
@@ -281,9 +281,9 @@ describe("Resolving", function () {
 
   describe("Multiple Files", function () {
     it("resolves vars in party correctly", function () {
-      const output = load("../data/resolve/party/main.sur");
+      const output = load("../data/resolve/party/main.butter");
       chai.assert.deepEqual(output, {
-        path: "../data/resolve/party/main.sur",
+        path: "../data/resolve/party/main.butter",
         imports: [],
         variables: [
           {
@@ -676,22 +676,22 @@ describe("Resolving", function () {
   });
 
   describe("Circular Includes", function () {
-    // TODO: Ensure a specific type of error
+    // TODO: Enbuttere a specific type of error
     it("resolves vars in oneFile correctly", function () {
-      chai.assert.throws(() => load("../data/resolve/circular/a.sur"));
+      chai.assert.throws(() => load("../data/resolve/circular/a.butter"));
     });
   });
 
   describe("Service descriptors", function () {
     it.skip("resolves vars in foodDelivery correctly", function () {
-      const output = load("../data/resolve/fooddelivery/order.sur");
+      const output = load("../data/resolve/fooddelivery/order.butter");
       chai.assert.deepEqual({}, output);
     });
   });
 
   describe("Namespace resolution", function () {
     it("is able to resolve references with namespaces", function () {
-      const output = load("../data/resolve/namespace/ns1.sur");
+      const output = load("../data/resolve/namespace/ns1.butter");
       chai.assert.equal(!!output, true);
     });
   });

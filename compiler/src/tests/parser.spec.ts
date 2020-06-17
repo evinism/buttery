@@ -17,7 +17,7 @@ import {
   Field,
   VariableDeclaration,
   ImportStatement,
-  SurFile,
+  ButterFile,
 } from "../ast";
 import { eof, seq, Parser, apFirst, map, sat } from "parser-ts/lib/Parser";
 import { Token, lexer } from "../lexer";
@@ -490,7 +490,7 @@ describe("Parsing", function () {
     const parseImport = buildTestParser(importParser);
 
     it("correctly parses a basic input stream", function () {
-      const input = `import Bleep, Bleep2 from "./this_path.sur"`;
+      const input = `import Bleep, Bleep2 from "./this_path.butter"`;
 
       const parsed = parseImport(input);
       // parsing succeeds!
@@ -498,7 +498,7 @@ describe("Parsing", function () {
       const ref = parsed.right.value;
       const targetRef: ImportStatement = {
         statementType: "import",
-        path: "./this_path.sur",
+        path: "./this_path.butter",
         imports: ["Bleep", "Bleep2"],
       };
       chai.assert.deepEqual(ref, targetRef);
@@ -508,7 +508,7 @@ describe("Parsing", function () {
       const input = `import
   Bleep,
   Bleep2
-from "./this_path.sur"`;
+from "./this_path.butter"`;
 
       const parsed = parseImport(input);
       // parsing succeeds!
@@ -516,7 +516,7 @@ from "./this_path.sur"`;
       const ref = parsed.right.value;
       const targetRef: ImportStatement = {
         statementType: "import",
-        path: "./this_path.sur",
+        path: "./this_path.butter",
         imports: ["Bleep", "Bleep2"],
       };
       chai.assert.deepEqual(ref, targetRef);
@@ -528,7 +528,7 @@ from "./this_path.sur"`;
       const input = `import
   Bloop,
   Scoop
-from "./some_path.sur"
+from "./some_path.butter"
 
 struct WhoBloopedRequest:
   bloop: Bloop
@@ -549,12 +549,12 @@ service BloopService:
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
-      const targetRef: SurFile<Reference> = {
+      const targetRef: ButterFile<Reference> = {
         path: "filename",
         imports: [
           {
             statementType: "import",
-            path: "./some_path.sur",
+            path: "./some_path.butter",
             imports: ["Bloop", "Scoop"],
           },
         ],

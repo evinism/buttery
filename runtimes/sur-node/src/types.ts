@@ -4,15 +4,15 @@ export type EndpointBase = {
   [key: string]: RPCNode<unknown, unknown> | ChannelNode<unknown, unknown>;
 };
 
-export interface SurService<Endpoints extends EndpointBase> {
+export interface ButterService<Endpoints extends EndpointBase> {
   name: string;
   endpoints: Endpoints;
 }
 
-export type SurMiddleware = (req: any, res: any) => {};
+export type ButterMiddleware = (req: any, res: any) => {};
 
-export interface SurServerOptions {
-  middlewares?: SurMiddleware[];
+export interface ButterServerOptions {
+  middlewares?: ButterMiddleware[];
   rpc?: {
     headers?: { [key: string]: string };
   };

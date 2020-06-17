@@ -121,8 +121,12 @@ class StableSocket {
   }
 }
 
-class SurChannelConnection<Send, Recv> {
-  constructor(url: string, sendNode: SurNode<Send>, recvNode: SurNode<Recv>) {
+class ButterChannelConnection<Send, Recv> {
+  constructor(
+    url: string,
+    sendNode: ButterNode<Send>,
+    recvNode: ButterNode<Recv>
+  ) {
     this.sendNode = sendNode;
     this.recvNode = recvNode;
     this.stableSocket = new StableSocket(httpToWs(url));
@@ -141,8 +145,8 @@ class SurChannelConnection<Send, Recv> {
     });
   }
 
-  sendNode: SurNode<Send>;
-  recvNode: SurNode<Recv>;
+  sendNode: ButterNode<Send>;
+  recvNode: ButterNode<Recv>;
   stableSocket: StableSocket;
   recvPipe: Pipe<Recv>;
   broken: boolean;
@@ -182,7 +186,7 @@ interface RpcConfig {
   referrerPolicy?: string;
 }
 
-interface SurClientConfig {
+interface ButterClientConfig {
   rpc?: RpcConfig;
 }
 
@@ -195,45 +199,47 @@ const defaultRequester = (url: string, body: string, config: RpcConfig = {}) =>
 
 export function buildRpcHandler<Req, Res>(
   requestName: string,
-  requestNode: SurNode<Req>,
-  responseNode: SurNode<Res>
+  requestNode: ButterNode<Req>,
+  responseNode: ButterNode<Res>
 ) {
-  return function Request(this: SurClient, value: Req): Promise<Res> {
+  return function Request(this: ButterClient, value: Req): Promise<Res> {
     return this.request(requestName, value, requestNode, responseNode);
   };
 }
 
 export function buildChannelHandler<Send, Recv>(
   requestName: string,
-  sendNode: SurNode<Send>,
-  recvNode: SurNode<Recv>
+  sendNode: ButterNode<Send>,
+  recvNode: ButterNode<Recv>
 ) {
-  return function Connect(this: SurClient): SurChannelConnection<Send, Recv> {
+  return function Connect(
+    this: ButterClient
+  ): ButterChannelConnection<Send, Recv> {
     return this.connect(requestName, sendNode, recvNode);
   };
 }
 
-export class SurClient {
-  constructor(baseUrl: string, surClientConfig: SurClientConfig = {}) {
+export class ButterClient {
+  constructor(baseUrl: string, ButterClientConfig: ButterClientConfig = {}) {
     this.baseUrl = baseUrl;
-    this.requester = surClientConfig.rpc?.requester || defaultRequester;
-    this.rpcConfig = surClientConfig.rpc;
+    this.requester = ButterClientConfig.rpc?.requester || defaultRequester;
+    this.rpcConfig = ButterClientConfig.rpc;
     this.serviceName = "TO_OVERRIDE";
   }
 
   baseUrl: string;
   serviceName: string;
-  surpcApiNamespace = "__sur__";
+  butterApiNamespace = "__butter__";
   rpcConfig?: RpcConfig;
   requester: (url: string, body: string, config: RpcConfig) => Promise<string>;
 
   request<Req, Res>(
     requestName: string,
     requestValue: Req,
-    requestNode: SurNode<Req>,
-    responseNode: SurNode<Res>
+    requestNode: ButterNode<Req>,
+    responseNode: ButterNode<Res>
   ): Promise<Res> {
-    const targetUrl = `${this.baseUrl}/${this.surpcApiNamespace}/${this.serviceName}/${requestName}`;
+    const targetUrl = `${this.baseUrl}/${this.butterApiNamespace}/${this.serviceName}/${requestName}`;
     const body = requestNode.serialize(requestValue);
     if (body === undefined) {
       throw "Unacceptable Body Type";
@@ -249,11 +255,11 @@ export class SurClient {
 
   connect<Send, Recv>(
     requestName: string,
-    sendNode: SurNode<Send>,
-    recvNode: SurNode<Recv>
+    sendNode: ButterNode<Send>,
+    recvNode: ButterNode<Recv>
   ) {
-    return new SurChannelConnection(
-      `${this.baseUrl}/${this.surpcApiNamespace}/${this.serviceName}/${requestName}`,
+    return new ButterChannelConnection(
+      `${this.baseUrl}/${this.butterApiNamespace}/${this.serviceName}/${requestName}`,
       sendNode,
       recvNode
     );

@@ -109,7 +109,7 @@ export interface Reference {
 
 // Is polymorphic in whether it's a reference ast or a fully qualified ast
 // TODO: Remove path
-export interface SurFile<T> {
+export interface ButterFile<T> {
   path: string;
   imports: Array<ImportStatement>;
   variables: Array<VariableDeclaration<T>>;

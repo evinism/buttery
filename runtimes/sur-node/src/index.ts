@@ -1,25 +1,23 @@
 import * as http from "http";
 import connect from "connect";
-import {
-  EndpointBase,
-  SurService,
-  SurMiddleware,
-  SurServerOptions,
-} from "./types";
+import { EndpointBase, ButterService, ButterServerOptions } from "./types";
 import { createRpcHandler } from "./rpc";
-import { ChannelNode, RPCNode, SurNode } from "./shared/nodes";
-import { createUpgradeHandler, SurSocket } from "./channel";
-import { isSurPath } from "./util";
+import { ChannelNode, RPCNode, ButterNode } from "./shared/nodes";
+import { createUpgradeHandler, ButterSocket } from "./channel";
+import { isButterPath } from "./util";
 import {
   upgradeHandlerToResponseHandler,
   responseHandlerToUpgradeHandler,
   divertUpgrade,
 } from "./shims";
 
-type ExtractNodeType<P> = P extends SurNode<infer T> ? T : never;
+type ExtractNodeType<P> = P extends ButterNode<infer T> ? T : never;
 
-export class SurServer<Endpoints extends EndpointBase> {
-  constructor(service: SurService<Endpoints>, options: SurServerOptions = {}) {
+export class ButterServer<Endpoints extends EndpointBase> {
+  constructor(
+    service: ButterService<Endpoints>,
+    options: ButterServerOptions = {}
+  ) {
     // will extend beyond one service, soon enough :)
     this.service = service;
     this.options = options;
@@ -27,11 +25,11 @@ export class SurServer<Endpoints extends EndpointBase> {
   }
 
   private connectServer: connect.Server;
-  private service: SurService<Endpoints>;
+  private service: ButterService<Endpoints>;
   private baseHandler:
     | ((req: http.IncomingMessage, res: http.ServerResponse) => unknown)
     | undefined;
-  private options: SurServerOptions;
+  private options: ButterServerOptions;
 
   private rpcImplementations: {
     [Key in keyof Endpoints]?: (
@@ -62,7 +60,7 @@ export class SurServer<Endpoints extends EndpointBase> {
     name: Z,
     handler: Endpoints[Z] extends ChannelNode<unknown, unknown>
       ? (
-          connection: SurSocket<
+          connection: ButterSocket<
             ExtractNodeType<Endpoints[Z]["incoming"]>,
             ExtractNodeType<Endpoints[Z]["outgoing"]>
           >,
@@ -89,13 +87,13 @@ export class SurServer<Endpoints extends EndpointBase> {
   }
 
   rpcFallback = (next: (req, res) => unknown) => (req, res) => {
-    if (!isSurPath(req)) {
+    if (!isButterPath(req)) {
       if (this.baseHandler) {
         this.baseHandler(req, res);
         return;
       } else {
         res.statusCode = 404;
-        res.end("Requested a non-sur path without a base server specified");
+        res.end("Requested a non-butter path without a base server specified");
         return;
       }
     }

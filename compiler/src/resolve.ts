@@ -1,5 +1,5 @@
 import {
-  SurFile,
+  ButterFile,
   Representable,
   Reference,
   Primitive,
@@ -8,7 +8,7 @@ import {
 } from "./ast";
 import path from "path";
 
-type LoadFn = (file: string) => SurFile<Reference>;
+type LoadFn = (file: string) => ButterFile<Reference>;
 
 const getRepresentableFromVar = (
   resolvedDecl: VariableDeclaration<Representable>
@@ -27,7 +27,7 @@ const getRepresentableFromVar = (
 
 function maybeGetBuiltin(
   { ref, typeArgs }: Reference,
-  context: SurFile<Reference>,
+  context: ButterFile<Reference>,
   prevReffedVars: string[],
   prevReffedFiles: string[],
   load: LoadFn,
@@ -82,7 +82,7 @@ function maybeGetBuiltin(
 
 function resolveRef(
   refObject: Reference,
-  context: SurFile<Reference>,
+  context: ButterFile<Reference>,
   prevReffedVars: string[],
   prevReffedFiles: string[],
   load: LoadFn,
@@ -193,7 +193,7 @@ function resolveRef(
 
 function resolveDecl(
   decl: VariableDeclaration<Reference>,
-  context: SurFile<Reference>,
+  context: ButterFile<Reference>,
   prevReffedVars: string[],
   prevReffedFiles: string[],
   load: LoadFn,
@@ -278,9 +278,9 @@ function resolveDecl(
 }
 
 export function resolve(
-  refFile: SurFile<Reference>,
-  load: (file: string) => SurFile<Reference>
-): SurFile<Representable> {
+  refFile: ButterFile<Reference>,
+  load: (file: string) => ButterFile<Reference>
+): ButterFile<Representable> {
   // circ reference betw. files solved in load()
   // so now we just have to solve it here.
   const newVars = refFile.variables.map((variable) =>

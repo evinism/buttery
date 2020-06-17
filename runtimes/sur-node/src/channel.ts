@@ -1,12 +1,12 @@
-import { SurService, EndpointBase, SurServerOptions } from "./types";
+import { ButterService, EndpointBase, ButterServerOptions } from "./types";
 import { Server as WebsocketServer } from "ws";
-import { isSurPath } from "./util";
+import { isButterPath } from "./util";
 import * as http from "http";
 import { Socket } from "net";
 import { ChannelNode } from "./shared/nodes";
 import { Pipe } from "./util";
 
-export class SurSocket<Incoming, Outgoing> extends Pipe<Incoming> {
+export class ButterSocket<Incoming, Outgoing> extends Pipe<Incoming> {
   constructor(socket: WebSocket, channelDef: ChannelNode<Incoming, Outgoing>) {
     super();
     this.socket = socket;
@@ -44,13 +44,13 @@ const handleConnection = <Incoming, Outgoing>(
   handler: (connection: any, request: http.IncomingMessage) => void,
   channelDef: ChannelNode<Incoming, Outgoing>
 ) => {
-  handler(new SurSocket(socket, channelDef), request);
+  handler(new ButterSocket(socket, channelDef), request);
 };
 
 export const createUpgradeHandler = <Endpoints extends EndpointBase>(
-  services: Array<SurService<Endpoints>>,
+  services: Array<ButterService<Endpoints>>,
   handlers: { [Key in keyof Endpoints]?: any },
-  options: SurServerOptions
+  options: ButterServerOptions
 ) => {
   const wss = new WebsocketServer({
     noServer: true,
@@ -59,14 +59,14 @@ export const createUpgradeHandler = <Endpoints extends EndpointBase>(
   wss.on("connection", handleConnection);
 
   return (request: http.IncomingMessage, socket: Socket, head: Buffer) => {
-    if (!isSurPath(request)) {
+    if (!isButterPath(request)) {
       // Already taken care of by a different handler!
       return;
     }
 
     const path = (request.url || "").split("/").slice(1);
     if (path.length !== 3) {
-      socket.destroy(new Error("Malformed Sur URL"));
+      socket.destroy(new Error("Malformed Butter URL"));
       return;
     }
     const [_, serviceName, requestName] = path;
@@ -99,7 +99,9 @@ export const createUpgradeHandler = <Endpoints extends EndpointBase>(
     const handler = handlers[requestName];
     if (!handler) {
       socket.destroy(
-        new Error(`Sur RPC not implemented: ${relevantService}/${requestName}`)
+        new Error(
+          `Butter RPC not implemented: ${relevantService}/${requestName}`
+        )
       );
     }
 
