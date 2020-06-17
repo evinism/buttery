@@ -1,6 +1,6 @@
 {
   "name": "butter-node",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Butter runtime for node users",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
