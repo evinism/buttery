@@ -153,7 +153,7 @@ import Bleep, BleepRequest from "./some/file.buttery"
 struct People:
   name: string
   areTheyChill: boolean
-  title: optional string
+  optional title: string
 
 service BleepService:
   struct BleepRequest:

@@ -117,10 +117,6 @@ describe("ts-server runtime", function () {
         .end(function (err: any, res: any) {
           chai.assert.equal(err, null);
           chai.assert.equal(res.status, 500);
-          chai.assert.deepEqual(res.body, {
-            success: true,
-            time: { people: [], startTime: 0, endTime: 0 },
-          });
           done();
         });
     });
