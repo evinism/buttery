@@ -165,7 +165,7 @@ describe("Parsing", function () {
     });
 
     it("should correctly parse an optional field line", function () {
-      const parsed = parseField("myFieldName: optional number");
+      const parsed = parseField("optional myFieldName: number");
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
@@ -181,12 +181,12 @@ describe("Parsing", function () {
     });
 
     it("should fail parsing a line with multiple optional decls", function () {
-      const parsed = parseField("myFieldName: optional optional number");
+      const parsed = parseField("optional optional myFieldName: number");
       assert(isLeft(parsed));
     });
 
     it("should correctly parse a complicated field line", function () {
-      const parsed = parseField("myFieldName: optional List<Dog>");
+      const parsed = parseField("optional myFieldName: List<Dog>");
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
@@ -532,7 +532,7 @@ from "./some_path.buttery"
 
 struct WhoBloopedRequest:
   bloop: Bloop
-  includeExtras: optional boolean
+  optional includeExtras: boolean
 
 struct WhoBloopedResponse:
   scoop: Scoop

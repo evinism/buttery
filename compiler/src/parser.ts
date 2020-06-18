@@ -91,10 +91,10 @@ export const refParser: Parser<Token, Reference> = seq(
 const fieldModifiers = many(matchToken<OptionalToken>("optional"));
 
 export const fieldParser: Parser<Token, Field<Reference>> = seq(
-  matchToken<NameToken>("name"),
-  ({ name }) =>
-    seq(matchToken<ColonToken>("colon"), () =>
-      seq(fieldModifiers, (mods) => {
+  fieldModifiers,
+  (mods) =>
+    seq(matchToken<NameToken>("name"), ({ name }) =>
+      seq(matchToken<ColonToken>("colon"), () => {
         if (mods.length > 1) {
           return fail();
         }
