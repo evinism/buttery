@@ -5,4 +5,9 @@ export interface GenFile {
   content: string;
 }
 
-export type CodeGenerator = (file: ButteryFile<Representable>) => GenFile[];
+export type CodeGenerator = (
+  file: ButteryFile<Representable>
+) => {
+  postGenerate?: (surFilePath: string) => string;
+  genfiles: GenFile[];
+};

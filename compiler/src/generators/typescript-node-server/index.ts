@@ -19,13 +19,13 @@ export const gen: CodeGenerator = (file) => {
 ${nodeDecls}
 `;
 
-  return [
+  const genfiles = [
     {
-      fileName: `${path.basename(file.path)}.gen.ts`,
+      fileName: `__ts__/${path.basename(file.path)}.gen.ts`,
       content,
     },
     {
-      fileName: "buttery.runtime.ts",
+      fileName: "__ts__/buttery.runtime.ts",
       content:
         fs.readFileSync(
           __dirname + "/../../../ext/ts-client/nodes.ts",
@@ -37,6 +37,11 @@ ${nodeDecls}
         ),
     },
   ];
+
+  return {
+    postGenerate: (outDir) => `tsc -d ${outDir}/__ts__/* --outDir ${outDir}`,
+    genfiles,
+  };
 };
 
 const generateNodeDeclaration = (

@@ -18,20 +18,20 @@ export const gen: CodeGenerator = (file) => {
     .filter(Boolean)
     .join("\n");
 
-  const content = `import {ButteryClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, buildRpcHandler, buildChannelHandler} from './buttery.runtime';
+  const content = `import {ButteryClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, buildRpcHandler, buildChannelHandler, ButteryChannelConnection} from './buttery.runtime';
 
 ${nodeDecls}
 
 ${classDecls}
 `;
 
-  return [
+  const genfiles = [
     {
-      fileName: `${path.basename(file.path)}.gen.ts`,
+      fileName: `__ts__/${path.basename(file.path)}.gen.ts`,
       content,
     },
     {
-      fileName: "buttery.runtime.ts",
+      fileName: "__ts__/buttery.runtime.ts",
       content:
         fs.readFileSync(
           __dirname + "/../../../ext/ts-client/nodes.ts",
@@ -43,6 +43,11 @@ ${classDecls}
         ),
     },
   ];
+
+  return {
+    postGenerate: (outDir) => `tsc -d ${outDir}/__ts__/* --outDir ${outDir}`,
+    genfiles,
+  };
 };
 
 const generateServiceClass = (decl: VariableDeclaration<Representable>) => {

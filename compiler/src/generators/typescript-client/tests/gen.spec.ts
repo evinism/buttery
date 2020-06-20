@@ -14,7 +14,7 @@ describe("Generation", function () {
         "./src/generators/typescript-client/tests/expected.data.ts",
         "utf8"
       );
-      chai.assert.equal(expected, bleep[0].content);
+      chai.assert.equal(expected, bleep.genfiles[0].content);
     });
 
     it("should generate a semi-functioning typescript client", function (done) {
@@ -40,6 +40,6 @@ res: {"success":true,"time":{"people":[{"name":"toby","pronouns":["he","him"]}],
           done();
         }
       );
-    });
+    }).timeout(10000);
   });
 });
