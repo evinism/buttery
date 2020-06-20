@@ -121,7 +121,7 @@ class StableSocket {
   }
 }
 
-class ButteryChannelConnection<Send, Recv> {
+export class ButteryChannelConnection<Send, Recv> {
   constructor(
     url: string,
     sendNode: ButteryNode<Send>,
