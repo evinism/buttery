@@ -17,6 +17,15 @@ describe("Generation", function () {
       chai.assert.equal(expected, bleep.genfiles[0].content);
     });
 
+    it("should not conflict variables inside and outside", function () {
+      generateCmd({
+        target: "browser",
+        files: ["../data/resolve/nameConflict/nameConflict.buttery"],
+        outputDir: "buttery-genfiles",
+      });
+      chai.assert.equal(true, true);
+    }).timeout(10000);
+
     it("should generate a semi-functioning typescript client", function (done) {
       generateCmd({
         target: "browser",

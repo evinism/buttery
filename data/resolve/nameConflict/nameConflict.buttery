@@ -1,0 +1,10 @@
+struct Foo:
+  bleep: string
+
+service Bar:
+  struct Foo:
+    bloop: string
+
+  rpc Baz:
+    request: Foo
+    response: Foo
