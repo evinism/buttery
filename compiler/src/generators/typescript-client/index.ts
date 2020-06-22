@@ -48,7 +48,7 @@ const generateServiceClass = (decl: VariableDeclaration<Representable>) => {
     return "";
   }
   const methodDecls = value.variables
-    .map(generateClassMethod)
+    .map((variable) => generateClassMethod(variable, value.name))
     .filter(Boolean)
     .join("\n");
   return `export class ${value.name}Client extends ButteryClient {
@@ -58,16 +58,19 @@ ${methodDecls}
 `;
 };
 
-const generateClassMethod = (decl: VariableDeclaration<Representable>) => {
+const generateClassMethod = (
+  decl: VariableDeclaration<Representable>,
+  serviceName: string
+) => {
   // Lol this should be better.
   if (decl.value.type === "struct") {
     return "";
   }
   const rpcOrChannel = decl.value;
   if (rpcOrChannel.type === "rpc") {
-    return `  ${decl.name} = buildRpcHandler("${decl.name}", ${rpcOrChannel.name}.request, ${rpcOrChannel.name}.response);`;
+    return `  ${decl.name} = buildRpcHandler("${decl.name}", ${serviceName}.endpoints.${rpcOrChannel.name}.request, ${serviceName}.endpoints.${rpcOrChannel.name}.response);`;
   }
   if (rpcOrChannel.type === "channel") {
-    return `  ${decl.name} = buildChannelHandler("${decl.name}", ${rpcOrChannel.name}.incoming, ${rpcOrChannel.name}.outgoing);`;
+    return `  ${decl.name} = buildChannelHandler("${decl.name}", ${serviceName}.endpoints.${rpcOrChannel.name}.incoming, ${serviceName}.endpoints.${rpcOrChannel.name}.outgoing);`;
   }
 };

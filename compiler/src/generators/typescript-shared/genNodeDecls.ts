@@ -8,7 +8,10 @@ import {
 export const generateNodeDeclarations = (
   variables: VariableDeclaration<Representable>[]
 ) => {
-  return variables.map(generateNodeDeclaration).filter(Boolean).join("\n");
+  return variables
+    .map((decl) => `export ${generateNodeDeclaration(decl)}`)
+    .filter(Boolean)
+    .join("\n");
 };
 
 const generateNodeDeclaration = (
@@ -19,7 +22,7 @@ const generateNodeDeclaration = (
   if (rhs.type === "service") {
     return rhsType;
   }
-  return `export const ${name} = ${rhsType};`;
+  return `const ${name} = ${rhsType};`;
 };
 
 const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
@@ -41,12 +44,18 @@ const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
     // inside and outside of services. This will have to change as part of
     // alpha release
     case "service": {
-      return (
-        rhs.variables.map(generateNodeDeclaration).filter(Boolean).join("\n") +
-        `\nexport const ${rhs.name} = {name: "${
-          rhs.name
-        }", endpoints: {${rhs.variables.map((decl) => decl.name).join(", ")}}};`
-      );
+      const nodeDeclarations = rhs.variables
+        .map((decl) => generateNodeDeclaration(decl))
+        .filter(Boolean)
+        .map((declStr) => "  " + declStr)
+        .join("\n");
+
+      return `const ${rhs.name} = (() => {
+${nodeDeclarations}
+  return {name: "${rhs.name}", endpoints: {${rhs.variables
+        .map((decl) => decl.name)
+        .join(", ")}}};
+})();`;
     }
   }
 };
