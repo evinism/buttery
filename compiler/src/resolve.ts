@@ -22,6 +22,9 @@ const getRepresentableFromVar = (
   if (resolvedDecl.value.type === "service") {
     throw new Error("Services cannot be referenced as types");
   }
+  if (resolvedDecl.value.type === "import") {
+    throw new Error("Imports cannot be referenced as types");
+  }
   return resolvedDecl.value;
 };
 
@@ -102,43 +105,6 @@ function resolveRef(
 
   if (maybeBuiltin) {
     return maybeBuiltin;
-  }
-
-  // Look in imports! (should move external to this function.)
-  const importStatement = context.imports.find(
-    (statement) =>
-      statement.imports.includes(ref) ||
-      statement.imports.includes(namespace || "")
-  );
-
-  if (importStatement) {
-    const loadPath = path.resolve(
-      path.dirname(context.path),
-      importStatement.path
-    );
-    if (prevReffedFiles.includes(loadPath)) {
-      throw new Error(`Circular reference in files detected: ${loadPath}`);
-    }
-    const file = load(loadPath);
-    const reffedVar = file.variables.find((v) => v.name === ref);
-
-    if (!reffedVar) {
-      throw new Error(`File ${loadPath} does not define ${ref}`);
-    }
-
-    // New namespace overrides old namespace defn.
-    const newNamespace = namespace || namespaceContext;
-
-    return getRepresentableFromVar(
-      resolveDecl(
-        reffedVar,
-        file,
-        [],
-        prevReffedFiles.concat(file.path),
-        load,
-        newNamespace
-      )
-    );
   }
 
   let decl: VariableDeclaration<Reference> | undefined;
@@ -248,6 +214,30 @@ function resolveDecl(
         baseType: qResolveRev(response.baseType),
       },
     };
+  } else if (decl.value.type === "import") {
+    const ref = decl.value.import;
+    const importStatement = decl.value;
+    const loadPath = path.resolve(
+      path.dirname(context.path),
+      importStatement.path
+    );
+    if (prevReffedFiles.includes(loadPath)) {
+      throw new Error(`Circular reference in files detected: ${loadPath}`);
+    }
+    const file = load(loadPath);
+    const reffedVar = file.variables.find((v) => v.name === ref);
+
+    if (!reffedVar) {
+      throw new Error(`File ${loadPath} does not define ${ref}`);
+    }
+
+    newVal = resolveDecl(
+      reffedVar,
+      file,
+      [],
+      prevReffedFiles.concat(file.path),
+      load
+    ).value;
   } else if (decl.value.type === "service") {
     const { type, name, variables } = decl.value;
 
@@ -289,7 +279,6 @@ export function resolve(
 
   return {
     path: refFile.path,
-    imports: [],
     variables: newVars,
   };
 }

@@ -72,7 +72,18 @@ export interface Service<T> {
   variables: Array<VariableDeclaration<T>>;
 }
 
-export type VarRHS<T> = Channel<T> | RPC<T> | StructType<T> | Service<T>;
+export interface Import {
+  type: "import";
+  import: string;
+  path: string;
+}
+
+export type VarRHS<T> =
+  | Channel<T>
+  | RPC<T>
+  | StructType<T>
+  | Service<T>
+  | Import;
 
 export interface VariableDeclaration<T> {
   statementType: "declaration";
@@ -80,13 +91,7 @@ export interface VariableDeclaration<T> {
   value: VarRHS<T>;
 }
 
-export interface ImportStatement {
-  statementType: "import";
-  imports: Array<string>;
-  path: string;
-}
-
-export type Statement<T> = VariableDeclaration<T> | ImportStatement;
+export type Statement<T> = VariableDeclaration<T>;
 
 // The two types of leaf nodes:
 // Representable types
@@ -111,6 +116,5 @@ export interface Reference {
 // TODO: Remove path
 export interface ButteryFile<T> {
   path: string;
-  imports: Array<ImportStatement>;
   variables: Array<VariableDeclaration<T>>;
 }

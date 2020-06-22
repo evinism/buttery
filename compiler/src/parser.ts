@@ -6,7 +6,6 @@ import {
   VariableDeclaration,
   RPC,
   Channel,
-  ImportStatement,
   Statement,
   Service,
 } from "./ast";
@@ -233,34 +232,43 @@ export const serviceParser = indentingDeclarationParser(
   }
 );
 
-export const importParser: Parser<Token, ImportStatement> = seq(
-  matchToken<ImportToken>("import"),
-  () =>
-    seq(
-      sepBy1(matchToken<CommaToken>("comma"), matchToken<NameToken>("name")),
-      (imports) => {
-        return map(({ contents }: QuotedStringToken) => {
-          const importStatement: ImportStatement = {
-            statementType: "import",
-            path: contents,
-            imports: imports.map(({ name }) => name),
-          };
-          return importStatement;
-        })(
-          seq(matchToken<FromToken>("from"), () =>
-            matchToken<QuotedStringToken>("quotedString")
-          )
+export const importParser: Parser<
+  Token,
+  VariableDeclaration<Reference>[]
+> = seq(matchToken<ImportToken>("import"), () =>
+  seq(
+    sepBy1(matchToken<CommaToken>("comma"), matchToken<NameToken>("name")),
+    (imports) => {
+      return map(({ contents }: QuotedStringToken) => {
+        const importDecls: VariableDeclaration<Reference>[] = imports.map(
+          ({ name }) => ({
+            statementType: "declaration",
+            name,
+            value: {
+              type: "import",
+              import: name,
+              path: contents,
+            },
+          })
         );
-      }
-    )
+        return importDecls;
+      })(
+        seq(matchToken<FromToken>("from"), () =>
+          matchToken<QuotedStringToken>("quotedString")
+        )
+      );
+    }
+  )
 );
 
-const statementParser: Parser<Token, Statement<Reference>> = either<
+const statementParser: Parser<Token, Statement<Reference>[]> = either<
   Token,
-  Statement<Reference>
+  Statement<Reference>[]
 >(importParser, () =>
-  either(structParser, () =>
-    either(serviceParser, () => either(rpcParser, () => channelParser))
+  map((a: Statement<Reference>) => [a])(
+    either(structParser, () =>
+      either(serviceParser, () => either(rpcParser, () => channelParser))
+    )
   )
 );
 
@@ -270,15 +278,18 @@ export const fileParser: (
   apFirst<Token, void>(
     seq(many(matchToken<NewLineToken>("newline")), () => eof())
   )(
-    map((statements: Array<Statement<Reference>>) => ({
-      path,
-      imports: statements.filter(
-        ({ statementType }) => statementType === "import"
-      ) as ImportStatement[],
-      variables: statements.filter(
-        ({ statementType }) => statementType === "declaration"
-      ) as VariableDeclaration<Reference>[],
-    }))(sepBy(matchToken<NewLineToken>("newline"), statementParser))
+    map((unflattenedStatements: Array<Array<Statement<Reference>>>) => {
+      const statements = unflattenedStatements.reduce(
+        (acc, cur) => [...acc, ...cur],
+        []
+      );
+      return {
+        path,
+        variables: statements.filter(
+          ({ statementType }) => statementType === "declaration"
+        ) as VariableDeclaration<Reference>[],
+      };
+    })(sepBy(matchToken<NewLineToken>("newline"), statementParser))
   );
 
 export function parse(tokenStream: Token[], fname: string) {

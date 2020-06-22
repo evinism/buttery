@@ -12,13 +12,7 @@ import {
 import { stream } from "parser-ts/lib/Stream";
 import { isRight, isLeft } from "fp-ts/lib/Either";
 import * as chai from "chai";
-import {
-  Reference,
-  Field,
-  VariableDeclaration,
-  ImportStatement,
-  ButteryFile,
-} from "../ast";
+import { Reference, Field, VariableDeclaration, ButteryFile } from "../ast";
 import { eof, seq, Parser, apFirst, map, sat } from "parser-ts/lib/Parser";
 import { Token, lexer } from "../lexer";
 import { indentify } from "../indenter";
@@ -496,7 +490,7 @@ describe("Parsing", function () {
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
-      const targetRef: ImportStatement = {
+      const targetRef = {
         statementType: "import",
         path: "./this_path.buttery",
         imports: ["Bleep", "Bleep2"],
@@ -514,7 +508,7 @@ from "./this_path.buttery"`;
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
-      const targetRef: ImportStatement = {
+      const targetRef = {
         statementType: "import",
         path: "./this_path.buttery",
         imports: ["Bleep", "Bleep2"],
@@ -551,13 +545,6 @@ service BloopService:
       const ref = parsed.right.value;
       const targetRef: ButteryFile<Reference> = {
         path: "filename",
-        imports: [
-          {
-            statementType: "import",
-            path: "./some_path.buttery",
-            imports: ["Bloop", "Scoop"],
-          },
-        ],
         variables: [
           {
             statementType: "declaration",
