@@ -34,10 +34,10 @@ Installation via npm, e.g. `npm install -g buttery-cli`
 
 Let's say we're building a basic chat app over websockets.
 
-We can define the interface as follows:
+We define the interface in a `.butt` (or alternatively `.buttery`) file:
 
 ```
-# chat.buttery
+# chat.butt
 service ChatService:
   struct SendMessage:
     timestamp: integer
@@ -105,7 +105,7 @@ Buttery's CLI is very simple right now:
 
 As an example call:
 
-`buttery generate browser -f ./path/to/file.buttery`
+`buttery generate browser -f ./path/to/file.butt`
 
 ### Buttery Target Support
 
@@ -147,7 +147,7 @@ Declarations:
 ```
 # This is a comment!
 # Imports can reference other files
-import Bleep, BleepRequest from "./some/file.buttery"
+import Bleep, BleepRequest from "./some/file.gen.ts"
 
 # Structs can be declared either outside or within a service
 struct People:
