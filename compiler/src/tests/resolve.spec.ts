@@ -285,6 +285,32 @@ describe("Resolving", function () {
         path: "../data/resolve/party/main.buttery",
         variables: [
           {
+            name: "Person",
+            statementType: "declaration",
+            value: {
+              fields: [
+                {
+                  baseType: {
+                    type: "string",
+                  },
+                  name: "name",
+                  optional: false,
+                },
+                {
+                  baseType: {
+                    type: "list",
+                    value: {
+                      type: "string",
+                    },
+                  },
+                  name: "pronouns",
+                  optional: false,
+                },
+              ],
+              type: "struct",
+            },
+          },
+          {
             statementType: "declaration",
             name: "Slot",
             value: {

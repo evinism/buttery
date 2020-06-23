@@ -490,11 +490,26 @@ describe("Parsing", function () {
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
-      const targetRef = {
-        statementType: "import",
-        path: "./this_path.buttery",
-        imports: ["Bleep", "Bleep2"],
-      };
+      const targetRef = [
+        {
+          name: "Bleep",
+          statementType: "declaration",
+          value: {
+            import: "Bleep",
+            path: "./this_path.buttery",
+            type: "import",
+          },
+        },
+        {
+          name: "Bleep2",
+          statementType: "declaration",
+          value: {
+            import: "Bleep2",
+            path: "./this_path.buttery",
+            type: "import",
+          },
+        },
+      ];
       chai.assert.deepEqual(ref, targetRef);
     });
 
@@ -508,11 +523,26 @@ from "./this_path.buttery"`;
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
-      const targetRef = {
-        statementType: "import",
-        path: "./this_path.buttery",
-        imports: ["Bleep", "Bleep2"],
-      };
+      const targetRef = [
+        {
+          name: "Bleep",
+          statementType: "declaration",
+          value: {
+            import: "Bleep",
+            path: "./this_path.buttery",
+            type: "import",
+          },
+        },
+        {
+          name: "Bleep2",
+          statementType: "declaration",
+          value: {
+            import: "Bleep2",
+            path: "./this_path.buttery",
+            type: "import",
+          },
+        },
+      ];
       chai.assert.deepEqual(ref, targetRef);
     });
   });
@@ -546,6 +576,24 @@ service BloopService:
       const targetRef: ButteryFile<Reference> = {
         path: "filename",
         variables: [
+          {
+            name: "Bloop",
+            statementType: "declaration",
+            value: {
+              import: "Bloop",
+              path: "./some_path.buttery",
+              type: "import",
+            },
+          },
+          {
+            name: "Scoop",
+            statementType: "declaration",
+            value: {
+              import: "Scoop",
+              path: "./some_path.buttery",
+              type: "import",
+            },
+          },
           {
             statementType: "declaration",
             name: "WhoBloopedRequest",

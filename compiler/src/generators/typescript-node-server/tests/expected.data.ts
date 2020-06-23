@@ -1,5 +1,6 @@
 import {structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode} from 'buttery-node/dist/shared/nodes';
 
+export const Person = structNode({name: stringNode(), pronouns: listNode(stringNode())});
 export const Slot = structNode({people: listNode(structNode({name: stringNode(), pronouns: listNode(stringNode())})), startTime: integerNode(), endTime: integerNode()});
 export const AddToPartyResponse = structNode({success: booleanNode(), time: structNode({people: listNode(structNode({name: stringNode(), pronouns: listNode(stringNode())})), startTime: integerNode(), endTime: integerNode()})});
 export const ChatMessage = structNode({time: integerNode(), content: stringNode()});
