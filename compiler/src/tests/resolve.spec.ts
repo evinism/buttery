@@ -7,7 +7,6 @@ describe("Resolving", function () {
       const output = load("../data/resolve/onefile/main.buttery");
       chai.assert.deepEqual(output, {
         path: "../data/resolve/onefile/main.buttery",
-        imports: [],
         variables: [
           {
             statementType: "declaration",
@@ -284,8 +283,33 @@ describe("Resolving", function () {
       const output = load("../data/resolve/party/main.buttery");
       chai.assert.deepEqual(output, {
         path: "../data/resolve/party/main.buttery",
-        imports: [],
         variables: [
+          {
+            name: "Person",
+            statementType: "declaration",
+            value: {
+              fields: [
+                {
+                  baseType: {
+                    type: "string",
+                  },
+                  name: "name",
+                  optional: false,
+                },
+                {
+                  baseType: {
+                    type: "list",
+                    value: {
+                      type: "string",
+                    },
+                  },
+                  name: "pronouns",
+                  optional: false,
+                },
+              ],
+              type: "struct",
+            },
+          },
           {
             statementType: "declaration",
             name: "Slot",

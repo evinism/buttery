@@ -12,13 +12,7 @@ import {
 import { stream } from "parser-ts/lib/Stream";
 import { isRight, isLeft } from "fp-ts/lib/Either";
 import * as chai from "chai";
-import {
-  Reference,
-  Field,
-  VariableDeclaration,
-  ImportStatement,
-  ButteryFile,
-} from "../ast";
+import { Reference, Field, VariableDeclaration, ButteryFile } from "../ast";
 import { eof, seq, Parser, apFirst, map, sat } from "parser-ts/lib/Parser";
 import { Token, lexer } from "../lexer";
 import { indentify } from "../indenter";
@@ -496,11 +490,26 @@ describe("Parsing", function () {
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
-      const targetRef: ImportStatement = {
-        statementType: "import",
-        path: "./this_path.buttery",
-        imports: ["Bleep", "Bleep2"],
-      };
+      const targetRef = [
+        {
+          name: "Bleep",
+          statementType: "declaration",
+          value: {
+            import: "Bleep",
+            path: "./this_path.buttery",
+            type: "import",
+          },
+        },
+        {
+          name: "Bleep2",
+          statementType: "declaration",
+          value: {
+            import: "Bleep2",
+            path: "./this_path.buttery",
+            type: "import",
+          },
+        },
+      ];
       chai.assert.deepEqual(ref, targetRef);
     });
 
@@ -514,11 +523,26 @@ from "./this_path.buttery"`;
       // parsing succeeds!
       assert(isRight(parsed));
       const ref = parsed.right.value;
-      const targetRef: ImportStatement = {
-        statementType: "import",
-        path: "./this_path.buttery",
-        imports: ["Bleep", "Bleep2"],
-      };
+      const targetRef = [
+        {
+          name: "Bleep",
+          statementType: "declaration",
+          value: {
+            import: "Bleep",
+            path: "./this_path.buttery",
+            type: "import",
+          },
+        },
+        {
+          name: "Bleep2",
+          statementType: "declaration",
+          value: {
+            import: "Bleep2",
+            path: "./this_path.buttery",
+            type: "import",
+          },
+        },
+      ];
       chai.assert.deepEqual(ref, targetRef);
     });
   });
@@ -551,14 +575,25 @@ service BloopService:
       const ref = parsed.right.value;
       const targetRef: ButteryFile<Reference> = {
         path: "filename",
-        imports: [
-          {
-            statementType: "import",
-            path: "./some_path.buttery",
-            imports: ["Bloop", "Scoop"],
-          },
-        ],
         variables: [
+          {
+            name: "Bloop",
+            statementType: "declaration",
+            value: {
+              import: "Bloop",
+              path: "./some_path.buttery",
+              type: "import",
+            },
+          },
+          {
+            name: "Scoop",
+            statementType: "declaration",
+            value: {
+              import: "Scoop",
+              path: "./some_path.buttery",
+              type: "import",
+            },
+          },
           {
             statementType: "declaration",
             name: "WhoBloopedRequest",
