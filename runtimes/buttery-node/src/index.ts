@@ -1,11 +1,6 @@
 import * as http from "http";
 import connect from "connect";
-import {
-  EndpointBase,
-  ButteryService,
-  ButteryServerOptions,
-  ImplementationMap,
-} from "./types";
+import { EndpointBase, ButteryService, ButteryServerOptions } from "./types";
 import { createRpcHandler } from "./rpc";
 import { ChannelNode, RPCNode, ButteryNode } from "./shared/nodes";
 import { createUpgradeHandler, ButterySocket } from "./channel";
@@ -102,7 +97,9 @@ export class ButteryServer {
     }
   }
 
-  rpcFallback = (next: (req, res) => unknown) => (req, res) => {
+  rpcFallback = (
+    next: (req: http.IncomingMessage, res: http.ServerResponse) => unknown
+  ) => (req: http.IncomingMessage, res: http.ServerResponse) => {
     if (!isButteryPath(req)) {
       if (this.baseHandler) {
         this.baseHandler(req, res);
@@ -116,7 +113,7 @@ export class ButteryServer {
     next(req, res);
   };
 
-  createHttpServer() {
+  createServer() {
     const server = http.createServer();
 
     const rpcHandler = createRpcHandler(
@@ -144,7 +141,7 @@ export class ButteryServer {
     return server;
   }
 
-  listen(...args) {
-    return this.createHttpServer().listen(...args);
+  listen(...args: any[]) {
+    return this.createServer().listen(...args);
   }
 }

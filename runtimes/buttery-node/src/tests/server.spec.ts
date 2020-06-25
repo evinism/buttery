@@ -58,7 +58,7 @@ describe("ts-server runtime", function () {
       },
     });
   });
-  const server = butteryServer.createHttpServer();
+  const server = butteryServer.createServer();
 
   describe("rpcs", () => {
     it("should accept preexisting urls", function (done) {
