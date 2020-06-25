@@ -1,6 +1,11 @@
 import * as http from "http";
 import connect from "connect";
-import { EndpointBase, ButteryService, ButteryServerOptions } from "./types";
+import {
+  EndpointBase,
+  ButteryService,
+  ButteryServerOptions,
+  ImplementationMap,
+} from "./types";
 import { createRpcHandler } from "./rpc";
 import { ChannelNode, RPCNode, ButteryNode } from "./shared/nodes";
 import { createUpgradeHandler, ButterySocket } from "./channel";
@@ -13,37 +18,38 @@ import {
 
 type ExtractNodeType<P> = P extends ButteryNode<infer T> ? T : never;
 
-export class ButteryServer<Endpoints extends EndpointBase> {
-  constructor(
-    service: ButteryService<Endpoints>,
-    options: ButteryServerOptions = {}
-  ) {
+export class ButteryServer {
+  constructor(options: ButteryServerOptions = {}) {
     // will extend beyond one service, soon enough :)
-    this.service = service;
     this.options = options;
     this.connectServer = connect();
   }
 
   private connectServer: connect.Server;
-  private service: ButteryService<Endpoints>;
   private baseHandler:
     | ((req: http.IncomingMessage, res: http.ServerResponse) => unknown)
     | undefined;
   private options: ButteryServerOptions;
 
   private rpcImplementations: {
-    [Key in keyof Endpoints]?: (
-      request: any,
-      httpRequest: http.IncomingMessage
-    ) => Promise<any>;
+    [key: string]: {
+      [key: string]: (
+        request: any,
+        httpRequest: http.IncomingMessage
+      ) => Promise<any>;
+    };
   } = {};
 
   private channelImplementations: {
-    [Key in keyof Endpoints]?: (
-      connection: any,
-      httpRequest: http.IncomingMessage
-    ) => void;
+    [key: string]: {
+      [key: string]: (
+        connection: any,
+        httpRequest: http.IncomingMessage
+      ) => void;
+    };
   } = {};
+
+  private serviceDefinitions: ButteryService<any>[] = [];
 
   wrapListener(
     handler: (req: http.IncomingMessage, res: http.ServerResponse) => unknown
@@ -56,7 +62,8 @@ export class ButteryServer<Endpoints extends EndpointBase> {
     return this;
   }
 
-  implement<Z extends keyof Endpoints>(
+  implement<Endpoints extends EndpointBase, Z extends keyof Endpoints>(
+    service: ButteryService<Endpoints>,
     name: Z,
     handler: Endpoints[Z] extends ChannelNode<unknown, unknown>
       ? (
@@ -73,11 +80,20 @@ export class ButteryServer<Endpoints extends EndpointBase> {
         ) => Promise<ExtractNodeType<Endpoints[Z]["response"]>>
       : never
   ) {
-    if (this.service.endpoints[name].type === "channelNode") {
-      this.channelImplementations[name] = handler;
-    } else if (this.service.endpoints[name].type === "rpcNode") {
+    // Register the service if it's not there yet
+    if (this.serviceDefinitions.indexOf(service) < 0) {
+      this.serviceDefinitions.push(service);
+    }
+
+    if (service.endpoints[name].type === "channelNode") {
+      this.channelImplementations[service.name] =
+        this.channelImplementations[service.name] || {};
+      this.channelImplementations[service.name][name as any] = handler;
+    } else if (service.endpoints[name].type === "rpcNode") {
       // Don't know why this cast is necessary
-      this.rpcImplementations[name] = handler as (
+      this.rpcImplementations[service.name] =
+        this.rpcImplementations[service.name] || {};
+      this.rpcImplementations[service.name][name as any] = handler as (
         request: any,
         httpRequest: http.IncomingMessage
       ) => Promise<any>;
@@ -104,13 +120,13 @@ export class ButteryServer<Endpoints extends EndpointBase> {
     const server = http.createServer();
 
     const rpcHandler = createRpcHandler(
-      this.service,
+      this.serviceDefinitions,
       this.rpcImplementations,
       this.options
     );
 
     const upgradeHandler = createUpgradeHandler(
-      this.service,
+      this.serviceDefinitions,
       this.channelImplementations,
       this.options
     );

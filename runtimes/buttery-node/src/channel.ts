@@ -41,15 +41,25 @@ export class ButterySocket<Incoming, Outgoing> extends Pipe<Incoming> {
 const handleConnection = <Incoming, Outgoing>(
   socket: WebSocket,
   request: http.IncomingMessage,
-  handler: (connection: any, request: http.IncomingMessage) => void,
+  handler: (
+    connection: ButterySocket<any, any>,
+    request: http.IncomingMessage
+  ) => void,
   channelDef: ChannelNode<Incoming, Outgoing>
 ) => {
   handler(new ButterySocket(socket, channelDef), request);
 };
 
-export const createUpgradeHandler = <Endpoints extends EndpointBase>(
-  service: ButteryService<Endpoints>,
-  handlers: { [Key in keyof Endpoints]?: any },
+export const createUpgradeHandler = (
+  serviceDefinitions: ButteryService<EndpointBase>[],
+  handlers: {
+    [key: string]: {
+      [key: string]: (
+        connection: ButterySocket<any, any>,
+        request: http.IncomingMessage
+      ) => void;
+    };
+  },
   options: ButteryServerOptions
 ) => {
   const wss = new WebsocketServer({
@@ -70,7 +80,11 @@ export const createUpgradeHandler = <Endpoints extends EndpointBase>(
       return;
     }
     const [_, serviceName, requestName] = path;
-    if (service.name !== serviceName) {
+
+    const service = serviceDefinitions.find(
+      (service) => service.name === serviceName
+    );
+    if (!service) {
       socket.destroy(
         new Error(`No service with name ${serviceName} registered.`)
       );
@@ -93,7 +107,7 @@ export const createUpgradeHandler = <Endpoints extends EndpointBase>(
       );
     }
 
-    const handler = handlers[requestName];
+    const handler = handlers[serviceName][requestName];
     if (!handler) {
       socket.destroy(
         new Error(`Buttery RPC not implemented: ${service.name}/${requestName}`)

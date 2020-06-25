@@ -2,9 +2,16 @@ import * as http from "http";
 import { ButteryService, EndpointBase, ButteryServerOptions } from "./types";
 import { isButteryPath, streamToString } from "./util";
 
-export const createRpcHandler = <Endpoints extends EndpointBase>(
-  service: ButteryService<Endpoints>,
-  handlers: { [Key in keyof Endpoints]?: any },
+export const createRpcHandler = (
+  serviceDefinitions: ButteryService<EndpointBase>[],
+  handlers: {
+    [key: string]: {
+      [key: string]: (
+        request: any,
+        httpRequest: http.IncomingMessage
+      ) => Promise<any>;
+    };
+  },
   options: ButteryServerOptions
 ) => async (request: http.IncomingMessage, response: http.ServerResponse) => {
   if (!isButteryPath(request)) {
@@ -21,7 +28,11 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
     return;
   }
   const [_, serviceName, requestName] = path;
-  if (service.name !== serviceName) {
+  const service = serviceDefinitions.find(
+    (service) => service.name === serviceName
+  );
+
+  if (!service) {
     response.writeHead(
       404,
       Object.assign({ "Content-Type": "text/plain" }, headers)
@@ -44,7 +55,7 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
     return;
   }
 
-  const handler = handlers[requestName];
+  const handler = handlers[serviceName][requestName];
   if (!handler) {
     response.writeHead(
       501,

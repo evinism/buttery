@@ -25,7 +25,7 @@ const expectCalledWithin = (fn: (...args) => void, timeout: number, done) => {
 };
 
 describe("ts-server runtime", function () {
-  const butteryServer = new ButteryServer(PartyService, {
+  const butteryServer = new ButteryServer({
     rpc: { headers: { "Powered-By": "buttery" } },
   });
 
@@ -36,7 +36,7 @@ describe("ts-server runtime", function () {
     next();
   });
   butteryServer.wrapListener(baseApp);
-  butteryServer.implement("Chat", (connection) => {
+  butteryServer.implement(PartyService, "Chat", (connection) => {
     connection.listen((msg) => {
       connection.send({
         time: msg.time,
@@ -48,7 +48,7 @@ describe("ts-server runtime", function () {
       });
     });
   });
-  butteryServer.implement("AddToParty", (_) => {
+  butteryServer.implement(PartyService, "AddToParty", (_) => {
     return Promise.resolve({
       success: true,
       time: {

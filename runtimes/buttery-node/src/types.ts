@@ -1,3 +1,4 @@
+import * as http from "http";
 import { RPCNode, ChannelNode } from "./shared/nodes";
 
 export type EndpointBase = {
@@ -17,3 +18,9 @@ export interface ButteryServerOptions {
     headers?: { [key: string]: string };
   };
 }
+
+export type ImplementationMap = {
+  [key: string]: {
+    [key: string]: (connection: any, httpRequest: http.IncomingMessage) => void;
+  };
+};
