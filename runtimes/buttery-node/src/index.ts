@@ -104,13 +104,13 @@ export class ButteryServer<Endpoints extends EndpointBase> {
     const server = http.createServer();
 
     const rpcHandler = createRpcHandler(
-      [this.service],
+      this.service,
       this.rpcImplementations,
       this.options
     );
 
     const upgradeHandler = createUpgradeHandler(
-      [this.service],
+      this.service,
       this.channelImplementations,
       this.options
     );

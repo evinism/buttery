@@ -48,7 +48,7 @@ const handleConnection = <Incoming, Outgoing>(
 };
 
 export const createUpgradeHandler = <Endpoints extends EndpointBase>(
-  services: Array<ButteryService<Endpoints>>,
+  service: ButteryService<Endpoints>,
   handlers: { [Key in keyof Endpoints]?: any },
   options: ButteryServerOptions
 ) => {
@@ -70,17 +70,14 @@ export const createUpgradeHandler = <Endpoints extends EndpointBase>(
       return;
     }
     const [_, serviceName, requestName] = path;
-    const relevantService = services.find(
-      (service) => service.name === serviceName
-    );
-    if (!relevantService) {
+    if (service.name !== serviceName) {
       socket.destroy(
         new Error(`No service with name ${serviceName} registered.`)
       );
       return;
     }
 
-    const channelDef = relevantService.endpoints[requestName];
+    const channelDef = service.endpoints[requestName];
     if (!channelDef) {
       socket.destroy(
         new Error(
@@ -99,9 +96,7 @@ export const createUpgradeHandler = <Endpoints extends EndpointBase>(
     const handler = handlers[requestName];
     if (!handler) {
       socket.destroy(
-        new Error(
-          `Buttery RPC not implemented: ${relevantService}/${requestName}`
-        )
+        new Error(`Buttery RPC not implemented: ${service.name}/${requestName}`)
       );
     }
 

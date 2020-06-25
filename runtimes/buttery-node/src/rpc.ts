@@ -3,7 +3,7 @@ import { ButteryService, EndpointBase, ButteryServerOptions } from "./types";
 import { isButteryPath, streamToString } from "./util";
 
 export const createRpcHandler = <Endpoints extends EndpointBase>(
-  services: Array<ButteryService<Endpoints>>,
+  service: ButteryService<Endpoints>,
   handlers: { [Key in keyof Endpoints]?: any },
   options: ButteryServerOptions
 ) => async (request: http.IncomingMessage, response: http.ServerResponse) => {
@@ -21,10 +21,7 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
     return;
   }
   const [_, serviceName, requestName] = path;
-  const relevantService = services.find(
-    (service) => service.name === serviceName
-  );
-  if (!relevantService) {
+  if (service.name !== serviceName) {
     response.writeHead(
       404,
       Object.assign({ "Content-Type": "text/plain" }, headers)
@@ -34,7 +31,7 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
     return;
   }
 
-  const rpcDef = relevantService.endpoints[requestName];
+  const rpcDef = service.endpoints[requestName];
   if (!rpcDef) {
     response.writeHead(
       404,
@@ -53,9 +50,7 @@ export const createRpcHandler = <Endpoints extends EndpointBase>(
       501,
       Object.assign({ "Content-Type": "text/plain" }, headers)
     );
-    response.end(
-      `Buttery RPC not implemented: ${relevantService}/${requestName}`
-    );
+    response.end(`Buttery RPC not implemented: ${service.name}/${requestName}`);
   }
 
   if (rpcDef.type !== "rpcNode") {
