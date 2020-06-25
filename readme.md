@@ -76,8 +76,8 @@ chatConnection.send({timestamp: Date.now(), content: 'Hello, world!'});
 import {ButteryServer} from 'buttery-node';
 import {ChatService} from './buttery-genfiles/chat.gen.ts'
 
-const butteryServer = new ButteryServer(ChatService);
-butteryServer.implement("Chat", (connection) => {
+const butteryServer = new ButteryServer();
+butteryServer.implement(ChatService, "Chat", (connection) => {
   connection.listen(msg => {
     connection.send({
       timetamp: Date.now(),
@@ -86,7 +86,7 @@ butteryServer.implement("Chat", (connection) => {
     });
   });
 });
-butteryServer.createHttpServer().listen(8080);
+butteryServer.createServer().listen(8080);
 
 ```
 
