@@ -1,4 +1,4 @@
-import { PartyServiceClient } from "../../../../buttery-genfiles/main.buttery.gen";
+import { PartyServiceClient } from "../../../../buttery-genfiles/main.browser";
 
 const client = new PartyServiceClient("lolol", {
   rpc: {

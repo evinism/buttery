@@ -10,6 +10,10 @@ export const gen: CodeGenerator = (file) => {
     .filter(Boolean)
     .join("\n");
 
+  // Remove endname
+  const outFileName =
+    path.basename(file.path).replace(/\.butt(ery)?$/, "") + ".browser.ts";
+
   const content = `import {ButteryClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, buildRpcHandler, buildChannelHandler, ButteryChannelConnection} from './buttery.runtime';
 
 ${generateNodeDeclarations(file.variables)}
@@ -19,7 +23,7 @@ ${classDecls}
 
   const genfiles = [
     {
-      fileName: `__ts__/${path.basename(file.path)}.gen.ts`,
+      fileName: `__ts__/${outFileName}`,
       content,
     },
     {

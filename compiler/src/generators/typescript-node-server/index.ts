@@ -3,6 +3,8 @@ import path from "path";
 import { generateNodeDeclarations } from "../typescript-shared/genNodeDecls";
 
 export const gen: CodeGenerator = (file) => {
+  const outFileName =
+    path.basename(file.path).replace(/\.butt(ery)?$/, "") + ".node.ts";
   const content = `import {structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode} from 'buttery-node/dist/shared/nodes';
 
 ${generateNodeDeclarations(file.variables)}
@@ -10,7 +12,7 @@ ${generateNodeDeclarations(file.variables)}
 
   const genfiles = [
     {
-      fileName: `__ts__/${path.basename(file.path)}.gen.ts`,
+      fileName: `__ts__/${outFileName}`,
       content,
     },
   ];

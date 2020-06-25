@@ -57,7 +57,7 @@ And consume the generated files in a sample client and server:
 
 ```
 // client.ts on the frontend
-import {ChatService} from './buttery-genfiles/chat.gen.ts'
+import {ChatService} from './buttery-genfiles/chat.browser'
 
 
 const client = new ChatService('https://example.com');
@@ -74,7 +74,7 @@ chatConnection.send({timestamp: Date.now(), content: 'Hello, world!'});
 ```
 // server.ts on the backend
 import {ButteryServer} from 'buttery-node';
-import {ChatService} from './buttery-genfiles/chat.gen.ts'
+import {ChatService} from './buttery-genfiles/chat.node'
 
 const butteryServer = new ButteryServer();
 butteryServer.implement(ChatService, "Chat", (connection) => {
