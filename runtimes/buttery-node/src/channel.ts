@@ -6,17 +6,18 @@ import { Socket } from "net";
 import { ChannelNode } from "./shared/nodes";
 import { Pipe } from "./util";
 
-export class ButterySocket<Incoming, Outgoing> extends Pipe<Incoming> {
+export class ButterySocket<Incoming, Outgoing> {
   constructor(socket: WebSocket, channelDef: ChannelNode<Incoming, Outgoing>) {
-    super();
     this.socket = socket;
     this.channelDef = channelDef;
+    this.incomingPipe = new Pipe<Incoming>();
     this.socket.onmessage = (event) => {
       this.receive(event.data);
     };
   }
 
   socket: WebSocket;
+  incomingPipe: Pipe<Incoming>;
 
   private channelDef: ChannelNode<Incoming, Outgoing>;
   send(data: Outgoing) {
@@ -27,6 +28,15 @@ export class ButterySocket<Incoming, Outgoing> extends Pipe<Incoming> {
     }
     this.socket.send(serialized);
   }
+
+  listen = (listener: (msg: Incoming) => unknown) => {
+    this.incomingPipe.listen(listener);
+  };
+
+  unlisten = (listener: (msg: Incoming) => unknown) => {
+    this.incomingPipe.unlisten(listener);
+  };
+
   private receive(msg: string) {
     let parsed: Incoming | undefined;
     parsed = this.channelDef.incoming.deserialize(msg);
@@ -34,7 +44,7 @@ export class ButterySocket<Incoming, Outgoing> extends Pipe<Incoming> {
       this.socket.close(1003);
       return;
     }
-    this.fire(parsed);
+    this.incomingPipe.fire(parsed);
   }
 }
 
