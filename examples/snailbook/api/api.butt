@@ -1,0 +1,32 @@
+struct User:
+  id: string
+  name: string
+
+struct Comment:
+  id: string
+  postId: string
+  author: User
+  content: string
+
+struct Post:
+  id: string
+  author: User
+  content: string
+  comments: List<Comment>
+
+struct CommentRequest:
+  postId: string
+  content: string
+
+service SnailBook:
+  rpc CreatePost:
+    request: string
+    response: Post
+
+  rpc CreateComment:
+    request: CommentRequest
+    response: Comment
+
+  channel Feed:
+    incoming: null
+    outgoing: Post

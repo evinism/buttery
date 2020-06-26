@@ -1,0 +1,23 @@
+{
+  "name": "snailbook-server",
+  "version": "1.0.0",
+  "description": "Example App for Buttery",
+  "main": "src/index.ts",
+  "author": "Evin",
+  "license": "MIT",
+  "dependencies": {
+    "@types/uuid": "^8.0.0",
+    "buttery-cli": "^0.0.14",
+    "buttery-node": "^0.0.14",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5",
+    "uuid": "^8.2.0"
+  },
+  "scripts": {
+    "gen": "buttery generate node -f ../api/api.butt -o src/buttery-genfiles",
+    "build": "yarn gen",
+    "dev": "yarn gen && ts-node ./src/index.ts"
+  }
+}
