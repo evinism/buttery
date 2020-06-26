@@ -14,11 +14,11 @@ export interface RPCNode<Req, Res> {
   response: ButteryNode<Res>;
 }
 
-export interface ChannelNode<Send, Recv> {
+export interface ChannelNode<Incoming, Outgoing> {
   type: "channelNode";
   name: string;
-  incoming: ButteryNode<Send>;
-  outgoing: ButteryNode<Recv>;
+  incoming: ButteryNode<Incoming>;
+  outgoing: ButteryNode<Outgoing>;
 }
 
 export function structNode<R extends {}>(

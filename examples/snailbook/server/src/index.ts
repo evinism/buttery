@@ -55,9 +55,18 @@ server.implement(SnailBook, "CreateComment", ({ content, postId }) => {
 });
 
 server.implement(SnailBook, "Feed", (channel) => {
-  newPost = (id) => {
-    // wut??
-    channel.fire(null);
+  newPost = (id: string) => {
+    getUserId();
+    const post = postsTable.read(id);
+    channel.send({
+      id,
+      content: post.content,
+      comments: [],
+      author: {
+        id: post.authorId,
+        name: usersTable.read(post.authorId).name,
+      },
+    });
   };
 });
 

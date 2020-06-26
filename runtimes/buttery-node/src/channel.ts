@@ -20,12 +20,12 @@ export class ButterySocket<Incoming, Outgoing> extends Pipe<Incoming> {
 
   private channelDef: ChannelNode<Incoming, Outgoing>;
   send(data: Outgoing) {
-    let parsed: string | undefined;
-    parsed = this.channelDef.outgoing.serialize(data);
-    if (parsed === undefined) {
+    let serialized: string | undefined;
+    serialized = this.channelDef.outgoing.serialize(data);
+    if (serialized === undefined) {
       throw new Error("Could not serialize outgoing RPC data");
     }
-    this.socket.send(parsed);
+    this.socket.send(serialized);
   }
   private receive(msg: string) {
     let parsed: Incoming | undefined;
