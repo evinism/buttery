@@ -182,6 +182,37 @@ export function mapNode<R extends { [key: string]: ButteryNode<unknown> }>(
   };
 }
 
+export function optionalNode<R>(
+  valueDefn: ButteryNode<R>
+): ButteryNode<R | null> {
+  const validate = (toValidate: unknown): toValidate is R | null => {
+    if (toValidate === null) {
+      return true;
+    }
+
+    return valueDefn.validate(toValidate);
+  };
+  const serialize = (r: R | null) => {
+    if (r === null) {
+      return "null";
+    }
+    return valueDefn.serialize(r);
+  };
+
+  const deserialize = (data: string): R | null | undefined => {
+    const parsed = JSON.parse(data) as unknown;
+    if (!validate(parsed)) {
+      return;
+    }
+    return parsed;
+  };
+  return {
+    validate,
+    serialize,
+    deserialize,
+  };
+}
+
 // Primitive nodes!
 // Lots of these can be reduced down.
 export function integerNode(): ButteryNode<number> {

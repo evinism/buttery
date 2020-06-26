@@ -65,18 +65,16 @@ const genTypeForRepresentable = (rep: Representable): string => {
     case "list":
       return `listNode(${genTypeForRepresentable(rep.value)})`;
     case "map":
-      const primRef = {
-        type: rep.key,
-      };
-      const val = genTypeForRepresentable(rep.value);
-      throw "Not yet implemented!";
+      return `mapNode("${rep.key}", ${genTypeForRepresentable(rep.value)})`;
     case "struct":
       const structString = rep.fields
-        .map((fields) => {
-          // Not working right now!
-          const optionalStr = ""; //fields.optional ? "?" : "";
-          const val = genTypeForRepresentable(fields.baseType);
-          return `${fields.name}${optionalStr}: ${val}`;
+        .map((field) => {
+          let val = genTypeForRepresentable(field.baseType);
+          // Do we really need this above a builtin?
+          if (field.optional) {
+            val = `optionalNode(${val})`;
+          }
+          return `${field.name}: ${val}`;
         })
         .join(", ");
       return `structNode({${structString}})`;

@@ -701,7 +701,7 @@ describe("Resolving", function () {
 
   describe("Circular Includes", function () {
     // TODO: Enbutterye a specific type of error
-    it("resolves vars in oneFile correctly", function () {
+    it("fails on circular imports correctly", function () {
       chai.assert.throws(() => load("../data/resolve/circular/a.buttery"));
     });
   });

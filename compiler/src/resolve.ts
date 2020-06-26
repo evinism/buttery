@@ -8,6 +8,14 @@ import {
 } from "./ast";
 import path from "path";
 
+const validMapKey = (key: Primitive) =>
+  [
+    Primitive.boolean,
+    Primitive.double,
+    Primitive.integer,
+    Primitive.string,
+  ].includes(key);
+
 type LoadFn = (file: string) => ButteryFile<Reference>;
 
 const getRepresentableFromVar = (
@@ -64,9 +72,11 @@ function maybeGetBuiltin(
     if (typeArgs.length !== 2) {
       throw `Wrong number of type arguments for a Map (expected 2, got ${typeArgs.length})`;
     }
-    const mapKey = Primitive[typeArgs[0].ref] as Primitive | undefined;
-    if (!mapKey) {
-      throw "Can only use a primitive for map's first type arg";
+
+    const mapKey = typeArgs[0].ref as Primitive;
+    const isValidMapKey = validMapKey(mapKey);
+    if (!isValidMapKey) {
+      throw "Can only use one of {string, double, integer, boolean} as a key for map";
     }
     return {
       type: "map",
