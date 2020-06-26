@@ -60,7 +60,7 @@ export class ButteryServer {
   implement<Endpoints extends EndpointBase, Z extends keyof Endpoints>(
     service: ButteryService<Endpoints>,
     name: Z,
-    handler: Endpoints[Z] extends ChannelNode<unknown, unknown>
+    handler: Endpoints[Z] extends ChannelNode<any, any>
       ? (
           connection: ButterySocket<
             ExtractNodeType<Endpoints[Z]["incoming"]>,
@@ -68,7 +68,7 @@ export class ButteryServer {
           >,
           request: http.IncomingMessage
         ) => unknown
-      : Endpoints[Z] extends RPCNode<unknown, unknown>
+      : Endpoints[Z] extends RPCNode<any, any>
       ? (
           message: ExtractNodeType<Endpoints[Z]["request"]>,
           request: http.IncomingMessage

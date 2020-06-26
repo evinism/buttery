@@ -1,6 +1,11 @@
 import * as http from "http";
 import { Socket } from "net";
 
+type UpgradeTag = {
+  socket: Socket;
+  head: Buffer;
+};
+
 type ResponseHandler = (
   request: http.IncomingMessage,
   response: http.ServerResponse
@@ -14,13 +19,17 @@ type UpgradeHandler = (
 
 const Buttery_UPGRADE_REQUEST_KEY_NAME = "__buttery_upgrade__";
 
+type RequestWithUpgradeTag = http.IncomingMessage & {
+  [Buttery_UPGRADE_REQUEST_KEY_NAME]?: UpgradeTag;
+};
+
 // responseHandlerToUpgradeHandler creates the server response.
 export const responseHandlerToUpgradeHandler = (
   responseHandler: ResponseHandler
-): UpgradeHandler => (req, socket, head) => {
+): UpgradeHandler => (req: RequestWithUpgradeTag, socket, head) => {
   // We use a response that's to be used on rejection. If the upgrade
   // request gets to the upgrade, then this is thrown away.
-  const dummyResponse = new http.ServerResponse(req);
+  const dummyResponse: http.ServerResponse = new http.ServerResponse(req);
   dummyResponse.assignSocket(socket);
 
   req[Buttery_UPGRADE_REQUEST_KEY_NAME] = {
@@ -33,19 +42,25 @@ export const responseHandlerToUpgradeHandler = (
 // upgradeHandlerToResponseHandler handles the server response if necessary.
 export const upgradeHandlerToResponseHandler = (
   upgradeHandler: UpgradeHandler
-): ResponseHandler => (req, res) => {
-  if (!req[Buttery_UPGRADE_REQUEST_KEY_NAME]) {
+): ResponseHandler => (
+  req: RequestWithUpgradeTag,
+  res: http.ServerResponse
+) => {
+  const upgradeTag = req[Buttery_UPGRADE_REQUEST_KEY_NAME];
+  if (!upgradeTag) {
     throw "Tried to convert a non-upgrade response to an upgrade handler!";
   }
-  const socket = req[Buttery_UPGRADE_REQUEST_KEY_NAME].socket as Socket;
-  const head = req[Buttery_UPGRADE_REQUEST_KEY_NAME].socket as Buffer;
+  const { socket, head } = upgradeTag;
   upgradeHandler(req, socket, head);
 };
 
 export const divertUpgrade = (
   nonUpgrade: ResponseHandler,
   upgrade: ResponseHandler
-): ResponseHandler => (req, res) => {
+): ResponseHandler => (
+  req: RequestWithUpgradeTag,
+  res: http.ServerResponse
+) => {
   if (req[Buttery_UPGRADE_REQUEST_KEY_NAME]) {
     upgrade(req, res);
   } else {

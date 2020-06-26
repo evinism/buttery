@@ -2,7 +2,7 @@ import * as http from "http";
 import { RPCNode, ChannelNode } from "./shared/nodes";
 
 export type EndpointBase = {
-  [key: string]: RPCNode<unknown, unknown> | ChannelNode<unknown, unknown>;
+  [key: string]: RPCNode<any, any> | ChannelNode<any, any>;
 };
 
 export interface ButteryService<Endpoints extends EndpointBase> {

@@ -3,20 +3,25 @@ import * as chai from "chai";
 import { ButteryServer } from "..";
 import express from "express";
 import WebSocket from "ws";
+import * as http from "http";
 
 const baseApp = express();
 baseApp.get("/", (req, res) => res.send("ok"));
 
 const request = require("supertest");
 
-const expectCalledWithin = (fn: (...args) => void, timeout: number, done) => {
+const expectCalledWithin = (
+  fn: (...args: any[]) => void,
+  timeout: number,
+  done: (arg: any) => void
+) => {
   let failed = false;
   const fail = () => {
     failed = true;
     done(new Error("Did not call value before " + timeout));
   };
   const interval = setTimeout(fail, timeout);
-  return (...args) => {
+  return (...args: any[]) => {
     if (!failed) {
       clearTimeout(interval);
       fn(...args);
@@ -29,12 +34,14 @@ describe("ts-server runtime", function () {
     rpc: { headers: { "Powered-By": "buttery" } },
   });
 
-  butteryServer.use((req, res, next) => {
-    if (req.headers["failmeplz"]) {
-      next(new Error("Fail!"));
+  butteryServer.use(
+    (req: http.IncomingMessage, res: http.ServerResponse, next: any) => {
+      if (req.headers["failmeplz"]) {
+        next(new Error("Fail!"));
+      }
+      next();
     }
-    next();
-  });
+  );
   butteryServer.wrapListener(baseApp);
   butteryServer.implement(PartyService, "Chat", (connection) => {
     connection.listen((msg) => {
@@ -58,7 +65,7 @@ describe("ts-server runtime", function () {
       },
     });
   });
-  const server = butteryServer.createServer();
+  const server: http.Server = butteryServer.createServer();
 
   describe("rpcs", () => {
     it("should accept preexisting urls", function (done) {
@@ -123,7 +130,7 @@ describe("ts-server runtime", function () {
   });
 
   describe("Channels", () => {
-    let server = undefined;
+    let server: http.Server | undefined = undefined;
 
     before((done) => {
       server = butteryServer.listen(7575, () => {
@@ -138,7 +145,7 @@ describe("ts-server runtime", function () {
         });
 
         server.close(() => {
-          server.unref();
+          server && server.unref();
         });
       }
     });

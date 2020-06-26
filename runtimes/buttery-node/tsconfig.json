@@ -4,6 +4,7 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "declaration": true,
+    "strict": true,
     "outDir": "dist"
   },
   "types": ["node"],
