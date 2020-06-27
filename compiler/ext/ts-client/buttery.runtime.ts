@@ -166,7 +166,7 @@ export class ButteryChannelConnection<Send, Recv> {
   }
 
   unlisten(listener: (arg: Recv) => unknown) {
-    this.recvPipe.listen(listener);
+    this.recvPipe.unlisten(listener);
   }
 }
 
