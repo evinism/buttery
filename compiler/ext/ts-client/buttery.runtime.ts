@@ -68,7 +68,7 @@ class StableSocket {
     this.socket.onclose = () => {
       if (this.shouldRetry) {
         this.setStatus("waitingToRetry");
-        setTimeout(() => this.buildSocket, this.retryDelay);
+        setTimeout(() => this.buildSocket(), this.retryDelay);
       } else {
         this.setStatus("closed");
       }
