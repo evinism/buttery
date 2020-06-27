@@ -1,10 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
-import { SnailBookClient } from "./buttery-genfiles/__ts__/api.browser";
-
-const client = new SnailBookClient("http://localhost:3000");
-// silly workaround for proxy in CRA not working properly
-const newsFeed = new SnailBookClient("http://localhost:8080").Feed();
+import { client, newsFeed } from "./api";
+import PostForm from "./PostForm";
 
 function App() {
   const [feed, setFeed] = useState<
@@ -13,21 +10,42 @@ function App() {
       author: string;
     }[]
   >([]);
-
-  newsFeed.listen(({ content, author: { name } }) => {
-    setFeed(feed.concat({ content, author: name }));
+  useEffect(() => {
+    const handlerFn = ({
+      content,
+      author: { name: author },
+    }: {
+      content: string;
+      author: { name: string };
+    }) => {
+      setFeed((feed) =>
+        feed.concat({
+          content,
+          author,
+        })
+      );
+    };
+    newsFeed.listen(handlerFn);
+    return () => {
+      newsFeed.unlisten(handlerFn);
+    };
   });
 
   return (
     <div className="App">
       <header className="App-header">
-        <button onClick={() => client.CreatePost("hello")}></button>
+        SnailBook! The cool place for Snails to hang out
       </header>
-      {feed.map(({ content, author }) => (
-        <div>
-          "{content}" <br />-{author}
-        </div>
-      ))}
+      <div>
+        <PostForm />
+      </div>
+      <article>
+        {feed.map(({ content, author }) => (
+          <div className="App-post">
+            "{content}" <br />-{author}
+          </div>
+        ))}
+      </article>
     </div>
   );
 }
