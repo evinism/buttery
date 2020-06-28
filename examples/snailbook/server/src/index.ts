@@ -1,73 +1,23 @@
 import { ButteryServer } from "buttery-node";
-import { SnailBook } from "./buttery-genfiles/api.node";
-import { postsTable, usersTable, commentsTable } from "./store";
-
-const { id: bobsId } = usersTable.create({
-  name: "Bob Builder",
-  password: "hunter2",
-});
-const getUserId = () => bobsId;
+import { ensureLoggedIn } from "connect-ensure-login";
+import * as app from "express/lib/application";
+import * as init from "express/lib/middleware/init";
+import "./config";
+//import session = require("express-session");
+import passport = require("passport");
+import { implement } from "./implementations";
 
 const server = new ButteryServer();
 
-let newPost = (id: string) => {};
+const initMiddleware = init.init(app);
 
-server.implement(SnailBook, "CreatePost", (content) => {
-  const userId = getUserId();
-  const { id } = postsTable.create({
-    content,
-    authorId: userId,
-    commentIds: [],
-  });
-
-  newPost(id);
-
-  return Promise.resolve({
-    id,
-    content: content,
-    author: {
-      id: userId,
-      name: usersTable.read(getUserId()).name,
-    },
-    comments: [],
-  });
+server.use((req, res, next) => {
+  console.log(req, res, next);
+  initMiddleware(req, res, next);
 });
-
-server.implement(SnailBook, "CreateComment", ({ content, postId }) => {
-  const userId = getUserId();
-  const parentPost = postsTable.read(postId);
-  const { id } = commentsTable.create({
-    content,
-  });
-
-  parentPost.commentIds.push(id);
-  postsTable.update(postId, parentPost);
-
-  return Promise.resolve({
-    id,
-    postId,
-    content,
-    author: {
-      id: userId,
-      name: usersTable.read(getUserId()).name,
-    },
-  });
-});
-
-server.implement(SnailBook, "Feed", (channel) => {
-  newPost = (id: string) => {
-    getUserId();
-    const post = postsTable.read(id);
-    channel.send({
-      id,
-      content: post.content,
-      comments: [],
-      author: {
-        id: post.authorId,
-        name: usersTable.read(post.authorId).name,
-      },
-    });
-  };
-});
+server.use(passport.initialize());
+server.use(ensureLoggedIn("/login"));
+server.use(passport.authenticate("local"));
+implement(server);
 
 server.listen(8080);

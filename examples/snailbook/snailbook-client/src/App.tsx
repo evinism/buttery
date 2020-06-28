@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-import { client, newsFeed } from "./api";
+import { client } from "./api";
 import PostForm from "./PostForm";
+
+const newsFeed = client.Feed();
 
 function App() {
   const [feed, setFeed] = useState<
