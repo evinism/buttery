@@ -6,7 +6,7 @@ import WebSocket from "ws";
 import * as http from "http";
 
 const baseApp = express();
-baseApp.get("/", (req, res) => res.send("ok"));
+baseApp.get("/", (req, res) => res.send({ status: "ok" }));
 
 const request = require("supertest");
 
@@ -32,6 +32,7 @@ const expectCalledWithin = (
 describe("ts-server runtime", function () {
   const butteryServer = new ButteryServer({
     rpc: { headers: { "Powered-By": "buttery" } },
+    express: baseApp,
   });
 
   butteryServer.use(
@@ -55,7 +56,6 @@ describe("ts-server runtime", function () {
       next();
     }
   );
-  butteryServer.wrapListener(baseApp);
   butteryServer.implement(
     PartyService,
     "Chat",
@@ -101,6 +101,7 @@ describe("ts-server runtime", function () {
         .get("/")
         .end(function (err: any, res: any) {
           chai.assert.equal(err, null);
+          chai.assert.deepEqual(res.body, { status: "ok" });
           chai.assert.equal(res.status, 200);
           done();
         });

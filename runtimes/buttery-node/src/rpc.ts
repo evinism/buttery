@@ -14,23 +14,17 @@ export const createRpcHandler = (
   },
   options: ButteryServerOptions
 ) => async (request: http.IncomingMessage, response: http.ServerResponse) => {
-  if (!isButteryPath(request)) {
-    // Irrelevant request, do nothing.
-    return;
-  }
-
   const headers = options?.rpc?.headers || {};
 
   const path = (request.url || "").split("/").slice(1);
-  if (path.length !== 3) {
+  if (path.length !== 2) {
     response.writeHead(400, { "Content-Type": "text/plain" });
     response.end("Malformed Buttery URL");
     return;
   }
-  const [_, serviceName, requestName] = path;
-  const service = serviceDefinitions.find(
-    (service) => service.name === serviceName
-  );
+
+  const [serviceName, requestName] = path;
+  const service = serviceDefinitions.find(({ name }) => name === serviceName);
 
   if (!service) {
     response.writeHead(

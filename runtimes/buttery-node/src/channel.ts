@@ -79,17 +79,12 @@ export const createUpgradeHandler = (
   wss.on("connection", handleConnection);
 
   return (request: http.IncomingMessage, socket: Socket, head: Buffer) => {
-    if (!isButteryPath(request)) {
-      // Already taken care of by a different handler!
-      return;
-    }
-
     const path = (request.url || "").split("/").slice(1);
-    if (path.length !== 3) {
+    if (path.length !== 2) {
       socket.destroy(new Error("Malformed Buttery URL"));
       return;
     }
-    const [_, serviceName, requestName] = path;
+    const [serviceName, requestName] = path;
 
     const service = serviceDefinitions.find(
       (service) => service.name === serviceName

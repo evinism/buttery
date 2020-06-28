@@ -19,7 +19,11 @@ export class ButteryServer {
   constructor(options: ButteryServerOptions = {}) {
     // will extend beyond one service, soon enough :)
     this.options = options;
-    this.expressServer = express();
+    if (options.express && options.baseHandler) {
+      throw "Buttery server options express and baseHandler are mutually exclusive";
+    }
+    this.baseHandler = options.baseHandler || options.express;
+    this.expressServer = options.express || express();
   }
 
   private expressServer: express.Express;
@@ -47,12 +51,6 @@ export class ButteryServer {
   } = {};
 
   private serviceDefinitions: ButteryService<any>[] = [];
-
-  wrapListener(
-    handler: (req: http.IncomingMessage, res: http.ServerResponse) => unknown
-  ) {
-    this.baseHandler = handler;
-  }
 
   use<Endpoints extends EndpointBase>(
     ...args:
@@ -152,9 +150,12 @@ export class ButteryServer {
       this.options
     );
 
-    this.expressServer.use(
-      divertUpgrade(rpcHandler, upgradeHandlerToResponseHandler(upgradeHandler))
-    );
+    this.expressServer.use(`/${Buttery_NAMESPACE}`, (req, res) => {
+      divertUpgrade(
+        rpcHandler,
+        upgradeHandlerToResponseHandler(upgradeHandler)
+      )(req, res);
+    });
 
     server.on("request", this.rpcFallback(this.expressServer));
     server.on(
