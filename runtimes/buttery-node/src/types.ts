@@ -1,9 +1,9 @@
 import * as http from "http";
-import { RPCNode, ChannelNode } from "./shared/nodes";
+import { RPCNode, ChannelNode, ButteryNode } from "./shared/nodes";
 import express from "express";
 
 export type EndpointBase = {
-  [key: string]: RPCNode<any, any> | ChannelNode<any, any>;
+  [key: string]: RPCNode<any, any> | ChannelNode<any, any> | ButteryNode<any>;
 };
 
 export interface ButteryService<Endpoints extends EndpointBase> {

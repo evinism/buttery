@@ -30,12 +30,12 @@ const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
     case "channel": {
       const incoming = genTypeForRepresentable(rhs.incoming.baseType);
       const outgoing = genTypeForRepresentable(rhs.outgoing.baseType);
-      return `{ type: "channelNode" as "channelNode", name: "${rhs.name}",incoming: ${incoming}, outgoing: ${outgoing}}`;
+      return `{ type: "channelNode" as "channelNode", name: "${rhs.name}" as "${rhs.name}",incoming: ${incoming}, outgoing: ${outgoing}}`;
     }
     case "rpc": {
       const request = genTypeForRepresentable(rhs.request.baseType);
       const response = genTypeForRepresentable(rhs.response.baseType);
-      return `{ type: "rpcNode" as "rpcNode", name: "${rhs.name}", request: ${request}, response: ${response}}`;
+      return `{ type: "rpcNode" as "rpcNode", name: "${rhs.name}" as "${rhs.name}", request: ${request}, response: ${response}}`;
     }
     case "struct": {
       return genTypeForRepresentable(rhs);
@@ -52,7 +52,7 @@ const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
 
       return `const ${rhs.name} = (() => {
 ${nodeDeclarations}
-  return {name: "${rhs.name}", endpoints: {${rhs.variables
+  return {name: "${rhs.name}" as "${rhs.name}", endpoints: {${rhs.variables
         .map((decl) => decl.name)
         .join(", ")}}};
 })();`;
