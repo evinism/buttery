@@ -10,6 +10,7 @@ import {
   responseHandlerToUpgradeHandler,
   divertUpgrade,
 } from "./shims";
+import express from "express";
 
 type ExtractNodeType<P> = P extends ButteryNode<infer T> ? T : never;
 
@@ -17,10 +18,10 @@ export class ButteryServer {
   constructor(options: ButteryServerOptions = {}) {
     // will extend beyond one service, soon enough :)
     this.options = options;
-    this.connectServer = connect();
+    this.expressServer = express();
   }
 
-  private connectServer: connect.Server;
+  private expressServer: express.Express;
   private baseHandler:
     | ((req: http.IncomingMessage, res: http.ServerResponse) => unknown)
     | undefined;
@@ -53,7 +54,7 @@ export class ButteryServer {
   }
 
   use(middleware: connect.HandleFunction) {
-    this.connectServer.use(middleware);
+    this.expressServer.use(middleware);
     return this;
   }
 
@@ -128,14 +129,14 @@ export class ButteryServer {
       this.options
     );
 
-    this.connectServer.use(
+    this.expressServer.use(
       divertUpgrade(rpcHandler, upgradeHandlerToResponseHandler(upgradeHandler))
     );
 
-    server.on("request", this.rpcFallback(this.connectServer));
+    server.on("request", this.rpcFallback(this.expressServer));
     server.on(
       "upgrade",
-      responseHandlerToUpgradeHandler(this.rpcFallback(this.connectServer))
+      responseHandlerToUpgradeHandler(this.rpcFallback(this.expressServer))
     );
 
     return server;
