@@ -11,6 +11,7 @@ import {
   divertUpgrade,
 } from "./shims";
 import express from "express";
+import { Buttery_NAMESPACE } from "./constants";
 
 type ExtractNodeType<P> = P extends ButteryNode<infer T> ? T : never;
 
@@ -53,8 +54,30 @@ export class ButteryServer {
     this.baseHandler = handler;
   }
 
-  use(middleware: connect.HandleFunction) {
-    this.expressServer.use(middleware);
+  use<Endpoints extends EndpointBase>(
+    ...args:
+      | [connect.HandleFunction]
+      | [ButteryService<Endpoints>, connect.HandleFunction]
+      | [ButteryService<Endpoints>, keyof Endpoints, connect.HandleFunction]
+  ) {
+    let targetPath = "";
+    let middleware: connect.HandleFunction | undefined;
+    if (args.length === 1) {
+      middleware = args[0];
+    } else if (args.length === 2) {
+      middleware = args[1];
+      targetPath = `/${Buttery_NAMESPACE}/${args[0].name}`;
+    } else {
+      middleware = args[2];
+      targetPath = `/${Buttery_NAMESPACE}/${args[0].name}/${args[1]}`;
+    }
+
+    if (targetPath) {
+      this.expressServer.use(targetPath, middleware);
+    } else {
+      this.expressServer.use(middleware);
+    }
+
     return this;
   }
 

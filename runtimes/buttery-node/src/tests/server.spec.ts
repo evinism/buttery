@@ -42,29 +42,57 @@ describe("ts-server runtime", function () {
       next();
     }
   );
+
+  butteryServer.use(
+    PartyService,
+    "AddToParty",
+    (
+      req: http.IncomingMessage & { mwAug?: "augmented" },
+      res: http.ServerResponse,
+      next: any
+    ) => {
+      req.mwAug = "augmented";
+      next();
+    }
+  );
   butteryServer.wrapListener(baseApp);
-  butteryServer.implement(PartyService, "Chat", (connection) => {
-    connection.listen((msg) => {
-      connection.send({
-        time: msg.time,
-        content: msg.content,
-        author: {
-          name: "you",
-          pronouns: ["they", "them"],
+  butteryServer.implement(
+    PartyService,
+    "Chat",
+    (connection, req: http.IncomingMessage & { mwAug?: "augmented" }) => {
+      if (req.mwAug) {
+        throw "Has augmentation for wrong wroute!";
+      }
+      connection.listen((msg) => {
+        connection.send({
+          time: msg.time,
+          content: msg.content,
+          author: {
+            name: "you",
+            pronouns: ["they", "them"],
+          },
+        });
+      });
+    }
+  );
+  butteryServer.implement(
+    PartyService,
+    "AddToParty",
+    (_, req: http.IncomingMessage & { mwAug?: "augmented" }) => {
+      if (!req.mwAug) {
+        throw "Missing middleware augmentation for route!";
+      }
+
+      return Promise.resolve({
+        success: true,
+        time: {
+          people: [],
+          startTime: 0,
+          endTime: 0,
         },
       });
-    });
-  });
-  butteryServer.implement(PartyService, "AddToParty", (_) => {
-    return Promise.resolve({
-      success: true,
-      time: {
-        people: [],
-        startTime: 0,
-        endTime: 0,
-      },
-    });
-  });
+    }
+  );
   const server: http.Server = butteryServer.createServer();
 
   describe("rpcs", () => {
@@ -99,6 +127,7 @@ describe("ts-server runtime", function () {
           // an actual testbed
           //chai.assert.equal(res.headers["Content-Type"], "application/json");
           //chai.assert.equal(res.headers["Powered-By"], "buttery");
+
           chai.assert.deepEqual(res.body, {
             success: true,
             time: { people: [], startTime: 0, endTime: 0 },
