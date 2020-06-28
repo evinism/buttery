@@ -2643,10 +2643,10 @@ builtin-status-codes@^3.0.0:
   resolved "https://registry.yarnpkg.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz#85982878e21b98e1c66425e03d0174788f569ee8"
   integrity sha1-hZgoeOIbmOHGZCXgPQF0eI9Wnug=
 
-buttery-cli@^0.0.14:
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.0.14.tgz#2e20e1807bc94c52f5e28d7cd8447f2372d05488"
-  integrity sha512-uQajZDAq9BD43br31N6Qlbc4XRMpUd2C0F90zrtbRWFs1zSNF10UtZfARahx74PkA2yLGjp5qyepDchHItfY6Q==
+buttery-cli@0.0.15:
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.0.15.tgz#fb92ec3f0180b43c01c63cdc31ee8678f184df8d"
+  integrity sha512-wY63JdORfuEn6Y4f1MmQLER9Auu4dnBNxlCNRrinMqref8KL2ws80Sk0UfxfFCxPRTU58UQBWppKVqhleDB/NQ==
   dependencies:
     "@types/mocha" "^7.0.2"
     "@types/yargs" "^15.0.5"
