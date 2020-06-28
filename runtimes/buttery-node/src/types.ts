@@ -3,7 +3,7 @@ import { RPCNode, ChannelNode, ButteryNode } from "./shared/nodes";
 import express from "express";
 
 export type EndpointBase = {
-  [key: string]: RPCNode<any, any> | ChannelNode<any, any> | ButteryNode<any>;
+  [key: string]: RPCNode<any, any> | ChannelNode<any, any>;
 };
 
 export interface ButteryService<Endpoints extends EndpointBase> {
