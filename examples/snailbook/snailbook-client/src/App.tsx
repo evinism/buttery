@@ -1,53 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./App.css";
-import { client } from "./api";
-import PostForm from "./PostForm";
-
-const newsFeed = client.Feed();
+import LoggedIn from "./LoggedIn";
+import LoggedOut from "./LoggedOut";
+import { client, loggedOutClient } from "./api";
 
 function App() {
-  const [feed, setFeed] = useState<
-    {
-      content: string;
-      author: string;
-    }[]
-  >([]);
-  useEffect(() => {
-    const handlerFn = ({
-      content,
-      author: { name: author },
-    }: {
-      content: string;
-      author: { name: string };
-    }) => {
-      setFeed((feed) =>
-        feed.concat({
-          content,
-          author,
-        })
-      );
-    };
-    newsFeed.listen(handlerFn);
-    return () => {
-      newsFeed.unlisten(handlerFn);
-    };
-  });
+  const [user, setUser] = useState<
+    | {
+        feedConnection: any;
+        name: string;
+      }
+    | undefined
+  >();
+
+  const handleLogin = (username: string, password: string) => {
+    loggedOutClient.LogIn({ username, password }).then(() => {
+      const feedConnection = client.Feed();
+      setUser({
+        feedConnection,
+        name: "lolwhut",
+      });
+    });
+  };
 
   return (
     <div className="App">
-      <header className="App-header">
-        SnailBook! The cool place for Snails to hang out
-      </header>
-      <div>
-        <PostForm />
-      </div>
-      <article>
-        {feed.map(({ content, author }) => (
-          <div className="App-post">
-            "{content}" <br />-{author}
-          </div>
-        ))}
-      </article>
+      {!user && <button onClick={() => handleLogin("bob", "hunter2")} />}
+      {user && <LoggedIn feedConnection={user.feedConnection} />}
     </div>
   );
 }

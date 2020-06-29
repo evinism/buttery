@@ -16,3 +16,16 @@ passport.use(
     return done(null, user);
   })
 );
+
+passport.serializeUser(function (user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function (id, done) {
+  const user = usersTable.read(id);
+  if (user) {
+    done(null, user);
+  } else {
+    done("aaaa", null);
+  }
+});

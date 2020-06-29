@@ -194,7 +194,7 @@ assertion-error@^1.1.0:
   resolved "https://registry.yarnpkg.com/assertion-error/-/assertion-error-1.1.0.tgz#e60b6b0e8f301bd97e5375215bda406c85118c0b"
   integrity sha512-jgsaNduz+ndvGyFt3uSuWqvy4lCnIJiovtouQN5JZHOKCS2QuhEdbcQHFhVksz2N2U9hXJo8odG7ETyWlEeuDw==
 
-body-parser@1.19.0:
+body-parser@1.19.0, body-parser@^1.19.0:
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/body-parser/-/body-parser-1.19.0.tgz#96b2709e57c9c4e09a6fd66a8fd979844f69f08a"
   integrity sha512-dhEPs72UPbDnAQJ9ZKMNTP6ptJaionhP5cBb541nXPlW60Jepo9RV/a4fX4XWW9CuFNK22krhrj1+rgzifNCsw==
@@ -215,10 +215,10 @@ buffer-from@^1.0.0:
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
   integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
 
-buttery-cli@0.0.15:
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.0.15.tgz#fb92ec3f0180b43c01c63cdc31ee8678f184df8d"
-  integrity sha512-wY63JdORfuEn6Y4f1MmQLER9Auu4dnBNxlCNRrinMqref8KL2ws80Sk0UfxfFCxPRTU58UQBWppKVqhleDB/NQ==
+buttery-cli@0.0.17:
+  version "0.0.17"
+  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.0.17.tgz#ea514421bd1733af7809f13fb9b87ca0816bf0be"
+  integrity sha512-JOzoG57ZOZ1ct/bukohQJLzMymlxA4VhVbEnIbeRWHre+zPNlOSUwm5xqEPE7ivPKgFZb7Q9TeuGXBuQGS47bA==
   dependencies:
     "@types/mocha" "^7.0.2"
     "@types/yargs" "^15.0.5"
@@ -229,10 +229,10 @@ buttery-cli@0.0.15:
     typescript "^3.9.3"
     yargs "^15.3.1"
 
-buttery-node@0.0.15:
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/buttery-node/-/buttery-node-0.0.15.tgz#d7e3bde83ddf5d06bc6515a7dc4ad8d202785e7d"
-  integrity sha512-y5drOEZSkByou8nsruGz/G2SOhr+LlUrioMEvbT9Z3fQfd5tDBhns72VRgSSdkbgHbqjh6DnICvESEGQd63xbg==
+buttery-node@0.0.18:
+  version "0.0.18"
+  resolved "https://registry.yarnpkg.com/buttery-node/-/buttery-node-0.0.18.tgz#45740a997e98b41ddcd78c32657c926f2a6ecee7"
+  integrity sha512-fg6jSTr1uEkgrJjIQ1kfuqE1/vWPCH+SSLJo9IuXp48tepaYMRoN1Cqj2JTLUryc5J+1UtV6WolVBFjz1XMcZg==
   dependencies:
     express ">3.0.0"
     ws "^7.3.0"
@@ -322,6 +322,14 @@ content-type@~1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/content-type/-/content-type-1.0.4.tgz#e138cc75e040c727b1966fe5e5f8c9aee256fe3b"
   integrity sha512-hIP3EEPs8tB9AT1L+NUqtwOAps4mk2Zob89MWXMHjHWg9milF/j4osnnQLXBCBFBk/tvIG/tUc9mOUJiPBhPXA==
+
+cookie-parser@^1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/cookie-parser/-/cookie-parser-1.4.5.tgz#3e572d4b7c0c80f9c61daf604e4336831b5d1d49"
+  integrity sha512-f13bPUj/gG/5mDr+xLmSxxDsB9DQiTIfhJS/sqjrmfAWiAN+x2O4i/XguTL9yDZ+/IFDanJ+5x7hC4CXT9Tdzw==
+  dependencies:
+    cookie "0.4.0"
+    cookie-signature "1.0.6"
 
 cookie-signature@1.0.6:
   version "1.0.6"

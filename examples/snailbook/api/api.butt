@@ -18,6 +18,19 @@ struct CommentRequest:
   postId: string
   content: string
 
+struct LogInRequest:
+  username: string
+  password: string
+
+service SnailBookLoggedOut:
+  rpc LogIn:
+    request: LogInRequest
+    response: boolean
+
+  rpc WhoAmI:
+    request: null
+    optional response: User
+
 service SnailBook:
   rpc CreatePost:
     request: string
