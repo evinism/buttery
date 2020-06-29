@@ -1,6 +1,24 @@
 import * as http from "http";
 import { ButteryService, EndpointBase, ButteryServerOptions } from "./types";
-import { isButteryPath, streamToString } from "./util";
+import { streamToString } from "./util";
+
+// Workaround for extracting a previously parsed message by body parser.
+// This really should not exist.
+const tryToGetBody = (request: http.IncomingMessage & { body?: any }) => {
+  const hasBody = request.hasOwnProperty("body");
+  if (hasBody) {
+    const body = request.body;
+    if (typeof body === "string") {
+      return body;
+    } else if (typeof body === "object") {
+      return JSON.stringify(body);
+    } else {
+      throw "Buttery does not support using body-parser with non-string, non-objects. Please contribute to buttery to support this";
+    }
+  } else {
+    return undefined;
+  }
+};
 
 export const createRpcHandler = (
   serviceDefinitions: ButteryService<EndpointBase>[],
@@ -65,7 +83,14 @@ export const createRpcHandler = (
 
   let parsed;
   try {
-    const body = await streamToString(request);
+    // Workaround for the body possibly being parsed by this point
+    // We probs want something better, e.g. whether the stream is yet finished.
+    // this can probably lead to unending requests when body parser is used + reque
+    let body: string | undefined = tryToGetBody(request);
+    if (body === undefined) {
+      body = await streamToString(request);
+    }
+
     parsed = rpcDef.request.deserialize(body);
     if (!parsed) {
       throw "Invalid Body";
