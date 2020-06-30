@@ -52,11 +52,11 @@ export class ButteryServer {
 
   private serviceDefinitions: ButteryService<any>[] = [];
 
-  use<Endpoints extends EndpointBase>(
+  use<Endpoints extends EndpointBase, Z extends keyof Endpoints>(
     ...args:
       | [connect.HandleFunction]
       | [ButteryService<Endpoints>, connect.HandleFunction]
-      | [ButteryService<Endpoints>, keyof Endpoints, connect.HandleFunction]
+      | [ButteryService<Endpoints>, Z, connect.HandleFunction]
   ) {
     let targetPath = "";
     let middleware: connect.HandleFunction | undefined;
