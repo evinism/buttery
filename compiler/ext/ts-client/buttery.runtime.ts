@@ -206,7 +206,7 @@ const defaultRequester = (
       ...config.headers,
     };
   }
-  fetch(url, {
+  return fetch(url, {
     method: "post",
     body,
     headers,

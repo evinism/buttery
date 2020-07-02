@@ -6,7 +6,7 @@ import * as chai from "chai";
 import child_process from "child_process";
 
 describe("Generation", function () {
-  describe("Typescript", function () {
+  describe("Typescript Browser Client", function () {
     it("should generate types", function () {
       const ast = load("../data/resolve/party/main.buttery");
       const bleep = gen(ast);
