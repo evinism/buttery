@@ -186,16 +186,32 @@ interface RpcConfig {
   referrerPolicy?: string;
 }
 
+const defaultHeaders = {
+  "Content-Type": "application/json",
+};
+
 interface ButteryClientConfig {
   rpc?: RpcConfig;
 }
 
-const defaultRequester = (url: string, body: string, config: RpcConfig = {}) =>
+const defaultRequester = (
+  url: string,
+  body: string,
+  config: RpcConfig = {}
+) => {
+  let headers = defaultHeaders;
+  if (config.headers) {
+    headers = {
+      ...headers,
+      ...config.headers,
+    };
+  }
   fetch(url, {
     method: "post",
     body,
-    headers: config.headers,
+    headers,
   }).then((response) => response.text());
+};
 
 export function buildRpcHandler<Req, Res>(
   requestName: string,
