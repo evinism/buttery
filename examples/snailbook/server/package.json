@@ -12,7 +12,7 @@
     "@types/passport-local": "^1.0.33",
     "@types/uuid": "^8.0.0",
     "body-parser": "^1.19.0",
-    "buttery-cli": "0.0.17",
+    "buttery-cli": "0.0.19",
     "buttery-node": "0.0.18",
     "connect-ensure-login": "^0.1.1",
     "cookie-parser": "^1.4.5",
@@ -27,6 +27,6 @@
   "scripts": {
     "gen": "buttery generate node -f ../api/api.butt -o src/buttery-genfiles",
     "build": "yarn gen",
-    "dev": "yarn gen && ts-node ./src/index.ts"
+    "start": "yarn gen && ts-node ./src/index.ts"
   }
 }

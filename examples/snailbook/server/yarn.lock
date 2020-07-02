@@ -215,10 +215,10 @@ buffer-from@^1.0.0:
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
   integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
 
-buttery-cli@0.0.17:
-  version "0.0.17"
-  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.0.17.tgz#ea514421bd1733af7809f13fb9b87ca0816bf0be"
-  integrity sha512-JOzoG57ZOZ1ct/bukohQJLzMymlxA4VhVbEnIbeRWHre+zPNlOSUwm5xqEPE7ivPKgFZb7Q9TeuGXBuQGS47bA==
+buttery-cli@0.0.19:
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.0.19.tgz#4a1ab0f2b8ac4f888f7ef9f4106690046e8327fb"
+  integrity sha512-M8+/mMh5++w/2kqcZBJVIc7VmyrPa5L2AZw7N4Ed4gTaU9qmJ3PCv7STaduE8hCv0Q3qZj553I9T4CvFxmRqSQ==
   dependencies:
     "@types/mocha" "^7.0.2"
     "@types/yargs" "^15.0.5"
