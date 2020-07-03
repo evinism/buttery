@@ -2,11 +2,11 @@
 
 ### Warning: Buttery is still in pre-alpha and is not (yet) suitable for production use. It CAN be used for side projects and game jams if you're feeling a hint brave.
 
-Buttery aims to be a minimalistic cross-language DSL for defining RPCs and channels.
-It's essentially a proto / grpc replacement for modern webstacks, with low
-barrier to entry and easy integration into existing products. Buttery is specialized
-for use over http(s) and websockets, but should technically be transport-layer
-agnostic.
+Buttery aims to be a minimalistic cross-language DSL for defining RPCs and channels. Depending on your background, you might find one of these analogies of what buttery is to be compelling:
+* A lightweight replacement for gRPC / protos, but over http(s) and websockets
+* [Twirp](https://github.com/twitchtv/twirp), but without all the baggage of protos, providing first-class support for browser -> backend comms, and bidi communication 
+* A lightweight replacement for swagger codegen, with bidi communication
+* JSON-RPC-like specification, but paired with a small domain specific language for definitions and bidi communication
 
 ### Scope of Buttery
 
@@ -112,13 +112,13 @@ As an example call:
 Buttery Clients
 | Target | Target Description | Support |
 |---|---|---|
-| browser | Generated Typescript for use in browsers | Mostly Supported |
+| browser | Generated Typescript for use in browsers | Full Support |
 | python-client | Generated code for Python Client | None |
 
 Buttery Servers
 | Target | Target Description | Support |
 |---|---|---|
-| node | Generated Typescript for use in express backends | Mostly Supported |
+| node | Generated Typescript for use in express backends | Full Support |
 | django | Generated code for use in Django backends | None |
 
 ### Sample of features
