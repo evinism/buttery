@@ -3,10 +3,13 @@
 ### Warning: Buttery is still in pre-alpha and is not (yet) suitable for production use. It CAN be used for side projects and game jams if you're feeling a hint brave.
 
 Buttery aims to be a minimalistic cross-language DSL for defining RPCs and channels.
-It's essentially a proto / grpc replacement for modern webstacks, with low
-barrier to entry and easy integration into existing products. Buttery is specialized
-for use over http(s) and websockets, but should technically be transport-layer
-agnostic.
+
+Depending on your background, you might find one of these explanations of buttery
+to be compelling:
+* A super-lightweight replacement for swagger codegen, with full duplex
+* A lightweight replacement for GRPC / protos, but over http(s) and with full duplex
+* [Twirp](https://github.com/twitchtv/twirp), but instead using a json encoding, full duplex.
+* JSON-RPC-like specification, once again, with full duplex.
 
 ### Scope of Buttery
 
