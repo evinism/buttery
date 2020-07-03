@@ -125,8 +125,8 @@ const validateKey: { [type in KeyType]: (arg: string) => boolean } = {
   boolean: (key) => key === "true" || key === "false",
 };
 
-export function mapNode<R extends { [key: string]: ButteryNode<unknown> }>(
-  valueDefn: R[string],
+export function mapNode<R extends { [key: string]: any }>(
+  valueDefn: ButteryNode<R[string]>,
   keyType: KeyType
 ): ButteryNode<R> {
   const validate = (toValidate: unknown): toValidate is R => {
@@ -161,7 +161,7 @@ export function mapNode<R extends { [key: string]: ButteryNode<unknown> }>(
     return (
       "{" +
       entries
-        .map(([key, value]) => `"${key}": ${value.serialize(r[key])}`)
+        .map(([key, value]) => `"${key}": ${valueDefn.serialize(r[key])}`)
         .join(",") +
       "}"
     );

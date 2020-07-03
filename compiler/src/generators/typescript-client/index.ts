@@ -29,12 +29,9 @@ ${classDecls}
     {
       fileName: "__ts__/buttery.runtime.ts",
       content:
+        fs.readFileSync(__dirname + "/../../ext/ts-client/nodes.ts", "utf8") +
         fs.readFileSync(
-          __dirname + "/../../../ext/ts-client/nodes.ts",
-          "utf8"
-        ) +
-        fs.readFileSync(
-          __dirname + "/../../../ext/ts-client/buttery.runtime.ts",
+          __dirname + "/../../ext/ts-client/buttery.runtime.ts",
           "utf8"
         ),
     },
