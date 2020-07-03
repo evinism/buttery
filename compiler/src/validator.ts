@@ -1,6 +1,13 @@
-import { ButteryFile, Reference, Service, VariableDeclaration } from "./ast";
+import {
+  ButteryFile,
+  Reference,
+  Service,
+  VariableDeclaration,
+  OneOfType,
+} from "./ast";
 
 import { left, right, Either } from "fp-ts/lib/Either";
+import { every } from "fp-ts/lib/ReadonlyRecord";
 
 // This enforces some constraints on Buttery files.
 // These constraints shouldn't be considered part of the ast because they don't
@@ -32,6 +39,27 @@ export function validate(
 
   if (!noNestedServices) {
     return right(new Error(`Cannot nest services`));
+  }
+
+  // Ugh we need to figure out something better for this, but...
+  // constraint: oneofs can't have optional fields
+  const oneOfFields = file.variables
+    .map((entry) => {
+      if (entry.value.type === "oneof") {
+        return [entry.value];
+      } else if (entry.value.type === "service") {
+        return entry.value.variables
+          .map((decl) => decl.value)
+          .filter((item) => item.type === "oneof") as OneOfType<Reference>[];
+      }
+      return [];
+    })
+    .reduce((acc, cur) => [...acc, ...cur], [])
+    .map((item) => item.fields)
+    .reduce((acc, cur) => [...acc, ...cur], []);
+
+  if (oneOfFields.some((field) => field.optional)) {
+    return right(new Error("Cannot use optional value in oneof declaration"));
   }
 
   // Constraint 3: There can't be repeated variable names

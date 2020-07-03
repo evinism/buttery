@@ -40,6 +40,9 @@ const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
     case "struct": {
       return genTypeForRepresentable(rhs);
     }
+    case "oneof": {
+      return genTypeForRepresentable(rhs);
+    }
     // Right now, services will have a name conflict when vars are defined
     // inside and outside of services. This will have to change as part of
     // alpha release
@@ -79,6 +82,13 @@ const genTypeForRepresentable = (rep: Representable): string => {
         })
         .join(", ");
       return `structNode({${structString}})`;
+    case "oneof":
+      const oneOfString = rep.fields
+        .map((field) => {
+          return `${field.name}: ${genTypeForRepresentable(field.baseType)}`;
+        })
+        .join(", ");
+      return `oneOfNode({${oneOfString}})`;
     case Primitive.boolean:
       return "booleanNode()";
     case Primitive.double:

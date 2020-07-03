@@ -1,6 +1,7 @@
 import {
   ButteryFile,
   StructType,
+  OneOfType,
   Field,
   Reference,
   VariableDeclaration,
@@ -144,6 +145,21 @@ export const structParser = indentingDeclarationParser("struct", ({ name }) =>
   })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser))
 );
 
+export const oneOfParser = indentingDeclarationParser("oneof", ({ name }) =>
+  map((fields: Array<Field<Reference>>) => {
+    const struct: OneOfType<Reference> = {
+      type: "oneof",
+      fields,
+    };
+    const decl: VariableDeclaration<Reference> = {
+      statementType: "declaration",
+      name,
+      value: struct,
+    };
+    return decl;
+  })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser))
+);
+
 export const rpcParser = indentingDeclarationParser("rpc", ({ name }) => {
   return map((fields: Array<Field<Reference>>) => {
     // Bad way of ensuring required fields!
@@ -227,7 +243,9 @@ export const serviceParser = indentingDeclarationParser(
     })(
       sepBy1(
         matchToken<NewLineToken>("newline"),
-        either(structParser, () => either(rpcParser, () => channelParser))
+        either(oneOfParser, () =>
+          either(structParser, () => either(rpcParser, () => channelParser))
+        )
       )
     );
   }
@@ -267,9 +285,7 @@ const statementParser: Parser<Token, Statement<Reference>[]> = either<
   Statement<Reference>[]
 >(importParser, () =>
   map((a: Statement<Reference>) => [a])(
-    either(structParser, () =>
-      either(serviceParser, () => either(rpcParser, () => channelParser))
-    )
+    either(oneOfParser, () => either(structParser, () => serviceParser))
   )
 );
 

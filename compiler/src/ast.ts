@@ -50,6 +50,11 @@ export interface StructType<T> {
   fields: Array<Field<T>>;
 }
 
+export interface OneOfType<T> {
+  type: "oneof";
+  fields: Array<Field<T>>;
+}
+
 // Variables!!
 
 export interface Channel<T> {
@@ -82,6 +87,7 @@ export type VarRHS<T> =
   | Channel<T>
   | RPC<T>
   | StructType<T>
+  | OneOfType<T>
   | Service<T>
   | Import;
 
@@ -103,7 +109,8 @@ export type Representable =
   | NullType
   | MapType<Representable>
   | ListType<Representable>
-  | StructType<Representable>;
+  | StructType<Representable>
+  | OneOfType<Representable>;
 
 // Or references
 export interface Reference {

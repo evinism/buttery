@@ -8,6 +8,7 @@ import {
   importParser,
   fileParser,
   serviceParser,
+  oneOfParser,
 } from "../parser";
 import { stream } from "parser-ts/lib/Stream";
 import { isRight, isLeft } from "fp-ts/lib/Either";
@@ -311,6 +312,39 @@ describe("Parsing", function () {
       chai.assert.deepEqual(ref, targetRef);
     });
   });
+
+  describe("OneOfDecl", function () {
+    const parseOneOf = buildTestParser(oneOfParser);
+    it("should correctly parse a simple oneOf", function () {
+      const input = "oneof Hello:\n  fat: Dog\n  cat: Dog";
+
+      const parsed = parseOneOf(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      const ref = parsed.right.value;
+      const targetRef: VariableDeclaration<Reference> = {
+        statementType: "declaration",
+        name: "Hello",
+        value: {
+          type: "oneof",
+          fields: [
+            {
+              name: "fat",
+              optional: false,
+              baseType: { ref: "Dog", typeArgs: [] },
+            },
+            {
+              name: "cat",
+              optional: false,
+              baseType: { ref: "Dog", typeArgs: [] },
+            },
+          ],
+        },
+      };
+      chai.assert.deepEqual(ref, targetRef);
+    });
+  });
+
   describe("RpcParser", () => {
     const parseRpc = buildTestParser(rpcParser);
     it("should correctly parse an rpc decl with complex types", function () {
