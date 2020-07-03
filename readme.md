@@ -112,13 +112,13 @@ As an example call:
 Buttery Clients
 | Target | Target Description | Support |
 |---|---|---|
-| browser | Generated Typescript for use in browsers | Mostly Supported |
+| browser | Generated Typescript for use in browsers | Full Support |
 | python-client | Generated code for Python Client | None |
 
 Buttery Servers
 | Target | Target Description | Support |
 |---|---|---|
-| node | Generated Typescript for use in express backends | Mostly Supported |
+| node | Generated Typescript for use in express backends | Full Support |
 | django | Generated code for use in Django backends | None |
 
 ### Sample of features
