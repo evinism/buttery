@@ -1,8 +1,6 @@
 // Nodes for Buttery
 // Consumed via ts-client and ts-express in a very ad-hoc method.
 
-import { oneOf } from "parser-ts/lib/char";
-
 export interface ButteryNode<R> {
   validate: (toValidate: unknown) => toValidate is R;
   serialize: (r: R) => string | undefined;
