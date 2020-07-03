@@ -43,8 +43,11 @@ function maybeGetBuiltin(
   prevReffedFiles: string[],
   load: LoadFn,
   namespaceContext?: string
-): Representable {
-  const primitive = Primitive[ref] as Primitive | undefined;
+): Representable | undefined {
+  // ew on this cast. I need to rethink enums here.
+  const primitive = (Primitive as { [key: string]: string })[ref] as
+    | Primitive
+    | undefined;
   if (primitive) {
     return {
       type: primitive,

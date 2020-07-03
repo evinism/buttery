@@ -206,7 +206,7 @@ describe("ts-server runtime", function () {
           () => {
             socket.send('{"time": 1, "content": "A Message!"}');
             socket.onmessage = expectCalledWithin(
-              (msg) => {
+              (msg: any) => {
                 try {
                   chai.assert.deepEqual(JSON.parse(msg.data), {
                     time: 1,

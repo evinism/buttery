@@ -20,14 +20,15 @@ export function validate(
   }
 
   // Constraint 2: Service declarations should not include service declarations.
-  const noNestedServices = file.variables
+  const noNestedServices = (file.variables
     .map((decl) => decl.value)
-    .filter((decl) => decl.type === "service")
-    .every((service: Service<Reference>) =>
-      service.variables.every(
-        (varInService) => varInService.value.type !== "service"
-      )
-    );
+    .filter((decl) => decl.type === "service") as Service<
+    Reference
+  >[]).every((service: Service<Reference>) =>
+    service.variables.every(
+      (varInService) => varInService.value.type !== "service"
+    )
+  );
 
   if (!noNestedServices) {
     return right(new Error(`Cannot nest services`));

@@ -58,6 +58,7 @@ ${nodeDeclarations}
 })();`;
     }
   }
+  throw `Unknown RHS type ${rhs.type}`;
 };
 
 const genTypeForRepresentable = (rep: Representable): string => {

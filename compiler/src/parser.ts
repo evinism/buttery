@@ -64,7 +64,8 @@ export const refParser: Parser<Token, Reference> = seq(
       if (tokenArr.length > 2) {
         throw "References to namespaces of namespaces are not allowed";
       }
-      const refToken = tokenArr.pop();
+      // Valid cast below because nonEmptyArray
+      const refToken = tokenArr.pop()!;
       const nsToken = tokenArr.pop();
       const ref: Reference = {
         ref: refToken.name,

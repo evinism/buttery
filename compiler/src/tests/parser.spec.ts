@@ -493,20 +493,20 @@ describe("Parsing", function () {
       const targetRef = [
         {
           name: "Bleep",
-          statementType: "declaration",
+          statementType: "declaration" as "declaration",
           value: {
             import: "Bleep",
             path: "./this_path.buttery",
-            type: "import",
+            type: "import" as "import",
           },
         },
         {
           name: "Bleep2",
-          statementType: "declaration",
+          statementType: "declaration" as "declaration",
           value: {
             import: "Bleep2",
             path: "./this_path.buttery",
-            type: "import",
+            type: "import" as "import",
           },
         },
       ];
@@ -526,20 +526,20 @@ from "./this_path.buttery"`;
       const targetRef = [
         {
           name: "Bleep",
-          statementType: "declaration",
+          statementType: "declaration" as "declaration",
           value: {
             import: "Bleep",
             path: "./this_path.buttery",
-            type: "import",
+            type: "import" as "import",
           },
         },
         {
           name: "Bleep2",
-          statementType: "declaration",
+          statementType: "declaration" as "declaration",
           value: {
             import: "Bleep2",
             path: "./this_path.buttery",
-            type: "import",
+            type: "import" as "import",
           },
         },
       ];
