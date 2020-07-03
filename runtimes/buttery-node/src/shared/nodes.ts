@@ -1,1 +1,1 @@
-../../../../compiler/ext/ts-client/nodes.ts
+../../../../compiler/src/ext/ts-client/nodes.ts

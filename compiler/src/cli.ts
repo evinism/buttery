@@ -36,7 +36,7 @@ const argv = yargs
     },
     (argv) => {
       generateCmd({
-        target: argv.target,
+        target: argv.target || "",
         files: argv.f.map((a) => a.toString()),
         outputDir: argv.o,
       });
