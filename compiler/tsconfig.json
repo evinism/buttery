@@ -8,9 +8,5 @@
     "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*"],
-  "exclude": [
-    "node_modules",
-    "src/**/*.data.ts",
-    "src/ext/ts-client/*.runtime.ts"
-  ]
+  "exclude": ["node_modules", "src/**/*.data.ts", "src/ext/ts-client/"]
 }
