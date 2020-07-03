@@ -1,5 +1,6 @@
 import * as N from "../nodes";
 import * as chai from "chai";
+import { string } from "yargs";
 
 function checkIdempotent<A, T extends N.ButteryNode<A>>(node: T, data: A) {
   const serializedData = node.serialize(data);
@@ -43,6 +44,13 @@ describe("Typescript shared nodes", function () {
           foo: 0.5,
           bar: "hi",
         }
+      );
+      checkIdempotent(
+        N.oneOfNode({
+          one: N.stringNode(),
+          two: N.integerNode(),
+        }),
+        { tag: "one" as "one" | "two", data: "hello" as string | number }
       );
     });
   });

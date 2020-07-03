@@ -1,6 +1,8 @@
 // Nodes for Buttery
 // Consumed via ts-client and ts-express in a very ad-hoc method.
 
+import { oneOf } from "parser-ts/lib/char";
+
 export interface ButteryNode<R> {
   validate: (toValidate: unknown) => toValidate is R;
   serialize: (r: R) => string | undefined;
@@ -20,6 +22,8 @@ export interface ChannelNode<Incoming, Outgoing> {
   incoming: ButteryNode<Incoming>;
   outgoing: ButteryNode<Outgoing>;
 }
+
+type ExtractNodeType<P> = P extends ButteryNode<infer T> ? T : never;
 
 export function structNode<R extends {}>(
   decl: { [key in keyof R]: ButteryNode<R[key]> }
@@ -200,6 +204,49 @@ export function optionalNode<R>(
   };
 
   const deserialize = (data: string): R | null | undefined => {
+    const parsed = JSON.parse(data) as unknown;
+    if (!validate(parsed)) {
+      return;
+    }
+    return parsed;
+  };
+  return {
+    validate,
+    serialize,
+    deserialize,
+  };
+}
+
+export function oneOfNode<
+  DefnType extends { [tag: string]: ButteryNode<any> },
+  TaggedType extends {
+    tag: keyof DefnType;
+    data: ExtractNodeType<DefnType[keyof DefnType]>;
+  }
+>(oneOfDefn: DefnType): ButteryNode<TaggedType> {
+  const validate = (toValidate: unknown): toValidate is TaggedType => {
+    if (typeof toValidate !== "object" || toValidate === null) {
+      return false;
+    }
+    const tagName = (toValidate as { tag?: unknown }).tag;
+    if (typeof tagName !== "string") {
+      return false;
+    }
+    const tagDefn = oneOfDefn[tagName];
+    if (!tagDefn) {
+      return false;
+    }
+    return tagDefn.validate((toValidate as { data?: unknown }).data);
+  };
+  const serialize = (r: TaggedType) => {
+    const defn = oneOfDefn[r.tag];
+    if (!defn || !defn.validate(r.data)) {
+      return;
+    }
+    return `{"tag": "${r.tag}", "data": ${defn.serialize(r.data)}}`;
+  };
+
+  const deserialize = (data: string): TaggedType | undefined => {
     const parsed = JSON.parse(data) as unknown;
     if (!validate(parsed)) {
       return;
