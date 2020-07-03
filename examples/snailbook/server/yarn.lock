@@ -31,6 +31,11 @@
     "@types/connect" "*"
     "@types/node" "*"
 
+"@types/chai@^4.2.11":
+  version "4.2.11"
+  resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.2.11.tgz#d3614d6c5f500142358e6ed24e1bf16657536c50"
+  integrity sha512-t7uW6eFafjO+qJ3BIV2gGUyZs27egcNRkUdalkud+Qa3+kg//f129iuOFivHDXQ+vnU3fDXuwgv0cqMCbcE8sw==
+
 "@types/color-name@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
@@ -215,11 +220,12 @@ buffer-from@^1.0.0:
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
   integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
 
-buttery-cli@0.0.19:
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.0.19.tgz#4a1ab0f2b8ac4f888f7ef9f4106690046e8327fb"
-  integrity sha512-M8+/mMh5++w/2kqcZBJVIc7VmyrPa5L2AZw7N4Ed4gTaU9qmJ3PCv7STaduE8hCv0Q3qZj553I9T4CvFxmRqSQ==
+buttery-cli@0.0.21:
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.0.21.tgz#f3e6f0ac8f0c51ae1bc512babcec3966fb81cd14"
+  integrity sha512-TOTAC2oEIsood+1OHhhYiCv0iXeShBSH+9S7jF1CH7FmSBGYl6KE1hMwTMY3PGOVf/giq9XsdZeXUOqh+DIwvQ==
   dependencies:
+    "@types/chai" "^4.2.11"
     "@types/mocha" "^7.0.2"
     "@types/yargs" "^15.0.5"
     chai "^4.2.0"
@@ -229,10 +235,10 @@ buttery-cli@0.0.19:
     typescript "^3.9.3"
     yargs "^15.3.1"
 
-buttery-node@0.0.18:
-  version "0.0.18"
-  resolved "https://registry.yarnpkg.com/buttery-node/-/buttery-node-0.0.18.tgz#45740a997e98b41ddcd78c32657c926f2a6ecee7"
-  integrity sha512-fg6jSTr1uEkgrJjIQ1kfuqE1/vWPCH+SSLJo9IuXp48tepaYMRoN1Cqj2JTLUryc5J+1UtV6WolVBFjz1XMcZg==
+buttery-node@0.0.21:
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/buttery-node/-/buttery-node-0.0.21.tgz#01ce1407bf2d760f57dd8f2b61c68bc41ca4518e"
+  integrity sha512-xTzH4CVC/B+jIAcmDCXh4fDit/VzpQT5Pwdba7f/egDiye1BztDD1O2/jmIqxd38FYPgkijbLFt5tA3vPTMKKA==
   dependencies:
     express ">3.0.0"
     ws "^7.3.0"
