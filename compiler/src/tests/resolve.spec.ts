@@ -5,7 +5,7 @@ describe("Resolving", function () {
   describe("Single File", function () {
     it("resolves vars in oneFile correctly", function () {
       const output = load("../data/resolve/onefile/main.buttery");
-      chai.assert.deepEqual(output, {
+      chai.assert.deepEqual(output as Object, {
         path: "../data/resolve/onefile/main.buttery",
         variables: [
           {
@@ -281,7 +281,7 @@ describe("Resolving", function () {
   describe("Multiple Files", function () {
     it("resolves vars in party correctly", function () {
       const output = load("../data/resolve/party/main.buttery");
-      chai.assert.deepEqual(output, {
+      chai.assert.deepEqual(output as Object, {
         path: "../data/resolve/party/main.buttery",
         variables: [
           {
@@ -709,7 +709,7 @@ describe("Resolving", function () {
   describe("Service descriptors", function () {
     it.skip("resolves vars in foodDelivery correctly", function () {
       const output = load("../data/resolve/fooddelivery/order.buttery");
-      chai.assert.deepEqual({}, output);
+      chai.assert.deepEqual({} as Object, output);
     });
   });
 

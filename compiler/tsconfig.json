@@ -4,6 +4,7 @@
     "rootDir": "./src",
     "esModuleInterop": true,
     "module": "commonjs",
+    "strict": true,
     "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*"],
