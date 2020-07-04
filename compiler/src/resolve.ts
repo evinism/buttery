@@ -94,6 +94,23 @@ function maybeGetBuiltin(
       ),
     };
   }
+  if (ref === "Optional") {
+    if (typeArgs.length !== 1) {
+      throw `Wrong number of type arguments for a Optional (expected 1, got ${typeArgs.length})`;
+    }
+
+    return {
+      type: "optional",
+      value: resolveRef(
+        typeArgs[0],
+        context,
+        prevReffedVars,
+        prevReffedFiles,
+        load,
+        namespaceContext
+      ),
+    };
+  }
 }
 
 function resolveRef(

@@ -39,6 +39,11 @@ interface ListType<T> {
   value: T;
 }
 
+interface OptionalType<T> {
+  type: "optional";
+  value: T;
+}
+
 export interface Field<T> {
   name: string;
   optional: boolean;
@@ -109,6 +114,7 @@ export type Representable =
   | NullType
   | MapType<Representable>
   | ListType<Representable>
+  | OptionalType<Representable>
   | StructType<Representable>
   | OneOfType<Representable>;
 

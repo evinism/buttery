@@ -89,6 +89,8 @@ const genTypeForRepresentable = (rep: Representable): string => {
         })
         .join(", ");
       return `oneOfNode({${oneOfString}})`;
+    case "optional":
+      return `optionalNode(${genTypeForRepresentable(rep.value)})`;
     case Primitive.boolean:
       return "booleanNode()";
     case Primitive.double:
