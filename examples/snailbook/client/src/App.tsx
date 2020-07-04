@@ -22,9 +22,14 @@ function App() {
       });
     });
   };
+  const handleWhoAmI = () =>
+    loggedOutClient.WhoAmI(null).then((msg) => {
+      alert(JSON.stringify(msg));
+    });
 
   return (
     <div className="App">
+      {<button onClick={handleWhoAmI}>Who am I?</button>}
       {!user && <button onClick={() => handleLogin("bob", "hunter2")} />}
       {user && <LoggedIn feedConnection={user.feedConnection} />}
     </div>

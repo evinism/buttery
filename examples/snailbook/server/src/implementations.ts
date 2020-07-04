@@ -1,7 +1,8 @@
 import { ButteryServer } from "buttery-node";
 import { SnailBook, SnailBookLoggedOut } from "./buttery-genfiles/api.node";
 import { usersTable, postsTable, getUserId, commentsTable } from "./store";
-import passport = require("passport");
+import * as http from "http";
+import { UserAnnotation } from "./types";
 
 export const implement = (server: ButteryServer) => {
   server.implement(SnailBook, "CreatePost", (content) => {
@@ -61,11 +62,21 @@ export const implement = (server: ButteryServer) => {
     postsTable.pipe.listen(listener);
   });
 
+  server.implement(SnailBookLoggedOut, "LogIn", () => Promise.resolve(true));
+
   server.implement(
     SnailBookLoggedOut,
-    "LogIn" as "LogIn",
-    ({ username, password }, request: any) => {
-      return Promise.resolve(true);
+    "WhoAmI",
+    (_, { user }: http.IncomingMessage & { user?: UserAnnotation }) => {
+      console.log(JSON.stringify(user));
+      if (user) {
+        return Promise.resolve({
+          id: user.id,
+          name: user.name,
+        });
+      } else {
+        return Promise.resolve(null);
+      }
     }
   );
 };

@@ -29,7 +29,7 @@ service SnailBookLoggedOut:
 
   rpc WhoAmI:
     request: null
-    optional response: User
+    response: Optional<User>
 
 service SnailBook:
   rpc CreatePost:

@@ -92,6 +92,13 @@
   resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-7.0.2.tgz#b17f16cf933597e10d6d78eae3251e692ce8b0ce"
   integrity sha512-ZvO2tAcjmMi8V/5Z3JsyofMe3hasRcaw88cto5etSVMwVQfeivGAlEYmaQgceUSVYFofVjT+ioHsATjdWcFt1w==
 
+"@types/morgan@^1.9.1":
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/@types/morgan/-/morgan-1.9.1.tgz#6457872df95647c1dbc6b3741e8146b71ece74bf"
+  integrity sha512-2j5IKrgJpEP6xw/uiVb2Xfga0W0sSVD9JP9t7EZLvpBENdB0OKgcnoKS8IsjNeNnZ/86robdZ61Orl0QCFGOXg==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*":
   version "14.0.14"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.14.tgz#24a0b5959f16ac141aeb0c5b3cd7a15b7c64cbce"
@@ -199,6 +206,13 @@ assertion-error@^1.1.0:
   resolved "https://registry.yarnpkg.com/assertion-error/-/assertion-error-1.1.0.tgz#e60b6b0e8f301bd97e5375215bda406c85118c0b"
   integrity sha512-jgsaNduz+ndvGyFt3uSuWqvy4lCnIJiovtouQN5JZHOKCS2QuhEdbcQHFhVksz2N2U9hXJo8odG7ETyWlEeuDw==
 
+basic-auth@~2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/basic-auth/-/basic-auth-2.0.1.tgz#b998279bf47ce38344b4f3cf916d4679bbf51e3a"
+  integrity sha512-NF+epuEdnUYVlGuhaxbbq+dvJttwLnGY+YixlXlME5KpQ5W3CnXA5cVTneY3SPbPDRkcjMbifrwmFYcClgOZeg==
+  dependencies:
+    safe-buffer "5.1.2"
+
 body-parser@1.19.0, body-parser@^1.19.0:
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/body-parser/-/body-parser-1.19.0.tgz#96b2709e57c9c4e09a6fd66a8fd979844f69f08a"
@@ -220,10 +234,10 @@ buffer-from@^1.0.0:
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
   integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
 
-buttery-cli@0.0.21:
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.0.21.tgz#f3e6f0ac8f0c51ae1bc512babcec3966fb81cd14"
-  integrity sha512-TOTAC2oEIsood+1OHhhYiCv0iXeShBSH+9S7jF1CH7FmSBGYl6KE1hMwTMY3PGOVf/giq9XsdZeXUOqh+DIwvQ==
+buttery-cli@0.0.23:
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.0.23.tgz#fb7eee81a6e910b9294f89b30da1ede60fa01218"
+  integrity sha512-BrY4314Hu/OPttznoSZJQ5tnLMm1kPG8kgzvsMGEV7o/augkHOw06/efS8+whm+cacZqjqD9w30RNiuv3HV07A==
   dependencies:
     "@types/chai" "^4.2.11"
     "@types/mocha" "^7.0.2"
@@ -235,10 +249,10 @@ buttery-cli@0.0.21:
     typescript "^3.9.3"
     yargs "^15.3.1"
 
-buttery-node@0.0.21:
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/buttery-node/-/buttery-node-0.0.21.tgz#01ce1407bf2d760f57dd8f2b61c68bc41ca4518e"
-  integrity sha512-xTzH4CVC/B+jIAcmDCXh4fDit/VzpQT5Pwdba7f/egDiye1BztDD1O2/jmIqxd38FYPgkijbLFt5tA3vPTMKKA==
+buttery-node@0.0.23:
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/buttery-node/-/buttery-node-0.0.23.tgz#3076e7253103893d458bfa01accd396cb635d247"
+  integrity sha512-1xVUBOkHOFK0O20JaQjDAw6A9PGidy9/gVgt7zlPspBudwCiHYELfmywMRPWxfaheU0M8e7Lu59gQGrN4IrKuA==
   dependencies:
     express ">3.0.0"
     ws "^7.3.0"
@@ -614,6 +628,17 @@ mime@1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/mime/-/mime-1.6.0.tgz#32cd9e5c64553bd58d19a568af452acff04981b1"
   integrity sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==
+
+morgan@^1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/morgan/-/morgan-1.10.0.tgz#091778abc1fc47cd3509824653dae1faab6b17d7"
+  integrity sha512-AbegBVI4sh6El+1gNwvD5YIck7nSA36weD7xvIxG4in80j/UoK8AEGaWnnz8v1GxonMCltmlNs5ZKbGvl9b1XQ==
+  dependencies:
+    basic-auth "~2.0.1"
+    debug "2.6.9"
+    depd "~2.0.0"
+    on-finished "~2.3.0"
+    on-headers "~1.0.2"
 
 ms@2.0.0:
   version "2.0.0"

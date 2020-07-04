@@ -1,4 +1,6 @@
 import { usersTable } from "./store";
+import { UserAnnotation } from "./types";
+
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 
@@ -22,7 +24,10 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (id, done) {
-  const user = usersTable.read(id);
+  const user: UserAnnotation = {
+    id,
+    ...usersTable.read(id),
+  };
   if (user) {
     done(null, user);
   } else {
