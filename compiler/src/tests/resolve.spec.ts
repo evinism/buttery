@@ -5,7 +5,7 @@ describe("Resolving", function () {
   describe("Single File", function () {
     it("resolves vars in oneFile correctly", function () {
       const output = load("../data/resolve/onefile/main.buttery");
-      chai.assert.deepEqual<Object>(output, {
+      const targetOutput = {
         path: "../data/resolve/onefile/main.buttery",
         variables: [
           {
@@ -274,40 +274,31 @@ describe("Resolving", function () {
             },
           },
         ],
-      });
+      };
+      chai.assert.deepEqual<Object>(output, targetOutput);
     });
   });
 
   describe("Multiple Files", function () {
     it("resolves vars in party correctly", function () {
       const output = load("../data/resolve/party/main.buttery");
+      console.log(JSON.stringify(output));
       chai.assert.deepEqual<Object>(output, {
         path: "../data/resolve/party/main.buttery",
         variables: [
           {
-            name: "Person",
             statementType: "declaration",
+            name: "Person",
             value: {
+              type: "struct",
               fields: [
+                { name: "name", optional: false, baseType: { type: "string" } },
                 {
-                  baseType: {
-                    type: "string",
-                  },
-                  name: "name",
-                  optional: false,
-                },
-                {
-                  baseType: {
-                    type: "list",
-                    value: {
-                      type: "string",
-                    },
-                  },
                   name: "pronouns",
                   optional: false,
+                  baseType: { type: "list", value: { type: "string" } },
                 },
               ],
-              type: "struct",
             },
           },
           {
@@ -327,19 +318,12 @@ describe("Resolving", function () {
                         {
                           name: "name",
                           optional: false,
-                          baseType: {
-                            type: "string",
-                          },
+                          baseType: { type: "string" },
                         },
                         {
                           name: "pronouns",
                           optional: false,
-                          baseType: {
-                            type: "list",
-                            value: {
-                              type: "string",
-                            },
-                          },
+                          baseType: { type: "list", value: { type: "string" } },
                         },
                       ],
                     },
@@ -348,16 +332,12 @@ describe("Resolving", function () {
                 {
                   name: "startTime",
                   optional: false,
-                  baseType: {
-                    type: "integer",
-                  },
+                  baseType: { type: "integer" },
                 },
                 {
                   name: "endTime",
                   optional: false,
-                  baseType: {
-                    type: "integer",
-                  },
+                  baseType: { type: "integer" },
                 },
               ],
             },
@@ -371,60 +351,53 @@ describe("Resolving", function () {
                 {
                   name: "success",
                   optional: false,
-                  baseType: {
-                    type: "boolean",
-                  },
+                  baseType: { type: "boolean" },
                 },
                 {
                   name: "time",
-                  optional: true,
+                  optional: false,
                   baseType: {
-                    type: "struct",
-                    fields: [
-                      {
-                        name: "people",
-                        optional: false,
-                        baseType: {
-                          type: "list",
-                          value: {
-                            type: "struct",
-                            fields: [
-                              {
-                                name: "name",
-                                optional: false,
-                                baseType: {
-                                  type: "string",
+                    type: "optional",
+                    value: {
+                      type: "struct",
+                      fields: [
+                        {
+                          name: "people",
+                          optional: false,
+                          baseType: {
+                            type: "list",
+                            value: {
+                              type: "struct",
+                              fields: [
+                                {
+                                  name: "name",
+                                  optional: false,
+                                  baseType: { type: "string" },
                                 },
-                              },
-                              {
-                                name: "pronouns",
-                                optional: false,
-                                baseType: {
-                                  type: "list",
-                                  value: {
-                                    type: "string",
+                                {
+                                  name: "pronouns",
+                                  optional: false,
+                                  baseType: {
+                                    type: "list",
+                                    value: { type: "string" },
                                   },
                                 },
-                              },
-                            ],
+                              ],
+                            },
                           },
                         },
-                      },
-                      {
-                        name: "startTime",
-                        optional: false,
-                        baseType: {
-                          type: "integer",
+                        {
+                          name: "startTime",
+                          optional: false,
+                          baseType: { type: "integer" },
                         },
-                      },
-                      {
-                        name: "endTime",
-                        optional: false,
-                        baseType: {
-                          type: "integer",
+                        {
+                          name: "endTime",
+                          optional: false,
+                          baseType: { type: "integer" },
                         },
-                      },
-                    ],
+                      ],
+                    },
                   },
                 },
               ],
@@ -439,16 +412,12 @@ describe("Resolving", function () {
                 {
                   name: "time",
                   optional: false,
-                  baseType: {
-                    type: "integer",
-                  },
+                  baseType: { type: "integer" },
                 },
                 {
                   name: "content",
                   optional: false,
-                  baseType: {
-                    type: "string",
-                  },
+                  baseType: { type: "string" },
                 },
               ],
             },
@@ -462,16 +431,12 @@ describe("Resolving", function () {
                 {
                   name: "time",
                   optional: false,
-                  baseType: {
-                    type: "integer",
-                  },
+                  baseType: { type: "integer" },
                 },
                 {
                   name: "content",
                   optional: false,
-                  baseType: {
-                    type: "string",
-                  },
+                  baseType: { type: "string" },
                 },
                 {
                   name: "author",
@@ -482,19 +447,12 @@ describe("Resolving", function () {
                       {
                         name: "name",
                         optional: false,
-                        baseType: {
-                          type: "string",
-                        },
+                        baseType: { type: "string" },
                       },
                       {
                         name: "pronouns",
                         optional: false,
-                        baseType: {
-                          type: "list",
-                          value: {
-                            type: "string",
-                          },
-                        },
+                        baseType: { type: "list", value: { type: "string" } },
                       },
                     ],
                   },
@@ -524,18 +482,14 @@ describe("Resolving", function () {
                           {
                             name: "name",
                             optional: false,
-                            baseType: {
-                              type: "string",
-                            },
+                            baseType: { type: "string" },
                           },
                           {
                             name: "pronouns",
                             optional: false,
                             baseType: {
                               type: "list",
-                              value: {
-                                type: "string",
-                              },
+                              value: { type: "string" },
                             },
                           },
                         ],
@@ -550,60 +504,53 @@ describe("Resolving", function () {
                           {
                             name: "success",
                             optional: false,
-                            baseType: {
-                              type: "boolean",
-                            },
+                            baseType: { type: "boolean" },
                           },
                           {
                             name: "time",
-                            optional: true,
+                            optional: false,
                             baseType: {
-                              type: "struct",
-                              fields: [
-                                {
-                                  name: "people",
-                                  optional: false,
-                                  baseType: {
-                                    type: "list",
-                                    value: {
-                                      type: "struct",
-                                      fields: [
-                                        {
-                                          name: "name",
-                                          optional: false,
-                                          baseType: {
-                                            type: "string",
+                              type: "optional",
+                              value: {
+                                type: "struct",
+                                fields: [
+                                  {
+                                    name: "people",
+                                    optional: false,
+                                    baseType: {
+                                      type: "list",
+                                      value: {
+                                        type: "struct",
+                                        fields: [
+                                          {
+                                            name: "name",
+                                            optional: false,
+                                            baseType: { type: "string" },
                                           },
-                                        },
-                                        {
-                                          name: "pronouns",
-                                          optional: false,
-                                          baseType: {
-                                            type: "list",
-                                            value: {
-                                              type: "string",
+                                          {
+                                            name: "pronouns",
+                                            optional: false,
+                                            baseType: {
+                                              type: "list",
+                                              value: { type: "string" },
                                             },
                                           },
-                                        },
-                                      ],
+                                        ],
+                                      },
                                     },
                                   },
-                                },
-                                {
-                                  name: "startTime",
-                                  optional: false,
-                                  baseType: {
-                                    type: "integer",
+                                  {
+                                    name: "startTime",
+                                    optional: false,
+                                    baseType: { type: "integer" },
                                   },
-                                },
-                                {
-                                  name: "endTime",
-                                  optional: false,
-                                  baseType: {
-                                    type: "integer",
+                                  {
+                                    name: "endTime",
+                                    optional: false,
+                                    baseType: { type: "integer" },
                                   },
-                                },
-                              ],
+                                ],
+                              },
                             },
                           },
                         ],
@@ -626,16 +573,12 @@ describe("Resolving", function () {
                           {
                             name: "time",
                             optional: false,
-                            baseType: {
-                              type: "integer",
-                            },
+                            baseType: { type: "integer" },
                           },
                           {
                             name: "content",
                             optional: false,
-                            baseType: {
-                              type: "string",
-                            },
+                            baseType: { type: "string" },
                           },
                         ],
                       },
@@ -649,16 +592,12 @@ describe("Resolving", function () {
                           {
                             name: "time",
                             optional: false,
-                            baseType: {
-                              type: "integer",
-                            },
+                            baseType: { type: "integer" },
                           },
                           {
                             name: "content",
                             optional: false,
-                            baseType: {
-                              type: "string",
-                            },
+                            baseType: { type: "string" },
                           },
                           {
                             name: "author",
@@ -669,18 +608,14 @@ describe("Resolving", function () {
                                 {
                                   name: "name",
                                   optional: false,
-                                  baseType: {
-                                    type: "string",
-                                  },
+                                  baseType: { type: "string" },
                                 },
                                 {
                                   name: "pronouns",
                                   optional: false,
                                   baseType: {
                                     type: "list",
-                                    value: {
-                                      type: "string",
-                                    },
+                                    value: { type: "string" },
                                   },
                                 },
                               ],

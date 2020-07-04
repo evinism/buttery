@@ -158,62 +158,7 @@ describe("Parsing", function () {
       };
       chai.assert.deepEqual(ref, targetRef);
     });
-
-    it("should correctly parse an optional field line", function () {
-      const parsed = parseField("optional myFieldName: number");
-      // parsing succeeds!
-      assert(isRight(parsed));
-      const ref = parsed.right.value;
-      const targetRef: Field<Reference> = {
-        name: "myFieldName",
-        optional: true,
-        baseType: {
-          ref: "number",
-          typeArgs: [],
-        },
-      };
-      chai.assert.deepEqual(ref, targetRef);
-    });
-
-    it("should fail parsing a line with multiple optional decls", function () {
-      const parsed = parseField("optional optional myFieldName: number");
-      assert(isLeft(parsed));
-    });
-
-    it("should correctly parse a complicated field line", function () {
-      const parsed = parseField("optional myFieldName: List<Dog>");
-      // parsing succeeds!
-      assert(isRight(parsed));
-      const ref = parsed.right.value;
-      const targetRef: Field<Reference> = {
-        name: "myFieldName",
-        optional: true,
-        baseType: {
-          ref: "List",
-          typeArgs: [
-            {
-              ref: "Dog",
-              typeArgs: [],
-            },
-          ],
-        },
-      };
-      chai.assert.deepEqual(ref, targetRef);
-    });
   });
-
-  /*describe("VarDeclHelper", function () {
-    const parseVarDeclFirstLine = buildTestParser(varDeclParser("bloop"));
-
-    it("should correctly parse a simple var declaration", function () {
-      const input = "bloop Hello:\n";
-
-      const parsed = parseVarDeclFirstLine(input);
-      // parsing succeeds!
-      assert(isRight(parsed));
-      chai.assert.equal("Hello", parsed.right.value);
-    });
-  });*/
 
   describe("StructDecl", function () {
     const parseStruct = buildTestParser(structParser);
@@ -590,7 +535,7 @@ from "./some_path.buttery"
 
 struct WhoBloopedRequest:
   bloop: Bloop
-  optional includeExtras: boolean
+  includeExtras: Optional<boolean>
 
 struct WhoBloopedResponse:
   scoop: Scoop
@@ -611,21 +556,21 @@ service BloopService:
         path: "filename",
         variables: [
           {
-            name: "Bloop",
             statementType: "declaration",
+            name: "Bloop",
             value: {
+              type: "import",
               import: "Bloop",
               path: "./some_path.buttery",
-              type: "import",
             },
           },
           {
-            name: "Scoop",
             statementType: "declaration",
+            name: "Scoop",
             value: {
+              type: "import",
               import: "Scoop",
               path: "./some_path.buttery",
-              type: "import",
             },
           },
           {
@@ -641,8 +586,11 @@ service BloopService:
                 },
                 {
                   name: "includeExtras",
-                  optional: true,
-                  baseType: { ref: "boolean", typeArgs: [] },
+                  optional: false,
+                  baseType: {
+                    ref: "Optional",
+                    typeArgs: [{ ref: "boolean", typeArgs: [] }],
+                  },
                 },
               ],
             },

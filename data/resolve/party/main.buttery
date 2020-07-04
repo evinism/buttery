@@ -7,7 +7,7 @@ struct Slot:
 
 struct AddToPartyResponse:
   success: boolean
-  optional time: Slot
+  time: Optional<Slot>
 
 struct ChatMessage:
   time: integer

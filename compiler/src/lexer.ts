@@ -123,11 +123,6 @@ const indentParser = map((): IndentToken => ({ token: "indent" }))(
   either(string("  "), () => char("\t"))
 );
 
-export type OptionalToken = BasicToken<"optional">;
-const optionalTokenParser = apFirst(nonNewlineSpace1)(
-  parserForBasicToken<"optional">("optional")
-);
-
 export type CommaToken = BasicToken<"comma">;
 const commaTokenParser = allowNewlineSpaceRight(
   allowSpaceLeft(parserForBasicToken<"comma">("comma", ","))
@@ -175,7 +170,6 @@ export type Token =
   | ServiceToken
   | RPCToken
   | ChannelToken
-  | OptionalToken
   | ColonToken
   | NewLineToken
   | IndentToken
@@ -211,7 +205,6 @@ export const lexer: Parser<string, Token[]> = map(
           serviceTokenParser,
           rpcTokenParser,
           channelTokenParser,
-          optionalTokenParser,
 
           // non-alphanumeric
           quotedStringTokenParser,

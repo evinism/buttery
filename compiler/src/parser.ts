@@ -35,7 +35,6 @@ import {
   CommaToken,
   ColonToken,
   NewLineToken,
-  OptionalToken,
   ImportToken,
   QuotedStringToken,
   FromToken,
@@ -87,26 +86,16 @@ export const refParser: Parser<Token, Reference> = seq(
     )
 );
 
-// Right now, hardcoding set of field modifiers to 'optional'
-//const fieldModifiers = succeed<string, string[]>([]);
-const fieldModifiers = many(matchToken<OptionalToken>("optional"));
-
 export const fieldParser: Parser<Token, Field<Reference>> = seq(
-  fieldModifiers,
-  (mods) =>
-    seq(matchToken<NameToken>("name"), ({ name }) =>
-      seq(matchToken<ColonToken>("colon"), () => {
-        if (mods.length > 1) {
-          return fail();
-        }
-        // This will need to change on stuff.
-        return map((reference: Reference) => ({
-          name,
-          optional: !!mods.find((mod) => mod.token === "optional"),
-          baseType: reference,
-        }))(refParser);
-      })
-    )
+  matchToken<NameToken>("name"),
+  ({ name }) =>
+    seq(matchToken<ColonToken>("colon"), () => {
+      return map((reference: Reference) => ({
+        name,
+        optional: false,
+        baseType: reference,
+      }))(refParser);
+    })
 );
 
 const indentingDeclarationParser = <T>(
