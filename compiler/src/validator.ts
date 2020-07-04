@@ -7,7 +7,6 @@ import {
 } from "./ast";
 
 import { left, right, Either } from "fp-ts/lib/Either";
-import { every } from "fp-ts/lib/ReadonlyRecord";
 
 // This enforces some constraints on Buttery files.
 // These constraints shouldn't be considered part of the ast because they don't
