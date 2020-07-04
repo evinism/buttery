@@ -1,6 +1,6 @@
 {
   "name": "buttery-node",
-  "version": "0.0.21",
+  "version": "0.0.23",
   "description": "Buttery runtime for node users",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

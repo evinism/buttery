@@ -92,7 +92,7 @@ export const createRpcHandler = (
     }
 
     parsed = rpcDef.request.deserialize(body);
-    if (!parsed) {
+    if (parsed === undefined) {
       throw "Invalid Body";
     }
   } catch (e) {
