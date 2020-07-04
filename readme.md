@@ -3,10 +3,11 @@
 ### Warning: Buttery is still in pre-alpha and is not (yet) suitable for production use. It CAN be used for side projects and game jams if you're feeling a hint brave.
 
 Buttery aims to be a minimalistic cross-language DSL for defining RPCs and channels. Depending on your background, you might find one of these analogies of what buttery is to be compelling:
-* A lightweight replacement for gRPC / protos, but over http(s) and websockets
-* [Twirp](https://github.com/twitchtv/twirp), but without all the baggage of protos, providing first-class support for browser -> backend comms, and bidi communication 
-* A lightweight replacement for swagger codegen, with bidi communication
-* JSON-RPC-like specification, but paired with a small domain specific language for definitions and bidi communication
+
+- A lightweight replacement for gRPC / protos, but over http(s) and websockets
+- [Twirp](https://github.com/twitchtv/twirp), but without all the baggage of protos, providing first-class support for browser -> backend comms, and bidi communication
+- A lightweight replacement for swagger codegen, with bidi communication
+- JSON-RPC-like specification, but paired with a small domain specific language for definitions and bidi communication
 
 ### Scope of Buttery
 
@@ -133,16 +134,17 @@ Primitives:
 
 Builtin Types:
 
-- Map:
+- Map
 - List
+- Optional
 
 Declarations:
 
 - struct: static key-value maps
 - oneof: tagged unions
+- rpc: one-off communication from client to server, request / response.
+- channel: bidirectional communication w/ server push
 - service: Groupings of RPCs and Channels
-- rpc
-- channel
 
 ```
 # This is a comment!
@@ -153,7 +155,7 @@ import Bleep, BleepRequest from "./some/file.gen.ts"
 struct People:
   name: string
   areTheyChill: boolean
-  optional title: string
+  title: string
 
 service BleepService:
   struct BleepRequest:
