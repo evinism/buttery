@@ -32,6 +32,10 @@ service SnailBookLoggedOut:
     request: null
     response: Optional<User>
 
+  rpc LogOut:
+    request: null
+    response: null
+
 service SnailBook:
   rpc CreatePost:
     request: string

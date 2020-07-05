@@ -109,4 +109,9 @@ export const implement = (server: ButteryServer) => {
       }
     }
   );
+
+  server.implement(SnailBookLoggedOut, "LogOut", (_, req) => {
+    (req as any).logout();
+    return Promise.resolve(null);
+  });
 };
