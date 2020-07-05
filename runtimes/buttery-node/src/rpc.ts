@@ -4,17 +4,13 @@ import { streamToString } from "./util";
 
 // Workaround for extracting a previously parsed message by body parser.
 // This really should not exist.
-const tryToGetBody = (request: http.IncomingMessage & { body?: any }) => {
-  const hasBody = request.hasOwnProperty("body");
-  if (hasBody) {
-    const body = request.body;
-    if (typeof body === "string") {
-      return body;
-    } else if (typeof body === "object") {
-      return JSON.stringify(body);
-    } else {
-      throw "Buttery does not support using body-parser with non-string, non-objects. Please contribute to buttery to support this";
-    }
+const tryToGetBody = (
+  request: http.IncomingMessage & { body?: any; _body?: boolean }
+) => {
+  if (request._body) {
+    // TODO: Switch this to converting to object via body-parser rather than this workaround.
+    // This involves modifying ser/deser
+    return JSON.stringify(request.body);
   } else {
     return undefined;
   }
