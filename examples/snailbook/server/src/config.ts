@@ -15,7 +15,10 @@ passport.use(
     if (user.data.password !== password) {
       return done(null, false, { message: "Incorrect password." });
     }
-    return done(null, user);
+    return done(null, {
+      id: user.id,
+      ...user.data,
+    });
   })
 );
 

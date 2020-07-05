@@ -5,20 +5,19 @@ import LoggedOut from "./LoggedOut";
 import { client, loggedOutClient } from "./api";
 
 function App() {
-  const [user, setUser] = useState<
-    | {
-        feedConnection: any;
-        name: string;
-      }
-    | undefined
-  >();
+  const [user, setUser] = useState<{
+    feedConnection: any;
+    name: string;
+    username: string;
+  } | null>();
 
   const handleLogin = (username: string, password: string) => {
-    loggedOutClient.LogIn({ username, password }).then(() => {
+    loggedOutClient.LogIn({ username, password }).then(({ username, name }) => {
       const feedConnection = client.Feed();
       setUser({
         feedConnection,
-        name: "lolwhut",
+        name,
+        username,
       });
     });
   };

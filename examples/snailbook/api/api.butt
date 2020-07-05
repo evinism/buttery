@@ -1,5 +1,6 @@
 struct User:
   id: string
+  username: string
   name: string
 
 struct Comment:
@@ -25,7 +26,7 @@ struct LogInRequest:
 service SnailBookLoggedOut:
   rpc LogIn:
     request: LogInRequest
-    response: boolean
+    response: User
 
   rpc WhoAmI:
     request: null
