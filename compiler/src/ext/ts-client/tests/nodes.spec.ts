@@ -1,6 +1,5 @@
 import * as N from "../nodes";
 import * as chai from "chai";
-import { string } from "yargs";
 
 function checkIdempotent<A, T extends N.ButteryNode<A>>(node: T, data: A) {
   const serializedData = node.serialize(data);
@@ -20,7 +19,7 @@ function checkIdempotent<A, T extends N.ButteryNode<A>>(node: T, data: A) {
 }
 
 describe("Typescript shared nodes", function () {
-  describe("General ", function () {
+  describe("General", function () {
     it("should have idempotent serialization and deserialization of all types", function () {
       checkIdempotent(N.booleanNode(), true);
       checkIdempotent(N.booleanNode(), false);
@@ -51,6 +50,67 @@ describe("Typescript shared nodes", function () {
           two: N.integerNode(),
         }),
         { tag: "one" as "one" | "two", data: "hello" as string | number }
+      );
+    });
+  });
+
+  describe("MapNode", function () {
+    it("should work with all allowed primitives as keys", function () {
+      chai.assert.equal(
+        N.mapNode(N.stringNode(), "boolean").serialize({
+          true: "cat",
+        }),
+        '{"true": "cat"}'
+      );
+      chai.assert.equal(
+        N.mapNode(N.stringNode(), "boolean").serialize({
+          false: "cat",
+        }),
+        '{"false": "cat"}'
+      );
+      chai.assert.equal(
+        N.mapNode(N.stringNode(), "integer").serialize({
+          1: "cat",
+        }),
+        '{"1": "cat"}'
+      );
+      chai.assert.equal(
+        N.mapNode(N.stringNode(), "integer").serialize({
+          1: "cat",
+        }),
+        '{"1": "cat"}'
+      );
+      chai.assert.equal(
+        N.mapNode(N.stringNode(), "double").serialize({
+          1.5: "cat",
+        }),
+        '{"1.5": "cat"}'
+      );
+      chai.assert.equal(
+        N.mapNode(N.stringNode(), "string").serialize({
+          lol: "cat",
+        }),
+        '{"lol": "cat"}'
+      );
+    });
+    it("should fail with invalid primitives as keys", function () {
+      chai.assert.equal(
+        N.mapNode(N.stringNode(), "boolean").serialize({
+          notTrue: "cat",
+        }),
+        undefined
+      );
+      chai.assert.equal(
+        N.mapNode(N.stringNode(), "integer").serialize({
+          1.5: "cat",
+        }),
+        undefined
+      );
+      chai.assert.equal(
+        N.mapNode(N.stringNode(), "double").serialize({
+          ja05: "cat",
+        }),
+        undefined
       );
     });
   });
