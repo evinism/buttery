@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - 14
+
+matrix:
+  include:
+    - env: TARGET=compiler
+    - env: TARGET=runtimes/buttery-node
+
+script: cd $TARGET && yarn && yarn test
