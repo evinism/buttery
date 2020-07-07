@@ -23,6 +23,10 @@ struct LogInRequest:
   username: string
   password: string
 
+oneof FeedUpdate:
+  post: Post
+  comment: Comment
+
 service SnailBookLoggedOut:
   rpc LogIn:
     request: LogInRequest
@@ -47,4 +51,4 @@ service SnailBook:
 
   channel Feed:
     incoming: null
-    outgoing: Post
+    outgoing: FeedUpdate

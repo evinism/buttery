@@ -24,8 +24,6 @@ server.use(passport.initialize());
 server.use(passport.session());
 
 server.use(
-  SnailBookLoggedOut,
-  "LogIn",
   bodyParser.json({
     strict: false,
   })

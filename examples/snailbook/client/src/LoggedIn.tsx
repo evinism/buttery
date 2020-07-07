@@ -9,19 +9,15 @@ const LoggedIn = ({ feedConnection: newsFeed }: { feedConnection: any }) => {
     }[]
   >([]);
   useEffect(() => {
-    const handlerFn = ({
-      content,
-      author: { name: author },
-    }: {
-      content: string;
-      author: { name: string };
-    }) => {
-      setFeed((feed) =>
-        feed.concat({
-          content,
-          author,
-        })
-      );
+    const handlerFn = (recv: any) => {
+      if (recv.tag === "post") {
+        setFeed((feed) =>
+          feed.concat({
+            content: recv.data.content,
+            author: recv.data.author.name,
+          })
+        );
+      }
     };
     newsFeed.listen(handlerFn);
     return () => {

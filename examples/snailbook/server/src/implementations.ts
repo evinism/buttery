@@ -59,22 +59,25 @@ export const implement = (server: ButteryServer) => {
   );
 
   server.implement(SnailBook, "Feed", (channel) => {
-    const listener = ({ id }: { id: string }) => {
+    const postsListener = ({ id }: { id: string }) => {
       getUserId();
       const post = postsTable.read(id);
       const { name, username } = usersTable.read(post.authorId);
       channel.send({
-        id,
-        content: post.content,
-        comments: [],
-        author: {
-          id: post.authorId,
-          name,
-          username,
+        tag: "post",
+        data: {
+          id,
+          content: post.content,
+          comments: [],
+          author: {
+            id: post.authorId,
+            name,
+            username,
+          },
         },
       });
     };
-    postsTable.pipe.listen(listener);
+    postsTable.pipe.listen(postsListener);
   });
 
   server.implement(
