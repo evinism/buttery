@@ -14,7 +14,7 @@ export const gen: CodeGenerator = (file) => {
   const outFileName =
     path.basename(file.path).replace(/\.butt(ery)?$/, "") + ".browser.ts";
 
-  const content = `import {ButteryClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, optionalNode, buildRpcHandler, buildChannelHandler, ButteryChannelConnection} from './buttery.runtime';
+  const content = `import {ButteryClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, optionalNode, oneOfNode, buildRpcHandler, buildChannelHandler, ButteryChannelConnection} from './buttery.runtime';
 
 ${generateNodeDeclarations(file.variables)}
 

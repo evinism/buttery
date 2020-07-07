@@ -5,7 +5,7 @@ import { generateNodeDeclarations } from "../typescript-shared/genNodeDecls";
 export const gen: CodeGenerator = (file) => {
   const outFileName =
     path.basename(file.path).replace(/\.butt(ery)?$/, "") + ".node.ts";
-  const content = `import {structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, optionalNode} from 'buttery-node/dist/shared/nodes';
+  const content = `import {structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, optionalNode, oneOfNode} from 'buttery-node/dist/shared/nodes';
 
 ${generateNodeDeclarations(file.variables)}
 `;
