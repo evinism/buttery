@@ -1,4 +1,5 @@
 # Buttery: Minimalistic language for defining HTTP(s) APIs
+[![Build Status](https://travis-ci.com/evinism/buttery.svg?branch=master)](https://travis-ci.com/evinism/buttery)
 
 *Warning: Buttery is still in pre-alpha and is not (yet) suitable for production use. It CAN be used for side projects and game jams if you're feeling a hint brave.*
 
