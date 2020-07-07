@@ -1,9 +1,14 @@
 # Buttery: Minimalistic language for defining HTTP(s) APIs
+
 [![Build Status](https://travis-ci.com/evinism/buttery.svg?branch=master)](https://travis-ci.com/evinism/buttery)
 
-*Warning: Buttery is still in pre-alpha and is not (yet) suitable for production use. It CAN be used for side projects and game jams if you're feeling a hint brave.*
+_Warning: Buttery is still in pre-alpha and is not (yet) suitable for production use. It CAN be used for side projects and game jams if you're feeling a hint brave._
 
 Buttery aims to be a minimalistic cross-platform language for defining type-safe RPCs and websockets. Buttery provides codegen and runtimes for browsers and node.js, with the intent of expanding to other platforms.
+
+- [Detailed language reference](docs/language-reference.md)
+- [`node` target reference (incomplete)](docs/buttery-node.md)
+- [`browser` target reference (incomplete)](docs/buttery-browser.md)
 
 ### Example
 
@@ -79,13 +84,19 @@ As an example call:
 
 `buttery generate browser -f ./path/to/file.butt`
 
+### Buttery Target Support
 
-### Sample patterns of places where Buttery could be used:
+Buttery Clients
+| Target | Target Description | Support |
+|---|---|---|
+| browser | Generated Typescript for use in browsers | Full Support |
+| python-client | Generated code for Python Client | None |
 
-- Backend to backend RPCs
-- Frontend requests to backend services
-- As a wrapper around websockets for server push
-- Easy multiplexing of multiple services through a single host
+Buttery Servers
+| Target | Target Description | Support |
+|---|---|---|
+| node | Generated Typescript for use in express backends | Full Support |
+| django | Generated code for use in Django backends | None |
 
 ### Scope of Buttery
 
@@ -105,82 +116,18 @@ Buttery does not aim to provide:
 2. Highly size-optimized over-the-wire encodings -- Buttery messages are valid JSON
 3. Support for non-evergreen browsers
 
+### Sample patterns of places where Buttery could be used:
+
+- Backend to backend RPCs
+- Frontend requests to backend services
+- As a wrapper around websockets for server push
+- Easy multiplexing of multiple services through a single host
 
 ### Comparison to other solutions
 
 Depending on your background, you might find one of these comparisons useful:
+
 - A lightweight replacement for gRPC / protos, but over http(s) and websockets
 - [Twirp](https://github.com/twitchtv/twirp), but without all the baggage of protos, providing first-class support for browser -> backend comms, and bidi communication
 - A lightweight replacement for swagger codegen, with bidi communication
 - JSON-RPC-like specification, but paired with a small domain specific language for definitions and bidi communication
-
-
-### Buttery Target Support
-
-Buttery Clients
-| Target | Target Description | Support |
-|---|---|---|
-| browser | Generated Typescript for use in browsers | Full Support |
-| python-client | Generated code for Python Client | None |
-
-Buttery Servers
-| Target | Target Description | Support |
-|---|---|---|
-| node | Generated Typescript for use in express backends | Full Support |
-| django | Generated code for use in Django backends | None |
-
-### Sample of features
-
-Primitives:
-
-- integer
-- boolean
-- double
-- string
-- null
-
-Builtin Types:
-
-- Map
-- List
-- Optional
-
-Declarations:
-
-- struct: static key-value maps
-- oneof: tagged unions
-- rpc: one-off communication from client to server, request / response.
-- channel: bidirectional communication w/ server push
-- service: Groupings of RPCs and Channels
-
-```
-# This is a comment!
-# Imports can reference other files
-import Bleep, BleepRequest from "./some/file.gen.ts"
-
-# Structs can be declared either outside or within a service
-struct People:
-  name: string
-  areTheyChill: boolean
-  title: string
-
-service BleepService:
-  struct BleepRequest:
-    whoIsBleeping: string
-    whoAreTheyTargeting: List<People>
-
-  struct BleepResponse:
-    didItWork: boolean
-    wereTheySurprised: boolean
-
-  # for oneoff request / response pairs.
-  rpc Bleep:
-    request: BleepRequest
-    response: number
-
-  # for 2-way, continuous channel.
-  channel PeopleISee
-    incoming: List<integer>,
-    outgoing: People
-
-```
