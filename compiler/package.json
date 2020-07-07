@@ -1,6 +1,6 @@
 {
   "name": "buttery-cli",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "description": "Simple, usable RPC codegen CLI",
   "main": "src/cli.ts",
   "author": "evinism@gmail.com",
