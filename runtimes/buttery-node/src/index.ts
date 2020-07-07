@@ -1,4 +1,5 @@
 import * as http from "http";
+import * as https from "https";
 import connect from "connect";
 import { EndpointBase, ButteryService, ButteryServerOptions } from "./types";
 import { createRpcHandler } from "./rpc";
@@ -136,7 +137,9 @@ export class ButteryServer {
   };
 
   createServer() {
-    const server = http.createServer();
+    const server = this.options.https
+      ? https.createServer(this.options.https)
+      : http.createServer();
 
     const rpcHandler = createRpcHandler(
       this.serviceDefinitions,

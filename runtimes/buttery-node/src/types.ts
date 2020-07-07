@@ -12,6 +12,11 @@ export interface ButteryService<Endpoints extends EndpointBase> {
 }
 
 export interface ButteryServerOptions {
+  https?: {
+    key: string;
+    cert: string;
+  };
+
   rpc?: {
     headers?: { [key: string]: string };
   };
