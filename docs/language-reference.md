@@ -1,5 +1,7 @@
 # Buttery Language Reference
 
+## Syntax
+
 Buttery's `.butt` or `.buttery` files have a very simple syntax:
 
 ```
@@ -14,8 +16,13 @@ service NameOfService:
   type_of_thing NestedDeclaration:
     fieldOne: FieldTypeOne
     fieldTwo: FieldTypeTwo
-
 ```
+
+### Indentation
+
+Hierarchy is denoted via indentation.
+
+Right now, indentation can either be 2 spaces or a single tab. I want to support more than that but just haven't gotten around to it. Sorry!
 
 ## General concepts
 
@@ -38,10 +45,6 @@ Buttery is likely going to support user-defined generic types in the future, as 
 ### Constraints on Generics
 
 Right now, the only constraint on generics that exist in the language is the `Map<key, value>` generic. The key can only be a primitive type. The compiler hard-codes this constraint for this particular built-in. It may be useful to add this as a core language feature, but frankly, I think that might be more trouble than it's worth for such a simple language.
-
-### Indentation
-
-Right now, indentation can either be 2 spaces or a single tab. I want to support more than that but just haven't gotten around to it. Sorry!
 
 ## Buitlin Reference
 

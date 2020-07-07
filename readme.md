@@ -7,7 +7,7 @@ _Warning: Buttery is still in pre-alpha and is not (yet) suitable for production
 Buttery aims to be a minimalistic cross-platform language for defining type-safe RPCs and websockets. Buttery provides codegen and runtimes for browsers and node.js, with the intent of expanding to other platforms.
 
 - [Detailed language reference](docs/language-reference.md)
-- [`node` target reference (incomplete)](docs/buttery-node.md)
+- [`node` target reference](docs/buttery-node.md)
 - [`browser` target reference (incomplete)](docs/buttery-browser.md)
 
 ### Example
@@ -35,23 +35,21 @@ service ChatService:
 
 And consume the generated files in a sample client and server:
 
-```
+```ts
 // client.ts on the frontend
-import {ChatService} from './buttery-genfiles/chat.browser'
+import { ChatService } from "./buttery-genfiles/chat.browser";
 
-
-const client = new ChatService('https://example.com');
+const client = new ChatService("https://example.com");
 const chatConnection = client.Chat();
 
 chatConnection.listen((msg) => {
   console.log(msg.content);
 });
 
-chatConnection.send({timestamp: Date.now(), content: 'Hello, world!'});
-
+chatConnection.send({ timestamp: Date.now(), content: "Hello, world!" });
 ```
 
-```
+```ts
 // server.ts on the backend
 import {ButteryServer} from 'buttery-node';
 import {ChatService} from './buttery-genfiles/chat.node'
