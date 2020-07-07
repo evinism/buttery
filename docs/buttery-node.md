@@ -33,8 +33,7 @@ const server = new ButteryServer(options);
 | https.key   | x      | Key passed to https.Server() constructor                                                                                                                                                 | `"fake_key"`                           |
 | https.cert  | x      | Cert passed into https.Server() constructor                                                                                                                                              | `"fake_cert"`                          |
 | baseHandler |        | Handler that handles non-buttery routes. If not specified, Buttery handles returning a 404 to the client when a non-buttery route is requested. Mutually exclusive to `express` property |                                        |
-
-| express | | Existing express server that Buttery should utilize. If specified, all middleware applied to the express server also applies to Buttery routes | |
+| express     |        | Existing express server that Buttery should utilize. If specified, all middleware applied to the express server also applies to Buttery routes                                           |                                        |
 
 ## Implementing RPCs and Channels
 

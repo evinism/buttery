@@ -9,6 +9,7 @@ Buttery aims to be a minimalistic cross-platform language for defining type-safe
 - [Detailed language reference](docs/language-reference.md)
 - [`node` target reference](docs/buttery-node.md)
 - [`browser` target reference (incomplete)](docs/buttery-browser.md)
+- [Snailbook: an example nodejs app built on Buttery](examples/snailbook/)
 
 ### Example
 
