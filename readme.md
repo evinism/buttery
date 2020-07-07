@@ -83,6 +83,8 @@ As an example call:
 
 `buttery generate browser -f ./path/to/file.butt`
 
+By default, this creates generated files in the `buttery-genfiles` directory. This can be changed via the `-o [path]` parameter. It's probably a good idea to gitignore that directory.
+
 ### Buttery Target Support
 
 Buttery Clients
