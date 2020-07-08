@@ -21,7 +21,7 @@ export function generateCmd({ target, files, outputDir }: GenerateCmdConfig) {
   if (!generate) {
     throw "This shouldn't happen, but generateCmd called w/ generator that dont exist";
   }
-  console.log("  Generating files for target ${target}");
+  console.log(`  Generating files for target ${target}`);
 
   // validate that all the target files exist.
   for (let fname of files) {
