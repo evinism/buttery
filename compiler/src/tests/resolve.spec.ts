@@ -282,7 +282,6 @@ describe("Resolving", function () {
   describe("Multiple Files", function () {
     it("resolves vars in party correctly", function () {
       const output = load("../data/resolve/party/main.buttery");
-      console.log(JSON.stringify(output));
       chai.assert.deepEqual<Object>(output, {
         path: "../data/resolve/party/main.buttery",
         variables: [

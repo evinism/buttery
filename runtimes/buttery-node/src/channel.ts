@@ -6,22 +6,46 @@ import { Socket } from "net";
 import { ChannelNode } from "./shared/nodes";
 import { Pipe } from "./util";
 
+type CloseStatus = "closed" | "broken";
+
 export class ButterySocket<Incoming, Outgoing> {
   constructor(socket: WebSocket, channelDef: ChannelNode<Incoming, Outgoing>) {
     this.socket = socket;
     this.channelDef = channelDef;
     this.incomingPipe = new Pipe<Incoming>();
+    this.closePipe = new Pipe<CloseStatus>();
     this.socket.onmessage = (event) => {
       this.receive(event.data);
     };
+    this.socket.onclose = () => {
+      this.closePipe.fire("closed");
+    };
+    this.socket.onerror = () => {
+      this.closePipe.fire("broken");
+    };
   }
 
-  socket: WebSocket;
-  incomingPipe: Pipe<Incoming>;
+  private socket: WebSocket;
+  private incomingPipe: Pipe<Incoming>;
+  private closeStatus?: CloseStatus;
+  private closePipe: Pipe<CloseStatus>;
 
   private channelDef: ChannelNode<Incoming, Outgoing>;
+  private receive(msg: string) {
+    let parsed: Incoming | undefined;
+    parsed = this.channelDef.incoming.deserialize(msg);
+    if (parsed === undefined) {
+      this.socket.close(1003);
+      return;
+    }
+    this.incomingPipe.fire(parsed);
+  }
+
   send(data: Outgoing) {
     let serialized: string | undefined;
+    if (this.socket.readyState === 4) {
+      return; // Tried to write data to a closed pipe!
+    }
     serialized = this.channelDef.outgoing.serialize(data);
     if (serialized === undefined) {
       throw new Error("Could not serialize outgoing RPC data");
@@ -37,14 +61,8 @@ export class ButterySocket<Incoming, Outgoing> {
     this.incomingPipe.unlisten(listener);
   };
 
-  private receive(msg: string) {
-    let parsed: Incoming | undefined;
-    parsed = this.channelDef.incoming.deserialize(msg);
-    if (parsed === undefined) {
-      this.socket.close(1003);
-      return;
-    }
-    this.incomingPipe.fire(parsed);
+  close(code: number = 1000) {
+    this.socket.close(code);
   }
 }
 

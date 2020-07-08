@@ -81,8 +81,9 @@ Class methods:
 |send| (Outgoing) => void | Sends a message over the channel |
 | listen | `((Incoming) => any) => void` | Subscribes a listener to a channel |
 | unlisten | `((Incoming) => any) => void` | Unsubscribes a listener to a channel |
-
-Currently there is no way to destroy the socket, which I consider to be a blocker to 0.1.0.
+| onClose | `(('closed'|'broken') => any) => void` | Callback to be called when the socket closes or breaks |
+| removeOnClose | `(('closed'|'broken') => any) => void` | Remove the above callback |
+| close | `(code: number = 100) => any` | Close the socket with the above code |
 
 ## Middleware
 

@@ -37,6 +37,8 @@ type SocketEvent =
       status: SocketStatus; // Not sure what to put here.
     };
 
+const nonRetryCodes = [1000];
+
 class StableSocket {
   constructor(url: string) {
     this.eventPipe = new Pipe<SocketEvent>();
@@ -65,8 +67,8 @@ class StableSocket {
       this.setStatus("open");
       this.flush();
     };
-    this.socket.onclose = () => {
-      if (this.shouldRetry) {
+    this.socket.onclose = ({ code }) => {
+      if (this.shouldRetry && !nonRetryCodes.includes(code)) {
         this.setStatus("waitingToRetry");
         setTimeout(() => this.buildSocket(), this.retryDelay);
       } else {
@@ -74,7 +76,7 @@ class StableSocket {
       }
     };
     this.socket.onerror = (ev) => {
-      console.warn("Underlying Socket Error");
+      console.warn("Underlying Socket Error", ev);
       this.setStatus("broken");
       this.close();
     };
@@ -113,13 +115,15 @@ class StableSocket {
     this.eventPipe.unlisten(listener);
   }
 
-  close() {
+  close(code: number = 1000) {
     // one final flush for last measure!
     this.flush();
     this.shouldRetry = false;
-    this.socket.close();
+    this.socket.close(code);
   }
 }
+
+type CloseStatus = "broken" | "closed";
 
 export class ButteryChannelConnection<Send, Recv> {
   constructor(
@@ -129,9 +133,11 @@ export class ButteryChannelConnection<Send, Recv> {
   ) {
     this.sendNode = sendNode;
     this.recvNode = recvNode;
+
     this.stableSocket = new StableSocket(httpToWs(url));
     this.recvPipe = new Pipe<Recv>();
-    this.broken = false;
+    this.closePipe = new Pipe<CloseStatus>();
+
     this.stableSocket.listen((msg) => {
       if (msg.type === "message") {
         const deserialized = recvNode.deserialize(msg.data.data);
@@ -139,21 +145,26 @@ export class ButteryChannelConnection<Send, Recv> {
           this.recvPipe.fire(deserialized);
         }
       }
-      if (msg.type === "status" && msg.status === "broken") {
-        this.broken = true;
+      if (
+        msg.type === "status" &&
+        (msg.status === "broken" || msg.status === "closed")
+      ) {
+        this.closePipe.fire(msg.status);
+        this.closeStatus = msg.status;
       }
     });
   }
 
-  sendNode: ButteryNode<Send>;
-  recvNode: ButteryNode<Recv>;
-  stableSocket: StableSocket;
-  recvPipe: Pipe<Recv>;
-  broken: boolean;
+  private sendNode: ButteryNode<Send>;
+  private recvNode: ButteryNode<Recv>;
+  private stableSocket: StableSocket;
+  private recvPipe: Pipe<Recv>;
+  private closePipe: Pipe<CloseStatus>;
+  private closeStatus?: CloseStatus;
 
   send(data: Send) {
-    if (this.broken) {
-      throw "Pipe broken!";
+    if (this.closeStatus) {
+      throw "Pipe closed!";
     }
     const serialized = this.sendNode.serialize(data);
     if (serialized) {
@@ -167,6 +178,18 @@ export class ButteryChannelConnection<Send, Recv> {
 
   unlisten(listener: (arg: Recv) => unknown) {
     this.recvPipe.unlisten(listener);
+  }
+
+  onClose(listener: (arg: CloseStatus) => unknown) {
+    this.closePipe.listen(listener);
+  }
+
+  removeOnClose(listener: (arg: CloseStatus) => unknown) {
+    this.closePipe.listen(listener);
+  }
+
+  close(code: number = 1000) {
+    this.stableSocket.close(code);
   }
 }
 
