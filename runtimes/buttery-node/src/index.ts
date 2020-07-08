@@ -1,17 +1,17 @@
 import * as http from "http";
 import * as https from "https";
-import connect from "connect";
 import { EndpointBase, ButteryService, ButteryServerOptions } from "./types";
 import { createRpcHandler } from "./rpc";
 import { ChannelNode, RPCNode, ButteryNode } from "./shared/nodes";
 import { createUpgradeHandler, ButterySocket } from "./channel";
 import { isButteryPath } from "./util";
+
 import {
   upgradeHandlerToResponseHandler,
   responseHandlerToUpgradeHandler,
   divertUpgrade,
 } from "./shims";
-import express from "express";
+import express, { RequestHandler } from "express";
 import { Buttery_NAMESPACE } from "./constants";
 
 type ExtractNodeType<P> = P extends ButteryNode<infer T> ? T : never;
@@ -55,12 +55,12 @@ export class ButteryServer {
 
   use<Endpoints extends EndpointBase, Z extends keyof Endpoints>(
     ...args:
-      | [connect.HandleFunction]
-      | [ButteryService<Endpoints>, connect.HandleFunction]
-      | [ButteryService<Endpoints>, Z, connect.HandleFunction]
+      | [RequestHandler]
+      | [ButteryService<Endpoints>, RequestHandler]
+      | [ButteryService<Endpoints>, Z, RequestHandler]
   ) {
     let targetPath = "";
-    let middleware: connect.HandleFunction | undefined;
+    let middleware: RequestHandler | undefined;
     if (args.length === 1) {
       middleware = args[0];
     } else if (args.length === 2) {
