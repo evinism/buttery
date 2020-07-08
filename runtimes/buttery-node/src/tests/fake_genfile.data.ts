@@ -3,10 +3,17 @@ import {
   listNode,
   booleanNode,
   integerNode,
+  doubleNode,
   stringNode,
-  ChannelNode,
+  nullNode,
+  optionalNode,
+  oneOfNode,
 } from "../shared/nodes";
 
+export const Person = structNode({
+  name: stringNode(),
+  pronouns: listNode(stringNode()),
+});
 export const Slot = structNode({
   people: listNode(
     structNode({ name: stringNode(), pronouns: listNode(stringNode()) })
@@ -16,52 +23,66 @@ export const Slot = structNode({
 });
 export const AddToPartyResponse = structNode({
   success: booleanNode(),
-  time: structNode({
-    people: listNode(
-      structNode({ name: stringNode(), pronouns: listNode(stringNode()) })
-    ),
-    startTime: integerNode(),
-    endTime: integerNode(),
-  }),
-});
-export const ChatMessage = structNode({
-  time: integerNode(),
-  content: stringNode(),
-});
-export const ChatUpdate = structNode({
-  time: integerNode(),
-  content: stringNode(),
-  author: structNode({ name: stringNode(), pronouns: listNode(stringNode()) }),
-});
-export const AddToParty = {
-  type: "rpcNode" as "rpcNode",
-  name: "AddToParty",
-  request: structNode({ name: stringNode(), pronouns: listNode(stringNode()) }),
-  response: structNode({
-    success: booleanNode(),
-    time: structNode({
+  time: optionalNode(
+    structNode({
       people: listNode(
         structNode({ name: stringNode(), pronouns: listNode(stringNode()) })
       ),
       startTime: integerNode(),
       endTime: integerNode(),
+    })
+  ),
+});
+export const ChatMessage = structNode({
+  time: integerNode(),
+  content: stringNode(),
+});
+
+export const PartyService = (() => {
+  const AddToParty = {
+    type: "rpcNode" as "rpcNode",
+    name: "AddToParty" as "AddToParty",
+    request: structNode({
+      name: stringNode(),
+      pronouns: listNode(stringNode()),
     }),
-  }),
-};
-export const Chat = {
-  type: "channelNode" as "channelNode",
-  name: "Chat",
-  incoming: structNode({ time: integerNode(), content: stringNode() }),
-  outgoing: structNode({
+    response: structNode({
+      success: booleanNode(),
+      time: optionalNode(
+        structNode({
+          people: listNode(
+            structNode({ name: stringNode(), pronouns: listNode(stringNode()) })
+          ),
+          startTime: integerNode(),
+          endTime: integerNode(),
+        })
+      ),
+    }),
+  };
+
+  const ChatUpdate = structNode({
     time: integerNode(),
     content: stringNode(),
     author: structNode({
       name: stringNode(),
       pronouns: listNode(stringNode()),
     }),
-  }),
-};
-export const PartyService = {
-  name: "PartyService",
-  endpoints: { AddToParty, Chat },
-};
+  });
+  const Chat = {
+    type: "channelNode" as "channelNode",
+    name: "Chat" as "Chat",
+    incoming: structNode({ time: integerNode(), content: stringNode() }),
+    outgoing: structNode({
+      time: integerNode(),
+      content: stringNode(),
+      author: structNode({
+        name: stringNode(),
+        pronouns: listNode(stringNode()),
+      }),
+    }),
+  };
+  return {
+    name: "PartyService" as "PartyService",
+    endpoints: { AddToParty, Chat, ChatUpdate },
+  };
+})();

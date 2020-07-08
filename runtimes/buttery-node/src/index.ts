@@ -103,11 +103,18 @@ export class ButteryServer {
       this.serviceDefinitions.push(service);
     }
 
-    if (service.endpoints[name].type === "channelNode") {
+    // Annoying out-of-typesystem check to ensure we accidentally didnt
+    // get a non-implementable as a key
+    const endpoint = service.endpoints[name];
+    if (typeof endpoint !== "object" || endpoint === null || !endpoint.type) {
+      throw `Unknown rpc or channel ${name}`;
+    }
+
+    if (endpoint.type === "channelNode") {
       this.channelImplementations[service.name] =
         this.channelImplementations[service.name] || {};
       this.channelImplementations[service.name][name as any] = handler;
-    } else if (service.endpoints[name].type === "rpcNode") {
+    } else if (endpoint.type === "rpcNode") {
       // Don't know why this cast is necessary
       this.rpcImplementations[service.name] =
         this.rpcImplementations[service.name] || {};
