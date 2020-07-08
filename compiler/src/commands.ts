@@ -14,10 +14,15 @@ interface GenerateCmdConfig {
 
 /* TODO: Move to non-sync versions of fs ops */
 export function generateCmd({ target, files, outputDir }: GenerateCmdConfig) {
+  console.log(`[ Buttery ]`);
+  const startTime = Date.now();
+
   const generate = generators[target];
   if (!generate) {
     throw "This shouldn't happen, but generateCmd called w/ generator that dont exist";
   }
+  console.log("  Generating files for target ${target}");
+
   // validate that all the target files exist.
   for (let fname of files) {
     if (!fs.existsSync(fname)) {
@@ -48,7 +53,13 @@ export function generateCmd({ target, files, outputDir }: GenerateCmdConfig) {
     }
     fs.writeFileSync(path.join(outputDir, outfile.fileName), outfile.content);
   }
-  for (let cmd of postGenerates) {
-    child_process.execSync(cmd);
+
+  if (postGenerates.length > 0) {
+    console.log("  Running post-generation scripts...");
   }
+  for (let cmd of postGenerates) {
+    child_process.execSync(cmd, { encoding: "utf-8" });
+  }
+  const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+  console.log(`  Success! (${duration}s)`);
 }
