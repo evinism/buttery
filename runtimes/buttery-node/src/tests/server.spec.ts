@@ -38,9 +38,11 @@ describe("ts-server runtime", function () {
   butteryServer.use(
     (req: http.IncomingMessage, res: http.ServerResponse, next: any) => {
       if (req.headers["failmeplz"]) {
-        next(new Error("Fail!"));
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("Fail!");
+      } else {
+        next();
       }
-      next();
     }
   );
 
@@ -81,6 +83,17 @@ describe("ts-server runtime", function () {
     (_, req: http.IncomingMessage & { mwAug?: "augmented" }) => {
       if (!req.mwAug) {
         throw "Missing middleware augmentation for route!";
+      }
+
+      if (req.headers["genbadshape"]) {
+        return Promise.resolve({
+          success: true,
+          time: {
+            people: [],
+            startTime: 0.5,
+            endTime: 0,
+          },
+        });
       }
 
       return Promise.resolve({
@@ -150,6 +163,17 @@ describe("ts-server runtime", function () {
       request(server)
         .post("/__buttery__/PartyService/AddToParty")
         .set("failmeplz", "yus")
+        .send({ name: "john", pronouns: [] })
+        .end(function (err: any, res: any) {
+          chai.assert.equal(err, null);
+          chai.assert.equal(res.status, 500);
+          done();
+        });
+    });
+    it("should fail when the server passes an invalid response shape", function (done) {
+      request(server)
+        .post("/__buttery__/PartyService/AddToParty")
+        .set("genbadshape", "yus")
         .send({ name: "john", pronouns: [] })
         .end(function (err: any, res: any) {
           chai.assert.equal(err, null);

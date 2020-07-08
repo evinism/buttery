@@ -89,20 +89,23 @@ export const createRpcHandler = (
 
     parsed = rpcDef.request.deserialize(body);
     if (parsed === undefined) {
-      throw "Invalid Body";
+      throw "Invalid body sent by client";
     }
   } catch (e) {
     response.writeHead(
       400,
       Object.assign({ "Content-Type": "text/plain" }, headers)
     );
-    response.end("Error occurred: " + e.message);
+    response.end("Client Error: " + e.message);
     return;
   }
 
   let result;
   try {
     result = rpcDef.response.serialize(await handler(parsed, request));
+    if (result === undefined) {
+      throw "Server tried to send an invalid body";
+    }
   } catch (e) {
     response.writeHead(
       500,
