@@ -262,14 +262,14 @@ export class ButteryClient {
   constructor(baseUrl: string, ButteryClientConfig: ButteryClientConfig = {}) {
     this.baseUrl = baseUrl;
     this.requester = ButteryClientConfig.rpc?.requester || defaultRequester;
-    this.rpcConfig = ButteryClientConfig.rpc;
+    this.rpcConfig = ButteryClientConfig.rpc || {};
     this.serviceName = "TO_OVERRIDE";
   }
 
   baseUrl: string;
   serviceName: string;
   butteryApiNamespace = "__buttery__";
-  rpcConfig?: RpcConfig;
+  rpcConfig: RpcConfig;
   requester: (url: string, body: string, config: RpcConfig) => Promise<string>;
 
   request<Req, Res>(

@@ -19,7 +19,7 @@ ${generateNodeDeclarations(file.variables)}
 
   return {
     postGenerate: (outDir) =>
-      `tsc -d ${outDir}/__ts__/* --outDir ${outDir} --strict`,
+      `tsc -d ${outDir}/__ts__/* --outDir ${outDir} --strict --types node`,
     genfiles,
   };
 };
