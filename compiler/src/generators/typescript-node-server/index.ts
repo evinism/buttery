@@ -18,7 +18,8 @@ ${generateNodeDeclarations(file.variables)}
   ];
 
   return {
-    postGenerate: (outDir) => `tsc -d ${outDir}/__ts__/* --outDir ${outDir}`,
+    postGenerate: (outDir) =>
+      `tsc -d ${outDir}/__ts__/* --outDir ${outDir} --strict`,
     genfiles,
   };
 };
