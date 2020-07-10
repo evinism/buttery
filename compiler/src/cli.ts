@@ -43,4 +43,5 @@ const argv = yargs
     }
   )
   .demandCommand()
+  .strict()
   .help().argv;
