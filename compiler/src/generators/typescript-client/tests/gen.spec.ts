@@ -17,10 +17,10 @@ describe("Generation", function () {
       chai.assert.equal(expected, bleep.genfiles[0].content);
     });
 
-    it("should not conflict variables inside and outside", function () {
+    it("should correctly compile a featureful file", function () {
       generateCmd({
         target: "browser",
-        files: ["../data/resolve/nameConflict/nameConflict.buttery"],
+        files: ["../data/resolve/featureful/main.buttery"],
         outputDir: "buttery-genfiles",
       });
       chai.assert.equal(true, true);
