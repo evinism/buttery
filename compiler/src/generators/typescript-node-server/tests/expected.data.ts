@@ -1,4 +1,4 @@
-import {structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, optionalNode, oneOfNode} from 'buttery-node/dist/shared/nodes';
+import {structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, optionalNode, oneOfNode, mapNode} from 'buttery-node/dist/shared/nodes';
 
 export const Person = structNode({name: stringNode(), pronouns: listNode(stringNode())});
 export const Slot = structNode({people: listNode(structNode({name: stringNode(), pronouns: listNode(stringNode())})), startTime: integerNode(), endTime: integerNode()});

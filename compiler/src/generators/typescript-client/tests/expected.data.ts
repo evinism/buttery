@@ -1,4 +1,4 @@
-import {ButteryClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, optionalNode, oneOfNode, buildRpcHandler, buildChannelHandler, ButteryChannelConnection} from './buttery.runtime';
+import {ButteryClient, structNode, listNode, booleanNode, integerNode, doubleNode, stringNode, nullNode, optionalNode, oneOfNode, mapNode, buildRpcHandler, buildChannelHandler, ButteryChannelConnection} from './buttery.runtime';
 
 export const Person = structNode({name: stringNode(), pronouns: listNode(stringNode())});
 export const Slot = structNode({people: listNode(structNode({name: stringNode(), pronouns: listNode(stringNode())})), startTime: integerNode(), endTime: integerNode()});
