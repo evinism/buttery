@@ -198,22 +198,11 @@ struct OutsideOfFooTwo:
   bar: Foo.Bar # Works
 ```
 
-When dealing with imports, one can:
-
-1. Import the whole service namespace, e.g.
+When dealing with imports, one imports the whole service namespace, e.g.
 
 ```
 import Foo from "./fooservice.butt"
 
 struct Baz:
   bar: Foo.Bar
-```
-
-2. Import just the individual data structure (This one might not work before 0.1.0):
-
-```
-import Foo.Bar from "./fooservice.butt"
-
-struct Baz:
-  bar: Bar
 ```

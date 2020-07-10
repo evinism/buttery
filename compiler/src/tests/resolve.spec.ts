@@ -641,9 +641,300 @@ describe("Resolving", function () {
   });
 
   describe("Service descriptors", function () {
-    it.skip("resolves vars in foodDelivery correctly", function () {
+    it("resolves vars in foodDelivery correctly", function () {
       const output = load("../data/resolve/fooddelivery/order.buttery");
-      chai.assert.deepEqual<Object>({}, output);
+      chai.assert.deepEqual<Object>(output, {
+        path: "../data/resolve/fooddelivery/order.buttery",
+        variables: [
+          {
+            statementType: "declaration",
+            name: "RestaurantService",
+            value: {
+              type: "service",
+              name: "RestaurantService",
+              variables: [
+                {
+                  statementType: "declaration",
+                  name: "Meal",
+                  value: {
+                    type: "struct",
+                    fields: [
+                      {
+                        name: "id",
+                        optional: false,
+                        baseType: { type: "integer" },
+                      },
+                      {
+                        name: "title",
+                        optional: false,
+                        baseType: { type: "string" },
+                      },
+                      {
+                        name: "price",
+                        optional: false,
+                        baseType: { type: "integer" },
+                      },
+                    ],
+                  },
+                },
+                {
+                  statementType: "declaration",
+                  name: "Restaurant",
+                  value: {
+                    type: "struct",
+                    fields: [
+                      {
+                        name: "id",
+                        optional: false,
+                        baseType: { type: "integer" },
+                      },
+                      {
+                        name: "name",
+                        optional: false,
+                        baseType: { type: "string" },
+                      },
+                      {
+                        name: "address",
+                        optional: false,
+                        baseType: { type: "string" },
+                      },
+                      {
+                        name: "menu",
+                        optional: false,
+                        baseType: {
+                          type: "list",
+                          value: {
+                            type: "struct",
+                            fields: [
+                              {
+                                name: "id",
+                                optional: false,
+                                baseType: { type: "integer" },
+                              },
+                              {
+                                name: "title",
+                                optional: false,
+                                baseType: { type: "string" },
+                              },
+                              {
+                                name: "price",
+                                optional: false,
+                                baseType: { type: "integer" },
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  statementType: "declaration",
+                  name: "GetRestauraunts",
+                  value: {
+                    type: "rpc",
+                    name: "GetRestauraunts",
+                    request: {
+                      name: "request",
+                      optional: false,
+                      baseType: { type: "boolean" },
+                    },
+                    response: {
+                      name: "response",
+                      optional: false,
+                      baseType: {
+                        type: "list",
+                        value: {
+                          type: "struct",
+                          fields: [
+                            {
+                              name: "id",
+                              optional: false,
+                              baseType: { type: "integer" },
+                            },
+                            {
+                              name: "name",
+                              optional: false,
+                              baseType: { type: "string" },
+                            },
+                            {
+                              name: "address",
+                              optional: false,
+                              baseType: { type: "string" },
+                            },
+                            {
+                              name: "menu",
+                              optional: false,
+                              baseType: {
+                                type: "list",
+                                value: {
+                                  type: "struct",
+                                  fields: [
+                                    {
+                                      name: "id",
+                                      optional: false,
+                                      baseType: { type: "integer" },
+                                    },
+                                    {
+                                      name: "title",
+                                      optional: false,
+                                      baseType: { type: "string" },
+                                    },
+                                    {
+                                      name: "price",
+                                      optional: false,
+                                      baseType: { type: "integer" },
+                                    },
+                                  ],
+                                },
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+          {
+            statementType: "declaration",
+            name: "User",
+            value: {
+              type: "struct",
+              fields: [
+                {
+                  name: "id",
+                  optional: false,
+                  baseType: { type: "integer" },
+                },
+                {
+                  name: "name",
+                  optional: false,
+                  baseType: { type: "string" },
+                },
+                {
+                  name: "pronouns",
+                  optional: false,
+                  baseType: { type: "string" },
+                },
+              ],
+            },
+          },
+          {
+            statementType: "declaration",
+            name: "OrderService",
+            value: {
+              type: "service",
+              name: "OrderService",
+              variables: [
+                {
+                  statementType: "declaration",
+                  name: "Order",
+                  value: {
+                    type: "struct",
+                    fields: [
+                      {
+                        name: "restaurantId",
+                        optional: false,
+                        baseType: { type: "integer" },
+                      },
+                      {
+                        name: "mealId",
+                        optional: false,
+                        baseType: { type: "integer" },
+                      },
+                      {
+                        name: "timeOfOrder",
+                        optional: false,
+                        baseType: { type: "integer" },
+                      },
+                    ],
+                  },
+                },
+                {
+                  statementType: "declaration",
+                  name: "PlaceOrder",
+                  value: {
+                    type: "rpc",
+                    name: "PlaceOrder",
+                    request: {
+                      name: "request",
+                      optional: false,
+                      baseType: {
+                        type: "struct",
+                        fields: [
+                          {
+                            name: "restaurantId",
+                            optional: false,
+                            baseType: { type: "integer" },
+                          },
+                          {
+                            name: "mealId",
+                            optional: false,
+                            baseType: { type: "integer" },
+                          },
+                          {
+                            name: "timeOfOrder",
+                            optional: false,
+                            baseType: { type: "integer" },
+                          },
+                        ],
+                      },
+                    },
+                    response: {
+                      name: "response",
+                      optional: false,
+                      baseType: { type: "boolean" },
+                    },
+                  },
+                },
+                {
+                  statementType: "declaration",
+                  name: "GetRestaurauntMeals",
+                  value: {
+                    type: "rpc",
+                    name: "GetRestaurauntMeals",
+                    request: {
+                      name: "request",
+                      optional: false,
+                      baseType: { type: "null" },
+                    },
+                    response: {
+                      name: "response",
+                      optional: false,
+                      baseType: {
+                        type: "list",
+                        value: {
+                          type: "struct",
+                          fields: [
+                            {
+                              name: "id",
+                              optional: false,
+                              baseType: { type: "integer" },
+                            },
+                            {
+                              name: "title",
+                              optional: false,
+                              baseType: { type: "string" },
+                            },
+                            {
+                              name: "price",
+                              optional: false,
+                              baseType: { type: "integer" },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      });
     });
   });
 

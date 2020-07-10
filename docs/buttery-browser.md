@@ -54,6 +54,6 @@ Class methods:
 |send| `(Incoming)` => void | Sends a message over the channel |
 | listen | `((Outgoing) => any) => void` | Subscribes a listener to a channel |
 | unlisten | `((Outgoing) => any) => void` | Unsubscribes a listener to a channel |
-| onClose | `(('closed'|'broken') => any) => void` | Callback to be called when the socket closes or breaks |
-| removeOnClose | `(('closed'|'broken') => any) => void` | Remove the above callback |
+| onClose | `(('closed'\|'broken') => any) => void` | Callback to be called when the socket closes or breaks |
+| removeOnClose | `(('closed'\|'broken') => any) => void` | Remove the above callback |
 | close | `(code: number = 100) => any` | Close the socket with the above code |

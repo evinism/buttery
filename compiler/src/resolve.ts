@@ -143,12 +143,30 @@ function resolveRef(
   if (namespace) {
     const nsRef = context.variables.find(({ name }) => name === namespace);
     if (nsRef) {
-      if (nsRef.value.type !== "service") {
+      let value = nsRef.value;
+
+      // TODO: The fact that this goes through a different resolve path is abhorrent
+      // Should be one of the many post-alpha refactors
+      if (value.type === "import") {
+        const importName = value.import;
+        const loadPath = path.resolve(path.dirname(context.path), value.path);
+        const tmp = load(loadPath).variables.find(
+          (decl) => decl.name === importName
+        );
+        if (!tmp) {
+          throw new Error(
+            `Tried to dereference nonexistent import ${value.type} from ${value.path}`
+          );
+        }
+        value = tmp.value;
+      }
+
+      if (value.type !== "service") {
         throw new Error(
-          `Attempted to dereference a ${nsRef.value.type}. Dot syntax only works on services`
+          `Attempted to dereference a ${value.type}. Dot syntax only works on services`
         );
       }
-      decl = nsRef.value.variables.find(({ name }) => name === ref);
+      decl = value.variables.find(({ name }) => name === ref);
     }
   }
 
