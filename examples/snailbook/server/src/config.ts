@@ -1,11 +1,11 @@
 import { usersTable } from "./store";
 import { UserAnnotation } from "./types";
 
-const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
 
 passport.use(
-  new LocalStrategy(function (targetUserName, password, done) {
+  new LocalStrategy(function (targetUserName: string, password: string, done) {
     const user = usersTable.find(
       ({ data: { username } }) => username === targetUserName
     );
@@ -22,11 +22,11 @@ passport.use(
   })
 );
 
-passport.serializeUser(function (user, done) {
+passport.serializeUser(function (user: any, done) {
   done(null, user.id);
 });
 
-passport.deserializeUser(function (id, done) {
+passport.deserializeUser(function (id: string, done) {
   const user: UserAnnotation = {
     id,
     ...usersTable.read(id),

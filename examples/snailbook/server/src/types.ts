@@ -6,4 +6,4 @@ export type UserAnnotation = {
   username: string;
 };
 
-export type LoggedInRequest = http.IncomingMessage & { user?: UserAnnotation };
+export type LoggedInRequest = http.IncomingMessage & { user: UserAnnotation };
