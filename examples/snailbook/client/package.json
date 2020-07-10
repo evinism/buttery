@@ -10,7 +10,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
-    "buttery-cli": "0.0.27",
+    "buttery-cli": "0.0.29",
     "http-proxy-middleware": "^1.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -19,9 +19,9 @@
   },
   "proxy": "http://localhost:8080",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "yarn gen && react-scripts start",
+    "build": "yarn gen && react-scripts build",
+    "test": "yarn gen && react-scripts test",
     "eject": "react-scripts eject",
     "gen": "buttery generate browser -f ../api/api.butt -o src/buttery-genfiles"
   },
