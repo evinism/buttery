@@ -1,0 +1,10 @@
+struct Zeep:
+  haha: string
+
+service ImportMe:
+  struct Foo:
+    lol: boolean
+
+  rpc Baz:
+    request: Foo
+    response: Foo

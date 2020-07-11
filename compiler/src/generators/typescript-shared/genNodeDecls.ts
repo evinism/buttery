@@ -70,9 +70,7 @@ const genTypeForRepresentable = (rep: Representable): string => {
       return `listNode(${genTypeForRepresentable(rep.value)})`;
     case "map":
       // TODO: Map the representable all the way through here
-      return `mapNode(${genTypeForRepresentable({
-        type: rep.key,
-      })}, ${genTypeForRepresentable(rep.value)})`;
+      return `mapNode(${genTypeForRepresentable(rep.value)}, "${rep.key}")`;
     case "struct":
       const structString = rep.fields
         .map((field) => {

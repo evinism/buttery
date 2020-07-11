@@ -1,0 +1,53 @@
+import Zeep, ImportMe from "./import.buttery"
+
+oneof Union:
+  bleep: string
+  bloop: List<double>
+
+struct TheStructThatHasEveryDataType:
+  a: string
+  b: integer
+  c: double
+  d: null
+  e: boolean
+  f: List<double>
+  g: List<List<List<double>>>
+  h: Map<double, string>
+  i: Map<integer, string>
+  j: Map<string, string>
+  k: Map<boolean, string>
+  l: Optional<string>
+  m: Map<string, Optional<List<Optional<integer>>>>
+  o: Union
+  p: Zeep
+  q: ImportMe.Foo
+
+oneof TheOneOfThatHasEveryDataType:
+  a: string
+  b: integer
+  c: double
+  d: null
+  e: boolean
+  f: List<double>
+  g: List<List<List<double>>>
+  h: Map<double, string>
+  i: Map<integer, string>
+  j: Map<string, string>
+  k: Map<boolean, string>
+  l: Optional<string>
+  m: Map<string, Optional<List<Optional<integer>>>>
+  o: Union
+  p: Zeep
+  q: ImportMe.Foo
+
+struct Foo:
+  overriden: boolean
+
+service Bar:
+  struct Foo:
+    str: TheStructThatHasEveryDataType
+    oo: TheOneOfThatHasEveryDataType
+
+  rpc Baz:
+    request: Foo
+    response: Foo

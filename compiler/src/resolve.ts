@@ -150,6 +150,9 @@ function resolveRef(
       if (value.type === "import") {
         const importName = value.import;
         const loadPath = path.resolve(path.dirname(context.path), value.path);
+        if (prevReffedFiles.includes(loadPath)) {
+          throw new Error(`Circular reference in files detected: ${loadPath}`);
+        }
         const tmp = load(loadPath).variables.find(
           (decl) => decl.name === importName
         );
@@ -158,6 +161,9 @@ function resolveRef(
             `Tried to dereference nonexistent import ${value.type} from ${value.path}`
           );
         }
+        // overwrite what namespace we're actually working in, if it's an import
+        // holy hell this is bad and needs refactoring
+        namespaceContext = importName;
         value = tmp.value;
       }
 
@@ -213,11 +219,14 @@ function resolveDecl(
   load: LoadFn,
   currentNamespace?: string // What namespace are we currently in?
 ): VariableDeclaration<Representable> {
-  if (prevReffedVars.includes(decl.name)) {
-    throw new Error("Cycle detected in var!");
+  const scopedName = currentNamespace
+    ? `${currentNamespace}.${decl.name}`
+    : decl.name;
+  if (prevReffedVars.includes(scopedName)) {
+    throw new Error("Cycle detected in var! " + scopedName);
   }
   const nextReffedVars = prevReffedVars.slice();
-  nextReffedVars.push(decl.name);
+  nextReffedVars.push(scopedName);
 
   const qResolveRev = (ref: Reference) =>
     resolveRef(
