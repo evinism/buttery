@@ -241,10 +241,10 @@ buffer-from@^1.0.0:
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
   integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
 
-buttery-cli@0.1.0-alpha3:
-  version "0.1.0-alpha3"
-  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.1.0-alpha3.tgz#e023e90c3b93d9cd4e3caa6c9f53a933897d21e5"
-  integrity sha512-Z7DCImja5siA14Dwsx03jdStyXadZLM7fYl0WuswYlVeJrBSFVy3VkN13SqUC+j5/L/S+85YguC/WVHG5LVB8Q==
+buttery-cli@0.1.0-alpha4:
+  version "0.1.0-alpha4"
+  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.1.0-alpha4.tgz#20abd9cd2d0326acc6b51db602bcf7f69355aeb9"
+  integrity sha512-nxV4YATpjDKRE90FydGCHAlBAUf6OX8KCUyTAW0aF4+E7IkrRHcpu+dxN2ga6Zm5Hr2PWGYg964lK0MlYuEAzQ==
   dependencies:
     "@types/chai" "^4.2.11"
     "@types/mocha" "^7.0.2"
@@ -256,10 +256,10 @@ buttery-cli@0.1.0-alpha3:
     typescript "^3.9.3"
     yargs "^15.3.1"
 
-buttery-node@0.1.0-alpha:
-  version "0.1.0-alpha"
-  resolved "https://registry.yarnpkg.com/buttery-node/-/buttery-node-0.1.0-alpha.tgz#325a54bb0fd9ba832fdcf6110827fbf0b2706902"
-  integrity sha512-UitcV2M9OFAAgXz9d/xJLCkGWxMopNRaVaZAlm1AnX0i/zapwc3aKaVP4NdizZgl8VfTzFAV9uhbVyqbrHDmeA==
+buttery-node@0.1.0-alpha4:
+  version "0.1.0-alpha4"
+  resolved "https://registry.yarnpkg.com/buttery-node/-/buttery-node-0.1.0-alpha4.tgz#099edf97839d721437b300fc7356b5303dcd47a9"
+  integrity sha512-aYtTZIj0/0OH3xbnux5a/mND3InKZz6xlPT22D4+sz+/6mfDKKszPW05nU/YtdHeWKwOG7BQ+zfVpSEXyQdFqg==
   dependencies:
     express ">3.0.0"
     ws "^7.3.0"
