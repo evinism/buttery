@@ -18,6 +18,7 @@ struct Post:
 struct CommentRequest:
   postId: string
   content: string
+  map: Map<boolean, string>
 
 struct LogInRequest:
   username: string

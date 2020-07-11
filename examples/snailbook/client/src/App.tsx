@@ -43,15 +43,20 @@ function App() {
   }, []);
 
   const handleLogin = (username: string, password: string) => {
-    loggedOutClient.LogIn({ username, password }).then(({ username, name }) => {
-      const feedConnection = client.Feed();
-      setState({
-        status: "loggedIn",
-        feedConnection,
-        name,
-        username,
+    loggedOutClient
+      .LogIn({ username, password })
+      .then(({ username, name }) => {
+        const feedConnection = client.Feed();
+        setState({
+          status: "loggedIn",
+          feedConnection,
+          name,
+          username,
+        });
+      })
+      .catch((e) => {
+        alert("Error! " + e.message);
       });
-    });
   };
 
   const handleLogoutClick = () => {
