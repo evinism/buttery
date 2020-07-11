@@ -3,6 +3,7 @@ import fs from "fs";
 import { generators } from "./generators";
 import { GenFile } from "./generators/types";
 import child_process from "child_process";
+import chalk from "chalk";
 
 import { load } from "./pipeline";
 
@@ -14,19 +15,21 @@ interface GenerateCmdConfig {
 
 /* TODO: Move to non-sync versions of fs ops */
 export function generateCmd({ target, files, outputDir }: GenerateCmdConfig) {
-  console.log(`[ Buttery ]`);
+  console.log(chalk.blueBright("[ Buttery ]"));
   const startTime = Date.now();
 
   const generate = generators[target];
   if (!generate) {
     throw "This shouldn't happen, but generateCmd called w/ generator that dont exist";
   }
-  console.log(`  Generating files for target ${target}`);
+  console.log(`  Generating files for target ${chalk.magentaBright(target)}`);
 
   // validate that all the target files exist.
   for (let fname of files) {
     if (!fs.existsSync(fname)) {
-      throw new Error(`Could not find input file ${fname}`);
+      throw new Error(
+        `Could not find input file ${chalk.magentaBright(fname)}`
+      );
     }
   }
 
@@ -51,15 +54,18 @@ export function generateCmd({ target, files, outputDir }: GenerateCmdConfig) {
     if (parentDirOfOutfile && !fs.existsSync(parentDirOfOutfile)) {
       fs.mkdirSync(parentDirOfOutfile, { recursive: true });
     }
-    fs.writeFileSync(path.join(outputDir, outfile.fileName), outfile.content);
+    const outPath = path.join(outputDir, outfile.fileName);
+    console.log(chalk.dim(`  - Creating ${outPath}`));
+    fs.writeFileSync(outPath, outfile.content);
   }
 
   if (postGenerates.length > 0) {
     console.log("  Running post-generation scripts...");
   }
   for (let cmd of postGenerates) {
+    console.log(chalk.dim(`   > ${cmd}`));
     child_process.execSync(cmd, { encoding: "utf-8" });
   }
   const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-  console.log(`  Success! (${duration}s)`);
+  console.log(chalk.greenBright(`  Success! `) + chalk.dim(`(${duration}s)`));
 }
