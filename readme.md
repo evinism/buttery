@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/evinism/buttery.svg?branch=master)](https://travis-ci.com/evinism/buttery)
 
-_Warning: Buttery is still in pre-alpha and is not (yet) suitable for production use. It CAN be used for side projects and game jams if you're feeling a hint brave._
+_Warning: Buttery is still in alpha and is not (yet) suitable for production use. It CAN be used for side projects and game jams._
 
 Buttery aims to be a minimalistic cross-platform language for defining type-safe RPCs and websockets. Buttery provides codegen and runtimes for browsers and node.js, with the intent of expanding to other platforms.
 
