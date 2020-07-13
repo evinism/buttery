@@ -170,6 +170,31 @@ describe("ts-server runtime", function () {
           done();
         });
     });
+
+    it("should successfully reject non-post RPC requests", function (done) {
+      request(server)
+        .get("/__buttery__/PartyService/AddToParty")
+        .send({ name: "john", pronouns: [] })
+        .end(function (err: any, res: any) {
+          chai.assert.equal(err, null);
+          chai.assert.deepEqual(res.headers.allow, "POST");
+          chai.assert.equal(res.status, 405);
+          done();
+        });
+    });
+
+    it("should successfully respond to options requests", function (done) {
+      request(server)
+        .options("/__buttery__/PartyService/AddToParty")
+        .send()
+        .end(function (err: any, res: any) {
+          chai.assert.equal(err, null);
+          chai.assert.deepEqual(res.headers.allow, "POST");
+          chai.assert.equal(res.status, 204);
+          done();
+        });
+    });
+
     it("should fail when the server passes an invalid response shape", function (done) {
       request(server)
         .post("/__buttery__/PartyService/AddToParty")

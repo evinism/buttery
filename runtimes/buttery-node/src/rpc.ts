@@ -63,6 +63,16 @@ export const createRpcHandler = (
     return;
   }
 
+  if (request.method !== "POST") {
+    const responseCode = request.method === "OPTIONS" ? 204 : 405;
+    response.writeHead(responseCode, {
+      "Content-Type": "text/plain",
+      Allow: "POST",
+    });
+    response.end();
+    return;
+  }
+
   const handler = handlers[serviceName][requestName];
   if (!handler) {
     response.writeHead(
