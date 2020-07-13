@@ -15,6 +15,7 @@ const expectCalledWithin = (
   timeout: number,
   done: (arg: any) => void
 ) => {
+  let hasBeenCalled = false;
   let failed = false;
   const fail = () => {
     failed = true;
@@ -22,6 +23,10 @@ const expectCalledWithin = (
   };
   const interval = setTimeout(fail, timeout);
   return (...args: any[]) => {
+    if (hasBeenCalled) {
+      throw new Error("Called expectCalledWithin multiple times!");
+    }
+    hasBeenCalled = true;
     if (!failed) {
       clearTimeout(interval);
       fn(...args);
@@ -220,6 +225,7 @@ describe("ts-server runtime", function () {
     after((done) => {
       if (server) {
         server.on("close", () => {
+          console.log("one");
           done();
         });
 
@@ -229,7 +235,7 @@ describe("ts-server runtime", function () {
       }
     });
 
-    it.skip("should fail to connect to incorrect urls", function (done) {
+    it("should fail to connect to incorrect urls", function (done) {
       const socket = new WebSocket("ws://localhost:7575/__buttery__/bogus");
       socket.onerror = expectCalledWithin(
         (e) => {

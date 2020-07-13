@@ -50,6 +50,9 @@ export const upgradeHandlerToResponseHandler = (
   if (!upgradeTag) {
     throw "Tried to convert a non-upgrade response to an upgrade handler!";
   }
+  if (req.method !== "GET") {
+    throw "Tried to use a non-get query for an upgrade handler!";
+  }
   const { socket, head } = upgradeTag;
   upgradeHandler(req, socket, head);
 };

@@ -99,7 +99,7 @@ export const createUpgradeHandler = (
   return (request: http.IncomingMessage, socket: Socket, head: Buffer) => {
     const path = (request.url || "").split("/").slice(1);
     if (path.length !== 2) {
-      socket.destroy(new Error("Malformed Buttery URL"));
+      socket.end("Malformed Buttery URL");
       return;
     }
     const [serviceName, requestName] = path;
@@ -108,33 +108,25 @@ export const createUpgradeHandler = (
       (service) => service.name === serviceName
     );
     if (!service) {
-      socket.destroy(
-        new Error(`No service with name ${serviceName} registered.`)
-      );
+      socket.end(`No service with name ${serviceName} registered.`);
       return;
     }
 
     const channelDef = service.endpoints[requestName];
     if (!channelDef) {
-      socket.destroy(
-        new Error(
-          `No Channel with name ${requestName} registered for ${serviceName}.`
-        )
+      socket.end(
+        `No Channel with name ${requestName} registered for ${serviceName}.`
       );
       return;
     }
 
     if (channelDef.type === "rpcNode") {
-      socket.destroy(
-        new Error(`Tried to connect to RPC ${requestName} via a websocket.`)
-      );
+      socket.end(`Tried to connect to RPC ${requestName} via a websocket.`);
     }
 
     const handler = handlers[serviceName][requestName];
     if (!handler) {
-      socket.destroy(
-        new Error(`Buttery RPC not implemented: ${service.name}/${requestName}`)
-      );
+      socket.end(`Buttery RPC not implemented: ${service.name}/${requestName}`);
     }
 
     wss.handleUpgrade(request, socket, head, (ws) => {
