@@ -40,27 +40,6 @@ export function validate(
     return right(new Error(`Cannot nest services`));
   }
 
-  // Ugh we need to figure out something better for this, but...
-  // constraint: oneofs can't have optional fields
-  const oneOfFields = file.variables
-    .map((entry) => {
-      if (entry.value.type === "oneof") {
-        return [entry.value];
-      } else if (entry.value.type === "service") {
-        return entry.value.variables
-          .map((decl) => decl.value)
-          .filter((item) => item.type === "oneof") as OneOfType<Reference>[];
-      }
-      return [];
-    })
-    .reduce((acc, cur) => [...acc, ...cur], [])
-    .map((item) => item.fields)
-    .reduce((acc, cur) => [...acc, ...cur], []);
-
-  if (oneOfFields.some((field) => field.optional)) {
-    return right(new Error("Cannot use optional value in oneof declaration"));
-  }
-
   // Constraint 3: There can't be repeated variable names
   const ensureNoRepeats = (variables: VariableDeclaration<unknown>[]) => {
     const acc: { [key: string]: boolean } = {};

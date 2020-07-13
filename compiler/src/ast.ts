@@ -46,7 +46,6 @@ interface OptionalType<T> {
 
 export interface Field<T> {
   name: string;
-  optional: boolean;
   baseType: T;
 }
 

@@ -75,10 +75,6 @@ const genTypeForRepresentable = (rep: Representable): string => {
       const structString = rep.fields
         .map((field) => {
           let val = genTypeForRepresentable(field.baseType);
-          // Do we really need this above a builtin?
-          if (field.optional) {
-            val = `optionalNode(${val})`;
-          }
           return `${field.name}: ${val}`;
         })
         .join(", ");

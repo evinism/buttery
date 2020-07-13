@@ -90,7 +90,6 @@ export const fieldParser: Parser<Token, Field<Reference>> = seq(
     seq(matchToken<ColonToken>("colon"), () => {
       return map((reference: Reference) => ({
         name,
-        optional: false,
         baseType: reference,
       }))(refParser);
     })

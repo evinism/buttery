@@ -150,7 +150,7 @@ describe("Parsing", function () {
       const ref = parsed.right.value;
       const targetRef: Field<Reference> = {
         name: "myFieldName",
-        optional: false,
+        
         baseType: {
           ref: "number",
           typeArgs: [],
@@ -178,12 +178,12 @@ describe("Parsing", function () {
           fields: [
             {
               name: "fat",
-              optional: false,
+              
               baseType: { ref: "Dog", typeArgs: [] },
             },
             {
               name: "cat",
-              optional: false,
+              
               baseType: { ref: "Dog", typeArgs: [] },
             },
           ],
@@ -228,7 +228,7 @@ describe("Parsing", function () {
                 ],
               },
               name: "fatDogs",
-              optional: false,
+              
             },
             {
               baseType: {
@@ -236,7 +236,7 @@ describe("Parsing", function () {
                 typeArgs: [],
               },
               name: "catTracksSeen",
-              optional: false,
+              
             },
             {
               baseType: {
@@ -249,7 +249,7 @@ describe("Parsing", function () {
                 ],
               },
               name: "peopleWhoLetTheDogsOut",
-              optional: false,
+              
             },
           ],
         },
@@ -275,12 +275,12 @@ describe("Parsing", function () {
           fields: [
             {
               name: "fat",
-              optional: false,
+              
               baseType: { ref: "Dog", typeArgs: [] },
             },
             {
               name: "cat",
-              optional: false,
+              
               baseType: { ref: "Dog", typeArgs: [] },
             },
           ],
@@ -327,7 +327,7 @@ describe("Parsing", function () {
               ],
             },
             name: "request",
-            optional: false,
+            
           },
           response: {
             baseType: {
@@ -335,7 +335,7 @@ describe("Parsing", function () {
               typeArgs: [],
             },
             name: "response",
-            optional: false,
+            
           },
         },
       };
@@ -380,7 +380,7 @@ describe("Parsing", function () {
               ],
             },
             name: "incoming",
-            optional: false,
+            
           },
           outgoing: {
             baseType: {
@@ -388,7 +388,7 @@ describe("Parsing", function () {
               typeArgs: [],
             },
             name: "outgoing",
-            optional: false,
+            
           },
         },
       };
@@ -441,7 +441,7 @@ describe("Parsing", function () {
                     ],
                   },
                   name: "request",
-                  optional: false,
+                  
                 },
                 response: {
                   baseType: {
@@ -449,7 +449,7 @@ describe("Parsing", function () {
                     typeArgs: [],
                   },
                   name: "response",
-                  optional: false,
+                  
                 },
               },
             },
@@ -581,12 +581,12 @@ service BloopService:
               fields: [
                 {
                   name: "bloop",
-                  optional: false,
+                  
                   baseType: { ref: "Bloop", typeArgs: [] },
                 },
                 {
                   name: "includeExtras",
-                  optional: false,
+                  
                   baseType: {
                     ref: "Optional",
                     typeArgs: [{ ref: "boolean", typeArgs: [] }],
@@ -603,12 +603,12 @@ service BloopService:
               fields: [
                 {
                   name: "scoop",
-                  optional: false,
+                  
                   baseType: { ref: "Scoop", typeArgs: [] },
                 },
                 {
                   name: "bloopers",
-                  optional: false,
+                  
                   baseType: {
                     ref: "List",
                     typeArgs: [{ ref: "Bloopers", typeArgs: [] }],
@@ -632,12 +632,12 @@ service BloopService:
                     name: "WhoBlooped",
                     request: {
                       name: "request",
-                      optional: false,
+                      
                       baseType: { ref: "WhoBloopedRequest", typeArgs: [] },
                     },
                     response: {
                       name: "response",
-                      optional: false,
+                      
                       baseType: { ref: "WhoBloopedResponse", typeArgs: [] },
                     },
                   },

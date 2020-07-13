@@ -246,12 +246,10 @@ function resolveDecl(
       name,
       incoming: {
         name: incoming.name,
-        optional: incoming.optional,
         baseType: qResolveRev(incoming.baseType),
       },
       outgoing: {
         name: outgoing.name,
-        optional: outgoing.optional,
         baseType: qResolveRev(outgoing.baseType),
       },
     };
@@ -262,12 +260,10 @@ function resolveDecl(
       name,
       request: {
         name: request.name,
-        optional: request.optional,
         baseType: qResolveRev(request.baseType),
       },
       response: {
         name: response.name,
-        optional: response.optional,
         baseType: qResolveRev(response.baseType),
       },
     };
@@ -309,9 +305,8 @@ function resolveDecl(
     const { type, fields } = decl.value;
     newVal = {
       type,
-      fields: fields.map(({ name, optional, baseType }) => ({
+      fields: fields.map(({ name, baseType }) => ({
         name,
-        optional,
         baseType: qResolveRev(baseType),
       })),
     };

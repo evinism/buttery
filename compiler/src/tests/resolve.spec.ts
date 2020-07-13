@@ -14,10 +14,9 @@ describe("Resolving", function () {
             value: {
               type: "struct",
               fields: [
-                { name: "name", optional: false, baseType: { type: "string" } },
+                { name: "name", baseType: { type: "string" } },
                 {
                   name: "sonicFast",
-                  optional: false,
                   baseType: { type: "boolean" },
                 },
               ],
@@ -31,18 +30,15 @@ describe("Resolving", function () {
               fields: [
                 {
                   name: "author",
-                  optional: false,
                   baseType: {
                     type: "struct",
                     fields: [
                       {
                         name: "name",
-                        optional: false,
                         baseType: { type: "string" },
                       },
                       {
                         name: "sonicFast",
-                        optional: false,
                         baseType: { type: "boolean" },
                       },
                     ],
@@ -50,17 +46,14 @@ describe("Resolving", function () {
                 },
                 {
                   name: "timestamp",
-                  optional: false,
                   baseType: { type: "integer" },
                 },
                 {
                   name: "contents",
-                  optional: false,
                   baseType: { type: "string" },
                 },
                 {
                   name: "reacts",
-                  optional: false,
                   baseType: {
                     type: "map",
                     key: "string",
@@ -69,12 +62,10 @@ describe("Resolving", function () {
                       fields: [
                         {
                           name: "name",
-                          optional: false,
                           baseType: { type: "string" },
                         },
                         {
                           name: "sonicFast",
-                          optional: false,
                           baseType: { type: "boolean" },
                         },
                       ],
@@ -99,7 +90,6 @@ describe("Resolving", function () {
                     name: "FindFastest",
                     request: {
                       name: "request",
-                      optional: false,
                       baseType: {
                         type: "list",
                         value: {
@@ -107,12 +97,10 @@ describe("Resolving", function () {
                           fields: [
                             {
                               name: "name",
-                              optional: false,
                               baseType: { type: "string" },
                             },
                             {
                               name: "sonicFast",
-                              optional: false,
                               baseType: { type: "boolean" },
                             },
                           ],
@@ -121,18 +109,15 @@ describe("Resolving", function () {
                     },
                     response: {
                       name: "response",
-                      optional: false,
                       baseType: {
                         type: "struct",
                         fields: [
                           {
                             name: "name",
-                            optional: false,
                             baseType: { type: "string" },
                           },
                           {
                             name: "sonicFast",
-                            optional: false,
                             baseType: { type: "boolean" },
                           },
                         ],
@@ -148,24 +133,20 @@ describe("Resolving", function () {
                     name: "Chat",
                     incoming: {
                       name: "incoming",
-                      optional: false,
                       baseType: {
                         type: "struct",
                         fields: [
                           {
                             name: "author",
-                            optional: false,
                             baseType: {
                               type: "struct",
                               fields: [
                                 {
                                   name: "name",
-                                  optional: false,
                                   baseType: { type: "string" },
                                 },
                                 {
                                   name: "sonicFast",
-                                  optional: false,
                                   baseType: { type: "boolean" },
                                 },
                               ],
@@ -173,17 +154,14 @@ describe("Resolving", function () {
                           },
                           {
                             name: "timestamp",
-                            optional: false,
                             baseType: { type: "integer" },
                           },
                           {
                             name: "contents",
-                            optional: false,
                             baseType: { type: "string" },
                           },
                           {
                             name: "reacts",
-                            optional: false,
                             baseType: {
                               type: "map",
                               key: "string",
@@ -192,12 +170,10 @@ describe("Resolving", function () {
                                 fields: [
                                   {
                                     name: "name",
-                                    optional: false,
                                     baseType: { type: "string" },
                                   },
                                   {
                                     name: "sonicFast",
-                                    optional: false,
                                     baseType: { type: "boolean" },
                                   },
                                 ],
@@ -209,24 +185,20 @@ describe("Resolving", function () {
                     },
                     outgoing: {
                       name: "outgoing",
-                      optional: false,
                       baseType: {
                         type: "struct",
                         fields: [
                           {
                             name: "author",
-                            optional: false,
                             baseType: {
                               type: "struct",
                               fields: [
                                 {
                                   name: "name",
-                                  optional: false,
                                   baseType: { type: "string" },
                                 },
                                 {
                                   name: "sonicFast",
-                                  optional: false,
                                   baseType: { type: "boolean" },
                                 },
                               ],
@@ -234,17 +206,14 @@ describe("Resolving", function () {
                           },
                           {
                             name: "timestamp",
-                            optional: false,
                             baseType: { type: "integer" },
                           },
                           {
                             name: "contents",
-                            optional: false,
                             baseType: { type: "string" },
                           },
                           {
                             name: "reacts",
-                            optional: false,
                             baseType: {
                               type: "map",
                               key: "string",
@@ -253,12 +222,10 @@ describe("Resolving", function () {
                                 fields: [
                                   {
                                     name: "name",
-                                    optional: false,
                                     baseType: { type: "string" },
                                   },
                                   {
                                     name: "sonicFast",
-                                    optional: false,
                                     baseType: { type: "boolean" },
                                   },
                                 ],
@@ -291,10 +258,9 @@ describe("Resolving", function () {
             value: {
               type: "struct",
               fields: [
-                { name: "name", optional: false, baseType: { type: "string" } },
+                { name: "name", baseType: { type: "string" } },
                 {
                   name: "pronouns",
-                  optional: false,
                   baseType: { type: "list", value: { type: "string" } },
                 },
               ],
@@ -308,7 +274,6 @@ describe("Resolving", function () {
               fields: [
                 {
                   name: "people",
-                  optional: false,
                   baseType: {
                     type: "list",
                     value: {
@@ -316,12 +281,10 @@ describe("Resolving", function () {
                       fields: [
                         {
                           name: "name",
-                          optional: false,
                           baseType: { type: "string" },
                         },
                         {
                           name: "pronouns",
-                          optional: false,
                           baseType: { type: "list", value: { type: "string" } },
                         },
                       ],
@@ -330,12 +293,10 @@ describe("Resolving", function () {
                 },
                 {
                   name: "startTime",
-                  optional: false,
                   baseType: { type: "integer" },
                 },
                 {
                   name: "endTime",
-                  optional: false,
                   baseType: { type: "integer" },
                 },
               ],
@@ -349,12 +310,10 @@ describe("Resolving", function () {
               fields: [
                 {
                   name: "success",
-                  optional: false,
                   baseType: { type: "boolean" },
                 },
                 {
                   name: "time",
-                  optional: false,
                   baseType: {
                     type: "optional",
                     value: {
@@ -362,7 +321,6 @@ describe("Resolving", function () {
                       fields: [
                         {
                           name: "people",
-                          optional: false,
                           baseType: {
                             type: "list",
                             value: {
@@ -370,12 +328,10 @@ describe("Resolving", function () {
                               fields: [
                                 {
                                   name: "name",
-                                  optional: false,
                                   baseType: { type: "string" },
                                 },
                                 {
                                   name: "pronouns",
-                                  optional: false,
                                   baseType: {
                                     type: "list",
                                     value: { type: "string" },
@@ -387,12 +343,10 @@ describe("Resolving", function () {
                         },
                         {
                           name: "startTime",
-                          optional: false,
                           baseType: { type: "integer" },
                         },
                         {
                           name: "endTime",
-                          optional: false,
                           baseType: { type: "integer" },
                         },
                       ],
@@ -410,12 +364,10 @@ describe("Resolving", function () {
               fields: [
                 {
                   name: "time",
-                  optional: false,
                   baseType: { type: "integer" },
                 },
                 {
                   name: "content",
-                  optional: false,
                   baseType: { type: "string" },
                 },
               ],
@@ -429,28 +381,23 @@ describe("Resolving", function () {
               fields: [
                 {
                   name: "time",
-                  optional: false,
                   baseType: { type: "integer" },
                 },
                 {
                   name: "content",
-                  optional: false,
                   baseType: { type: "string" },
                 },
                 {
                   name: "author",
-                  optional: false,
                   baseType: {
                     type: "struct",
                     fields: [
                       {
                         name: "name",
-                        optional: false,
                         baseType: { type: "string" },
                       },
                       {
                         name: "pronouns",
-                        optional: false,
                         baseType: { type: "list", value: { type: "string" } },
                       },
                     ],
@@ -474,18 +421,15 @@ describe("Resolving", function () {
                     name: "AddToParty",
                     request: {
                       name: "request",
-                      optional: false,
                       baseType: {
                         type: "struct",
                         fields: [
                           {
                             name: "name",
-                            optional: false,
                             baseType: { type: "string" },
                           },
                           {
                             name: "pronouns",
-                            optional: false,
                             baseType: {
                               type: "list",
                               value: { type: "string" },
@@ -496,18 +440,15 @@ describe("Resolving", function () {
                     },
                     response: {
                       name: "response",
-                      optional: false,
                       baseType: {
                         type: "struct",
                         fields: [
                           {
                             name: "success",
-                            optional: false,
                             baseType: { type: "boolean" },
                           },
                           {
                             name: "time",
-                            optional: false,
                             baseType: {
                               type: "optional",
                               value: {
@@ -515,7 +456,6 @@ describe("Resolving", function () {
                                 fields: [
                                   {
                                     name: "people",
-                                    optional: false,
                                     baseType: {
                                       type: "list",
                                       value: {
@@ -523,12 +463,10 @@ describe("Resolving", function () {
                                         fields: [
                                           {
                                             name: "name",
-                                            optional: false,
                                             baseType: { type: "string" },
                                           },
                                           {
                                             name: "pronouns",
-                                            optional: false,
                                             baseType: {
                                               type: "list",
                                               value: { type: "string" },
@@ -540,12 +478,10 @@ describe("Resolving", function () {
                                   },
                                   {
                                     name: "startTime",
-                                    optional: false,
                                     baseType: { type: "integer" },
                                   },
                                   {
                                     name: "endTime",
-                                    optional: false,
                                     baseType: { type: "integer" },
                                   },
                                 ],
@@ -565,18 +501,15 @@ describe("Resolving", function () {
                     name: "Chat",
                     incoming: {
                       name: "incoming",
-                      optional: false,
                       baseType: {
                         type: "struct",
                         fields: [
                           {
                             name: "time",
-                            optional: false,
                             baseType: { type: "integer" },
                           },
                           {
                             name: "content",
-                            optional: false,
                             baseType: { type: "string" },
                           },
                         ],
@@ -584,34 +517,28 @@ describe("Resolving", function () {
                     },
                     outgoing: {
                       name: "outgoing",
-                      optional: false,
                       baseType: {
                         type: "struct",
                         fields: [
                           {
                             name: "time",
-                            optional: false,
                             baseType: { type: "integer" },
                           },
                           {
                             name: "content",
-                            optional: false,
                             baseType: { type: "string" },
                           },
                           {
                             name: "author",
-                            optional: false,
                             baseType: {
                               type: "struct",
                               fields: [
                                 {
                                   name: "name",
-                                  optional: false,
                                   baseType: { type: "string" },
                                 },
                                 {
                                   name: "pronouns",
-                                  optional: false,
                                   baseType: {
                                     type: "list",
                                     value: { type: "string" },
@@ -661,17 +588,14 @@ describe("Resolving", function () {
                     fields: [
                       {
                         name: "id",
-                        optional: false,
                         baseType: { type: "integer" },
                       },
                       {
                         name: "title",
-                        optional: false,
                         baseType: { type: "string" },
                       },
                       {
                         name: "price",
-                        optional: false,
                         baseType: { type: "integer" },
                       },
                     ],
@@ -685,22 +609,18 @@ describe("Resolving", function () {
                     fields: [
                       {
                         name: "id",
-                        optional: false,
                         baseType: { type: "integer" },
                       },
                       {
                         name: "name",
-                        optional: false,
                         baseType: { type: "string" },
                       },
                       {
                         name: "address",
-                        optional: false,
                         baseType: { type: "string" },
                       },
                       {
                         name: "menu",
-                        optional: false,
                         baseType: {
                           type: "list",
                           value: {
@@ -708,17 +628,14 @@ describe("Resolving", function () {
                             fields: [
                               {
                                 name: "id",
-                                optional: false,
                                 baseType: { type: "integer" },
                               },
                               {
                                 name: "title",
-                                optional: false,
                                 baseType: { type: "string" },
                               },
                               {
                                 name: "price",
-                                optional: false,
                                 baseType: { type: "integer" },
                               },
                             ],
@@ -736,12 +653,10 @@ describe("Resolving", function () {
                     name: "GetRestauraunts",
                     request: {
                       name: "request",
-                      optional: false,
                       baseType: { type: "boolean" },
                     },
                     response: {
                       name: "response",
-                      optional: false,
                       baseType: {
                         type: "list",
                         value: {
@@ -749,22 +664,18 @@ describe("Resolving", function () {
                           fields: [
                             {
                               name: "id",
-                              optional: false,
                               baseType: { type: "integer" },
                             },
                             {
                               name: "name",
-                              optional: false,
                               baseType: { type: "string" },
                             },
                             {
                               name: "address",
-                              optional: false,
                               baseType: { type: "string" },
                             },
                             {
                               name: "menu",
-                              optional: false,
                               baseType: {
                                 type: "list",
                                 value: {
@@ -772,17 +683,14 @@ describe("Resolving", function () {
                                   fields: [
                                     {
                                       name: "id",
-                                      optional: false,
                                       baseType: { type: "integer" },
                                     },
                                     {
                                       name: "title",
-                                      optional: false,
                                       baseType: { type: "string" },
                                     },
                                     {
                                       name: "price",
-                                      optional: false,
                                       baseType: { type: "integer" },
                                     },
                                   ],
@@ -806,17 +714,14 @@ describe("Resolving", function () {
               fields: [
                 {
                   name: "id",
-                  optional: false,
                   baseType: { type: "integer" },
                 },
                 {
                   name: "name",
-                  optional: false,
                   baseType: { type: "string" },
                 },
                 {
                   name: "pronouns",
-                  optional: false,
                   baseType: { type: "string" },
                 },
               ],
@@ -837,17 +742,14 @@ describe("Resolving", function () {
                     fields: [
                       {
                         name: "restaurantId",
-                        optional: false,
                         baseType: { type: "integer" },
                       },
                       {
                         name: "mealId",
-                        optional: false,
                         baseType: { type: "integer" },
                       },
                       {
                         name: "timeOfOrder",
-                        optional: false,
                         baseType: { type: "integer" },
                       },
                     ],
@@ -861,23 +763,19 @@ describe("Resolving", function () {
                     name: "PlaceOrder",
                     request: {
                       name: "request",
-                      optional: false,
                       baseType: {
                         type: "struct",
                         fields: [
                           {
                             name: "restaurantId",
-                            optional: false,
                             baseType: { type: "integer" },
                           },
                           {
                             name: "mealId",
-                            optional: false,
                             baseType: { type: "integer" },
                           },
                           {
                             name: "timeOfOrder",
-                            optional: false,
                             baseType: { type: "integer" },
                           },
                         ],
@@ -885,7 +783,6 @@ describe("Resolving", function () {
                     },
                     response: {
                       name: "response",
-                      optional: false,
                       baseType: { type: "boolean" },
                     },
                   },
@@ -898,12 +795,10 @@ describe("Resolving", function () {
                     name: "GetRestaurauntMeals",
                     request: {
                       name: "request",
-                      optional: false,
                       baseType: { type: "null" },
                     },
                     response: {
                       name: "response",
-                      optional: false,
                       baseType: {
                         type: "list",
                         value: {
@@ -911,17 +806,14 @@ describe("Resolving", function () {
                           fields: [
                             {
                               name: "id",
-                              optional: false,
                               baseType: { type: "integer" },
                             },
                             {
                               name: "title",
-                              optional: false,
                               baseType: { type: "string" },
                             },
                             {
                               name: "price",
-                              optional: false,
                               baseType: { type: "integer" },
                             },
                           ],
