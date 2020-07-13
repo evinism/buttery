@@ -2662,15 +2662,16 @@ builtin-status-codes@^3.0.0:
   resolved "https://registry.yarnpkg.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz#85982878e21b98e1c66425e03d0174788f569ee8"
   integrity sha1-hZgoeOIbmOHGZCXgPQF0eI9Wnug=
 
-buttery-cli@0.1.0-alpha4:
-  version "0.1.0-alpha4"
-  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.1.0-alpha4.tgz#20abd9cd2d0326acc6b51db602bcf7f69355aeb9"
-  integrity sha512-nxV4YATpjDKRE90FydGCHAlBAUf6OX8KCUyTAW0aF4+E7IkrRHcpu+dxN2ga6Zm5Hr2PWGYg964lK0MlYuEAzQ==
+buttery-cli@0.1.0-alpha5:
+  version "0.1.0-alpha5"
+  resolved "https://registry.yarnpkg.com/buttery-cli/-/buttery-cli-0.1.0-alpha5.tgz#ac8bed8f34d81504cd675ae448bdaf14223154a4"
+  integrity sha512-8fLwilhGubewejUyB8jFmYJUF3xq6ZCKEpgMl5AfgkmFkjuy2mY2VNzVqTaCHgrRktFbJXEDM3mYuESJ+XREsw==
   dependencies:
     "@types/chai" "^4.2.11"
     "@types/mocha" "^7.0.2"
     "@types/yargs" "^15.0.5"
     chai "^4.2.0"
+    chalk "^4.1.0"
     fp-ts "^2.6.1"
     parser-ts "^0.6.3"
     ts-node "^8.10.1"
@@ -2862,6 +2863,14 @@ chalk@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-3.0.0.tgz#3f73c2bf526591f574cc492c51e2456349f844e4"
   integrity sha512-4D3B6Wf41KOYRFdszmDqMCGq5VV/uMAB273JILmO+3jAlh8X4qDtdtgCR3fxtbLEMzSx22QdhnDcJvu2u1fVwg==
+  dependencies:
+    ansi-styles "^4.1.0"
+    supports-color "^7.1.0"
+
+chalk@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.0.tgz#4e14870a618d9e2edd97dd8345fd9d9dc315646a"
+  integrity sha512-qwx12AxXe2Q5xQ43Ac//I6v5aXTipYrSESdOgzrN+9XjgEpyjpKuvSGaN4qE93f7TQTlerQQ8S+EQ0EyDoVL1A==
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
