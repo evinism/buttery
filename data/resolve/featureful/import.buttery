@@ -1,3 +1,5 @@
+# Starts with a comment!!
+
 struct Zeep:
   haha: string
 
@@ -8,3 +10,5 @@ service ImportMe:
   rpc Baz:
     request: Foo
     response: Foo
+
+# And ends with one too!

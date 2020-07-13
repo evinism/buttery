@@ -18,8 +18,6 @@ import {
   maybe,
   Parser,
   apFirst,
-  many,
-  fail,
   sat,
   either,
   eof,
@@ -278,24 +276,28 @@ const statementParser: Parser<Token, Statement<Reference>[]> = either<
   )
 );
 
+const flatten = <T>(unflattened: Array<Array<T>>): Array<T> =>
+  unflattened.reduce((acc, cur) => [...acc, ...cur], []);
+
+const statementsToFile = (path: string) => (
+  unflattened: Array<Array<Statement<Reference>>>
+) => {
+  const statements = flatten(unflattened);
+  return {
+    path,
+    variables: statements.filter(
+      ({ statementType }) => statementType === "declaration"
+    ) as VariableDeclaration<Reference>[],
+  };
+};
+
 export const fileParser: (
   path: string
 ) => Parser<Token, ButteryFile<Reference>> = (path) =>
-  apFirst<Token, void>(
-    seq(many(matchToken<NewLineToken>("newline")), () => eof())
-  )(
-    map((unflattenedStatements: Array<Array<Statement<Reference>>>) => {
-      const statements = unflattenedStatements.reduce(
-        (acc, cur) => [...acc, ...cur],
-        []
-      );
-      return {
-        path,
-        variables: statements.filter(
-          ({ statementType }) => statementType === "declaration"
-        ) as VariableDeclaration<Reference>[],
-      };
-    })(sepBy(matchToken<NewLineToken>("newline"), statementParser))
+  apFirst<Token, void>(eof())(
+    map(statementsToFile(path))(
+      sepBy(matchToken<NewLineToken>("newline"), statementParser)
+    )
   );
 
 export function parse(tokenStream: Token[], fname: string) {

@@ -6,7 +6,7 @@ import { lexer, Token } from "./lexer";
 import { stream } from "parser-ts/lib/Stream";
 import { isLeft } from "fp-ts/lib/Either";
 import { ParseError } from "parser-ts/lib/ParseResult";
-import { indentify } from "./indenter";
+import { postLex } from "./postLexer";
 import { validate } from "./validator";
 
 const getParseErrorMessage = (error: ParseError<Token>) => {
@@ -45,7 +45,7 @@ export function loadButteryFile(fname: string): ButteryFile<Reference> {
   }
 
   // This can't fail, fortunately!
-  const indented = indentify(tokenized.right.value);
+  const indented = postLex(tokenized.right.value);
 
   const parsed = parse(indented, fname);
   if (isLeft(parsed)) {
