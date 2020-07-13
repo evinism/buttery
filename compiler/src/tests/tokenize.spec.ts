@@ -22,23 +22,17 @@ describe("Tokenizing", function () {
             token: "newline",
           },
           {
-            token: "name",
-            name: "hi",
+            token: "newline",
           },
-        ],
-        output
-      );
-    });
-
-    it.skip("ignores whitespace at end of file", function () {
-      const parsed = lexer(stream("  ".split(""), 0));
-
-      assert(isRight(parsed));
-      const output = parsed.right.value;
-      chai.assert.deepEqual(
-        [
           {
             token: "newline",
+          },
+          {
+            token: "newline",
+          },
+          {
+            token: "name",
+            name: "hi",
           },
         ],
         output
@@ -77,6 +71,7 @@ describe("Tokenizing", function () {
         { token: "from" },
         { token: "quotedString", contents: "./person.buttery" },
         { token: "newline" },
+        { token: "newline" },
         { token: "struct" },
         { token: "name", name: "Slot" },
         { token: "colon" },
@@ -99,6 +94,7 @@ describe("Tokenizing", function () {
         { token: "colon" },
         { token: "name", name: "integer" },
         { token: "newline" },
+        { token: "newline" },
         { token: "struct" },
         { token: "name", name: "AddToPartyResponse" },
         { token: "colon" },
@@ -116,6 +112,7 @@ describe("Tokenizing", function () {
         { token: "name", name: "Slot" },
         { token: "closebracket" },
         { token: "newline" },
+        { token: "newline" },
         { token: "struct" },
         { token: "name", name: "ChatMessage" },
         { token: "colon" },
@@ -129,6 +126,7 @@ describe("Tokenizing", function () {
         { token: "name", name: "content" },
         { token: "colon" },
         { token: "name", name: "string" },
+        { token: "newline" },
         { token: "newline" },
         { token: "struct" },
         { token: "name", name: "ChatUpdate" },
@@ -169,6 +167,7 @@ describe("Tokenizing", function () {
         { token: "name", name: "response" },
         { token: "colon" },
         { token: "name", name: "AddToPartyResponse" },
+        { token: "newline" },
         { token: "newline" },
         { token: "indent" },
         { token: "channel" },

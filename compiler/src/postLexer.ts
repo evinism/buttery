@@ -1,5 +1,30 @@
 import { Token } from "./lexer";
 
+export function compressNewlines(tokens: Token[]): Token[] {
+  const out = tokens.filter((item, pos, array) => {
+    // Keep all non-newlines
+    if (item.token !== "newline") {
+      return true;
+    }
+
+    // Drop any leading newlines
+    if (pos === 0) {
+      return false;
+    }
+    // Drop any newlines after newlines
+    if (array[pos - 1].token === "newline") {
+      return false;
+    }
+    return true;
+  });
+
+  // Remove a final newline if it exists
+  if (out.length !== 0 && out[out.length - 1].token === "newline") {
+    out.pop();
+  }
+  return out;
+}
+
 export function indentify(tokens: Token[]): Token[] {
   let indents = 0;
   let currentIndentStreak = 0;
@@ -50,3 +75,7 @@ export function indentify(tokens: Token[]): Token[] {
   }
   return out;
 }
+
+export const postLex = (tokens: Token[]): Token[] => {
+  return indentify(compressNewlines(tokens));
+};

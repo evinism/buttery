@@ -16,7 +16,7 @@ import * as chai from "chai";
 import { Reference, Field, VariableDeclaration, ButteryFile } from "../ast";
 import { eof, seq, Parser, apFirst, map, sat } from "parser-ts/lib/Parser";
 import { Token, lexer } from "../lexer";
-import { indentify } from "../indenter";
+import { postLex } from "../postLexer";
 
 function eoffed<I, T>(parser: Parser<I, T>) {
   return apFirst(eof<I>())(parser);
@@ -31,7 +31,7 @@ const buildTestParser = <T>(parser: Parser<Token, T>) => (str: string) => {
   if (!isRight(tokens)) {
     throw "lexer error!";
   }
-  const indented = indentify(tokens.right.value);
+  const indented = postLex(tokens.right.value);
   return eoffed(parser)(stream(indented, 0));
 };
 

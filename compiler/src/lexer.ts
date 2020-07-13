@@ -115,7 +115,7 @@ const newlineTokenParser: Parser<string, NewLineToken> = map(
   (): NewLineToken => ({
     token: "newline",
   })
-)(many1(allowSpaceLeft(char("\n"))));
+)(allowSpaceLeft(char("\n")));
 
 // Right now this means 2 spaces or a tab but it really shouldn't
 export type IndentToken = BasicToken<"indent">;
