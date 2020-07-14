@@ -34,6 +34,15 @@ service ChatService:
     outgoing: NewMessageUpdate
 ```
 
+We generate a client and server via the cli:
+
+```
+$ buttery generate browser -f chat.butt
+ [ ... ]
+$ buttery generate node -f chat.butt
+ [ ... ]
+```
+
 And consume the generated files in a sample client and server:
 
 ```ts
