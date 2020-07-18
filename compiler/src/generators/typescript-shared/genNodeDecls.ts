@@ -8,10 +8,7 @@ import {
 export const generateNodeDeclarations = (
   variables: VariableDeclaration<Representable>[]
 ) => {
-  return variables
-    .map((decl) => `export ${generateNodeDeclaration(decl)}`)
-    .filter(Boolean)
-    .join("\n");
+  return variables.map(generateNodeDeclaration).filter(Boolean).join("\n");
 };
 
 const generateNodeDeclaration = (
@@ -22,7 +19,8 @@ const generateNodeDeclaration = (
   if (rhs.type === "service") {
     return rhsType;
   }
-  return `const ${name} = ${rhsType};`;
+  return `const ${name}__node = ${rhsType};
+export type ${name} = ExtractNodeType<typeof ${name}__node>;`;
 };
 
 const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
@@ -43,22 +41,21 @@ const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
     case "oneof": {
       return genTypeForRepresentable(rhs);
     }
-    // Right now, services will have a name conflict when vars are defined
-    // inside and outside of services. This will have to change as part of
-    // alpha release
     case "service": {
-      const nodeDeclarations = rhs.variables
-        .map((decl) => generateNodeDeclaration(decl))
-        .filter(Boolean)
-        .map((declStr) => "  " + declStr)
-        .join("\n");
-
-      return `const ${rhs.name} = (() => {
+      const nodeDeclarations =
+        "  " +
+        rhs.variables
+          .map((decl) => generateNodeDeclaration(decl))
+          .filter(Boolean)
+          .join("\n")
+          .replace(/\n/g, "\n  ");
+      return `export namespace ${rhs.name} {
 ${nodeDeclarations}
-  return {name: "${rhs.name}" as "${rhs.name}", endpoints: {${rhs.variables
-        .map((decl) => decl.name)
-        .join(", ")}}};
-})();`;
+  export const name = "${rhs.name}" as "${rhs.name}"
+  export const endpoints = {${rhs.variables
+    .map((decl) => `${decl.name}: ${decl.name}__node`)
+    .join(", ")}};
+}`;
     }
   }
   throw `Unknown RHS type ${rhs.type}`;

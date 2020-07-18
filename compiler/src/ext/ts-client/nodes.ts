@@ -6,7 +6,6 @@ export interface ButteryNode<R> {
   serialize: (r: R) => string | undefined;
   deserialize: (data: string) => R | undefined;
 }
-
 export interface RPCNode<Req, Res> {
   type: "rpcNode";
   name: string;
@@ -21,7 +20,7 @@ export interface ChannelNode<Incoming, Outgoing> {
   outgoing: ButteryNode<Outgoing>;
 }
 
-type ExtractNodeType<P> = P extends ButteryNode<infer T> ? T : never;
+export type ExtractNodeType<P> = P extends ButteryNode<infer T> ? T : never;
 
 export function structNode<R extends {}>(
   decl: { [key in keyof R]: ButteryNode<R[key]> }

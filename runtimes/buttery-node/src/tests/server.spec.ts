@@ -1,4 +1,4 @@
-import { PartyService } from "./fake_genfile.data";
+import { PartyService, Slot } from "./fake_genfile.data";
 import * as chai from "chai";
 import { ButteryServer } from "..";
 import express from "express";
