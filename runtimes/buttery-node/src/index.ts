@@ -9,6 +9,7 @@ export {
   GenericButteryError,
   NotFoundError,
   NotImplementedError,
+  BadRequestError,
 } from "./errors";
 import { handleButteryExceptions } from "./errors";
 
