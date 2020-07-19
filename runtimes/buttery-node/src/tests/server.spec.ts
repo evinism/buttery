@@ -4,6 +4,7 @@ import { ButteryServer } from "..";
 import express from "express";
 import WebSocket from "ws";
 import * as http from "http";
+import { NotFoundError, AppError } from "../errors";
 
 const baseApp = express();
 baseApp.get("/", (req, res) => res.send({ status: "ok" }));
@@ -70,6 +71,7 @@ describe("ts-server runtime", function () {
       if (req.mwAug) {
         throw "Has augmentation for wrong wroute!";
       }
+
       connection.listen((msg) => {
         connection.send({
           time: msg.time,
@@ -99,6 +101,14 @@ describe("ts-server runtime", function () {
             endTime: 0,
           },
         });
+      }
+
+      if (req.headers["forcenotfound"]) {
+        throw new NotFoundError();
+      }
+
+      if (req.headers["forceunhandlederror"]) {
+        throw "Unhandled!!!";
       }
 
       return Promise.resolve({
@@ -131,6 +141,30 @@ describe("ts-server runtime", function () {
         .end(function (err: any, res: any) {
           chai.assert.equal(err, null);
           chai.assert.equal(res.status, 400);
+          done();
+        });
+    });
+
+    it("should translate unhandled errors to 500s", function (done) {
+      request(server)
+        .post("/__buttery__/PartyService/AddToParty")
+        .set("forcenotfound", "woop")
+        .send({ name: "john", pronouns: [] })
+        .end(function (err: any, res: any) {
+          chai.assert.equal(err, null);
+          chai.assert.equal(res.status, 404);
+          done();
+        });
+    });
+
+    it("should allow app-specified non-500 error codes", function (done) {
+      request(server)
+        .post("/__buttery__/PartyService/AddToParty")
+        .set("forceunhandlederror", "woop")
+        .send({ name: "john", pronouns: [] })
+        .end(function (err: any, res: any) {
+          chai.assert.equal(err, null);
+          chai.assert.equal(res.status, 500);
           done();
         });
     });
