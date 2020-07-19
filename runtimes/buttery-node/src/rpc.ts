@@ -1,6 +1,12 @@
 import * as http from "http";
 import { ButteryService, EndpointBase, ButteryServerOptions } from "./types";
 import { streamToString } from "./util";
+import {
+  NotImplementedError,
+  NotFoundError,
+  BadRequestError,
+  AppError,
+} from "./errors";
 
 // Workaround for extracting a previously parsed message by body parser.
 // This really should not exist.
@@ -32,35 +38,21 @@ export const createRpcHandler = (
 
   const path = (request.url || "").split("/").slice(1);
   if (path.length !== 2) {
-    response.writeHead(400, { "Content-Type": "text/plain" });
-    response.end("Malformed Buttery URL");
-    return;
+    throw new BadRequestError("Malformed Buttery URL");
   }
 
   const [serviceName, requestName] = path;
   const service = serviceDefinitions.find(({ name }) => name === serviceName);
 
   if (!service) {
-    response.writeHead(
-      404,
-      Object.assign({ "Content-Type": "text/plain" }, headers)
-    );
-
-    response.end(`No service with name ${serviceName} registered.`);
-    return;
+    throw new NotFoundError(`No service with name ${serviceName} registered.`);
   }
 
   const rpcDef = service.endpoints[requestName];
   if (!rpcDef) {
-    response.writeHead(
-      404,
-      Object.assign({ "Content-Type": "text/plain" }, headers)
-    );
-
-    response.end(
+    throw new NotFoundError(
       `No RPC/Channel with name ${requestName} registered for ${serviceName}.`
     );
-    return;
   }
 
   if (request.method !== "POST") {
@@ -75,11 +67,9 @@ export const createRpcHandler = (
 
   const handler = handlers[serviceName][requestName];
   if (!handler) {
-    response.writeHead(
-      501,
-      Object.assign({ "Content-Type": "text/plain" }, headers)
+    throw new NotImplementedError(
+      `Buttery RPC not implemented: ${service.name}/${requestName}`
     );
-    response.end(`Buttery RPC not implemented: ${service.name}/${requestName}`);
   }
 
   if (rpcDef.type !== "rpcNode") {
@@ -102,12 +92,7 @@ export const createRpcHandler = (
       throw "Invalid body sent by client";
     }
   } catch (e) {
-    response.writeHead(
-      400,
-      Object.assign({ "Content-Type": "text/plain" }, headers)
-    );
-    response.end("Client Error: " + e.message);
-    return;
+    throw new BadRequestError(e.message);
   }
 
   let result;
@@ -117,12 +102,7 @@ export const createRpcHandler = (
       throw "Server tried to send an invalid body";
     }
   } catch (e) {
-    response.writeHead(
-      500,
-      Object.assign({ "Content-Type": "text/plain" }, headers)
-    );
-    response.end("Internal Server Error: " + e.message);
-    return;
+    throw new AppError(e.message);
   }
 
   response.writeHead(

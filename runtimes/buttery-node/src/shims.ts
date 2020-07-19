@@ -42,10 +42,7 @@ export const responseHandlerToUpgradeHandler = (
 // upgradeHandlerToResponseHandler handles the server response if necessary.
 export const upgradeHandlerToResponseHandler = (
   upgradeHandler: UpgradeHandler
-): ResponseHandler => (
-  req: RequestWithUpgradeTag,
-  res: http.ServerResponse
-) => {
+) => async (req: RequestWithUpgradeTag, res: http.ServerResponse) => {
   const upgradeTag = req[Buttery_UPGRADE_REQUEST_KEY_NAME];
   if (!upgradeTag) {
     throw "Tried to convert a non-upgrade response to an upgrade handler!";

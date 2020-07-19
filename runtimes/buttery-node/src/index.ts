@@ -5,6 +5,12 @@ import { createRpcHandler } from "./rpc";
 import { ChannelNode, RPCNode, ButteryNode } from "./shared/nodes";
 import { createUpgradeHandler, ButterySocket } from "./channel";
 import { isButteryPath } from "./util";
+export {
+  GenericButteryError,
+  NotFoundError,
+  NotImplementedError,
+} from "./errors";
+import { handleButteryExceptions } from "./errors";
 
 import {
   upgradeHandlerToResponseHandler,
@@ -160,10 +166,13 @@ export class ButteryServer {
       this.options
     );
 
+    const butteryExceptionHandler = handleButteryExceptions(
+      this.options?.rpc?.headers
+    );
     this.expressServer.use(`/${Buttery_NAMESPACE}`, (req, res) => {
       divertUpgrade(
-        rpcHandler,
-        upgradeHandlerToResponseHandler(upgradeHandler)
+        butteryExceptionHandler(rpcHandler),
+        butteryExceptionHandler(upgradeHandlerToResponseHandler(upgradeHandler))
       )(req, res);
     });
 
