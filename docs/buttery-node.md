@@ -108,3 +108,15 @@ server.use(SomeService, "SomeRPC", middleware);
 ```
 
 The only weird middleware (I know of) is `body-parser`. Buttery can handle `bodyparser.json({strict: false})` middleware in the chain, but no incompatible `body-parser` configurations are yet supported. If this is your use case, either eliminate body-parser middlware from buttery route, or contribute to buttery to fix this incompatibility.
+
+## Errors
+
+In order to throw a non-500 error over Buttery, `buttery-node` provides a small set of errors that are handled as a special case if thrown within an implementation.
+
+| Error               | Status Code |
+| ------------------- | ----------- |
+| BadRequestError     | 400         |
+| NotFoundError       | 404         |
+| NotImplementedError | 501         |
+
+For errors that fall out of this range, either submit a PR back to `buttery-node` or throw `new GenericButteryError(statusCode, message)`
