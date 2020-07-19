@@ -6,6 +6,7 @@ import {
   NotFoundError,
   BadRequestError,
   AppError,
+  GenericButteryError,
 } from "./errors";
 
 // Workaround for extracting a previously parsed message by body parser.
@@ -95,10 +96,22 @@ export const createRpcHandler = (
     throw new BadRequestError(e.message);
   }
 
-  let result;
+  let handlerResult;
+
   try {
-    result = rpcDef.response.serialize(await handler(parsed, request));
-    if (result === undefined) {
+    handlerResult = await handler(parsed, request);
+  } catch (e) {
+    if (e instanceof GenericButteryError) {
+      throw e;
+    } else {
+      throw new AppError(e.message);
+    }
+  }
+
+  let serialized;
+  try {
+    serialized = rpcDef.response.serialize(handlerResult);
+    if (serialized === undefined) {
       throw "Server tried to send an invalid body";
     }
   } catch (e) {
@@ -109,5 +122,5 @@ export const createRpcHandler = (
     200,
     Object.assign({ "Content-Type": "application/json" }, headers)
   );
-  response.end(result);
+  response.end(serialized);
 };
