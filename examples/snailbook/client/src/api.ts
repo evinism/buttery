@@ -1,7 +1,7 @@
 import {
   SnailBookClient,
   SnailBookLoggedOutClient,
-} from "./buttery-genfiles/__ts__/api.browser";
+} from "./buttery-genfiles/api.browser";
 
 const clientConfig = {
   rpc: {
