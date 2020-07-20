@@ -255,6 +255,42 @@ describe("Parsing", function () {
       };
       chai.assert.deepEqual(ref, targetRef);
     });
+
+    it("should correctly parse a proto a generic declaration", function () {
+      const input = `struct Hello<TypeOne, TypeTwo>:
+  foo: TypeOne
+  bar: TypeTwo`;
+
+      const parsed = parseStruct(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      const ref = parsed.right.value;
+      const targetRef: VariableDeclaration<Reference> = {
+        statementType: "declaration",
+        name: "Hello",
+        value: {
+          type: "struct",
+          typeParams: ["TypeOne", "TypeTwo"],
+          fields: [
+            {
+              baseType: {
+                ref: "TypeOne",
+                typeArgs: [],
+              },
+              name: "foo",
+            },
+            {
+              baseType: {
+                ref: "TypeTwo",
+                typeArgs: [],
+              },
+              name: "bar",
+            },
+          ],
+        },
+      };
+      chai.assert.deepEqual(ref, targetRef);
+    });
   });
 
   describe("OneOfDecl", function () {
