@@ -20,6 +20,7 @@ type LoadFn = (file: string) => ButteryFile<Reference>;
 
 /* START REFACTOR SHIM FOR SWITCHING TO LEXICAL SCOPE TRACKING */
 type ResolveFn = (
+  lexicalScope: LexicalScope,
   { ref, typeArgs }: Reference,
   context: ButteryFile<Reference>,
   prevReffedVars: string[],
@@ -30,6 +31,7 @@ type ResolveFn = (
 
 // Refactoring to shim in basic lexical scope whatever.
 const ListEntry: ResolveFn = (
+  lexicalScope: LexicalScope,
   { typeArgs },
   context,
   prevReffedVars,
@@ -43,6 +45,7 @@ const ListEntry: ResolveFn = (
   return {
     type: "list",
     value: resolveRef(
+      lexicalScope,
       typeArgs[0],
       context,
       prevReffedVars,
@@ -53,6 +56,7 @@ const ListEntry: ResolveFn = (
   };
 };
 const MapEntry: ResolveFn = (
+  lexicalScope,
   { typeArgs },
   context,
   prevReffedVars,
@@ -73,6 +77,7 @@ const MapEntry: ResolveFn = (
     type: "map",
     key: mapKey,
     value: resolveRef(
+      lexicalScope,
       typeArgs[1],
       context,
       prevReffedVars,
@@ -84,6 +89,7 @@ const MapEntry: ResolveFn = (
 };
 
 const OptionalEntry: ResolveFn = (
+  lexicalScope,
   { typeArgs },
   context,
   prevReffedVars,
@@ -98,6 +104,7 @@ const OptionalEntry: ResolveFn = (
   return {
     type: "optional",
     value: resolveRef(
+      lexicalScope,
       typeArgs[0],
       context,
       prevReffedVars,
@@ -161,6 +168,7 @@ function getInLexicalScope(
     return undefined;
   }
   return resolveFn(
+    lexicalScope,
     referenceObj,
     context,
     prevReffedVars,
@@ -171,6 +179,7 @@ function getInLexicalScope(
 }
 
 function resolveRef(
+  lexicalScope: LexicalScope,
   refObject: Reference,
   context: ButteryFile<Reference>,
   prevReffedVars: string[],
@@ -182,7 +191,7 @@ function resolveRef(
 
   // Builtins!
   const maybeBuiltin = getInLexicalScope(
-    defaultLexicalScope,
+    lexicalScope,
     refObject,
     context,
     prevReffedVars,
@@ -259,6 +268,7 @@ function resolveRef(
 
   return getRepresentableFromVar(
     resolveDecl(
+      lexicalScope,
       decl,
       context,
       prevReffedVars,
@@ -270,6 +280,7 @@ function resolveRef(
 }
 
 function resolveDecl(
+  lexicalScope: LexicalScope,
   decl: VariableDeclaration<Reference>,
   context: ButteryFile<Reference>,
   prevReffedVars: string[],
@@ -288,6 +299,7 @@ function resolveDecl(
 
   const qResolveRev = (ref: Reference) =>
     resolveRef(
+      lexicalScope,
       ref,
       context,
       nextReffedVars,
@@ -343,6 +355,7 @@ function resolveDecl(
     }
 
     newVal = resolveDecl(
+      lexicalScope,
       reffedVar,
       file,
       [],
@@ -356,7 +369,15 @@ function resolveDecl(
       type,
       name,
       variables: variables.map((ref: VariableDeclaration<Reference>) =>
-        resolveDecl(ref, context, nextReffedVars, prevReffedFiles, load, name)
+        resolveDecl(
+          lexicalScope,
+          ref,
+          context,
+          nextReffedVars,
+          prevReffedFiles,
+          load,
+          name
+        )
       ),
     };
   } else {
@@ -385,7 +406,14 @@ export function resolve(
   // circ reference betw. files solved in load()
   // so now we just have to solve it here.
   const newVars = refFile.variables.map((variable) =>
-    resolveDecl(variable, refFile, [], [refFile.path], load)
+    resolveDecl(
+      defaultLexicalScope,
+      variable,
+      refFile,
+      [],
+      [refFile.path],
+      load
+    )
   );
 
   return {
