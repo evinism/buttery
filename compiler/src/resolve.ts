@@ -18,6 +18,107 @@ const validMapKey = (key: Primitive) =>
 
 type LoadFn = (file: string) => ButteryFile<Reference>;
 
+/* START REFACTOR SHIM FOR SWITCHING TO LEXICAL SCOPE TRACKING */
+type ResolveFn = (
+  { ref, typeArgs }: Reference,
+  context: ButteryFile<Reference>,
+  prevReffedVars: string[],
+  prevReffedFiles: string[],
+  load: LoadFn,
+  namespaceContext?: string
+) => Representable;
+
+// Refactoring to shim in basic lexical scope whatever.
+const ListEntry: ResolveFn = (
+  { typeArgs },
+  context,
+  prevReffedVars,
+  prevReffedFiles,
+  load,
+  namespaceContext
+) => {
+  if (typeArgs.length !== 1) {
+    throw `Wrong number of type arguments for a List (expected 1, got ${typeArgs.length})`;
+  }
+  return {
+    type: "list",
+    value: resolveRef(
+      typeArgs[0],
+      context,
+      prevReffedVars,
+      prevReffedFiles,
+      load,
+      namespaceContext
+    ),
+  };
+};
+const MapEntry: ResolveFn = (
+  { typeArgs },
+  context,
+  prevReffedVars,
+  prevReffedFiles,
+  load,
+  namespaceContext
+) => {
+  if (typeArgs.length !== 2) {
+    throw `Wrong number of type arguments for a Map (expected 2, got ${typeArgs.length})`;
+  }
+
+  const mapKey = typeArgs[0].ref as Primitive;
+  const isValidMapKey = validMapKey(mapKey);
+  if (!isValidMapKey) {
+    throw "Can only use one of {string, double, integer, boolean} as a key for map";
+  }
+  return {
+    type: "map",
+    key: mapKey,
+    value: resolveRef(
+      typeArgs[1],
+      context,
+      prevReffedVars,
+      prevReffedFiles,
+      load,
+      namespaceContext
+    ),
+  };
+};
+
+const OptionalEntry: ResolveFn = (
+  { typeArgs },
+  context,
+  prevReffedVars,
+  prevReffedFiles,
+  load,
+  namespaceContext
+) => {
+  if (typeArgs.length !== 1) {
+    throw `Wrong number of type arguments for a Optional (expected 1, got ${typeArgs.length})`;
+  }
+
+  return {
+    type: "optional",
+    value: resolveRef(
+      typeArgs[0],
+      context,
+      prevReffedVars,
+      prevReffedFiles,
+      load,
+      namespaceContext
+    ),
+  };
+};
+
+const defaultLexicalScope: { [key: string]: ResolveFn } = {
+  boolean: () => ({ type: Primitive.boolean }),
+  integer: () => ({ type: Primitive.integer }),
+  double: () => ({ type: Primitive.double }),
+  null: () => ({ type: Primitive.null }),
+  string: () => ({ type: Primitive.string }),
+  List: ListEntry,
+  Map: MapEntry,
+  Optional: OptionalEntry,
+};
+
 const getRepresentableFromVar = (
   resolvedDecl: VariableDeclaration<Representable>
 ): Representable => {
@@ -36,81 +137,27 @@ const getRepresentableFromVar = (
   return resolvedDecl.value;
 };
 
+// Lookup by lexical scope!!!
 function maybeGetBuiltin(
-  { ref, typeArgs }: Reference,
+  referenceObj: Reference,
   context: ButteryFile<Reference>,
   prevReffedVars: string[],
   prevReffedFiles: string[],
   load: LoadFn,
   namespaceContext?: string
 ): Representable | undefined {
-  // ew on this cast. I need to rethink enums here.
-  const primitive = (Primitive as { [key: string]: string })[ref] as
-    | Primitive
-    | undefined;
-  if (primitive) {
-    return {
-      type: primitive,
-    };
+  const resolveFn = defaultLexicalScope[referenceObj.ref];
+  if (!resolveFn) {
+    return undefined;
   }
-
-  // Garbage way of doing builtins
-  if (ref === "List") {
-    if (typeArgs.length !== 1) {
-      throw `Wrong number of type arguments for a List (expected 1, got ${typeArgs.length})`;
-    }
-    return {
-      type: "list",
-      value: resolveRef(
-        typeArgs[0],
-        context,
-        prevReffedVars,
-        prevReffedFiles,
-        load,
-        namespaceContext
-      ),
-    };
-  }
-  if (ref === "Map") {
-    if (typeArgs.length !== 2) {
-      throw `Wrong number of type arguments for a Map (expected 2, got ${typeArgs.length})`;
-    }
-
-    const mapKey = typeArgs[0].ref as Primitive;
-    const isValidMapKey = validMapKey(mapKey);
-    if (!isValidMapKey) {
-      throw "Can only use one of {string, double, integer, boolean} as a key for map";
-    }
-    return {
-      type: "map",
-      key: mapKey,
-      value: resolveRef(
-        typeArgs[1],
-        context,
-        prevReffedVars,
-        prevReffedFiles,
-        load,
-        namespaceContext
-      ),
-    };
-  }
-  if (ref === "Optional") {
-    if (typeArgs.length !== 1) {
-      throw `Wrong number of type arguments for a Optional (expected 1, got ${typeArgs.length})`;
-    }
-
-    return {
-      type: "optional",
-      value: resolveRef(
-        typeArgs[0],
-        context,
-        prevReffedVars,
-        prevReffedFiles,
-        load,
-        namespaceContext
-      ),
-    };
-  }
+  return resolveFn(
+    referenceObj,
+    context,
+    prevReffedVars,
+    prevReffedFiles,
+    load,
+    namespaceContext
+  );
 }
 
 function resolveRef(
