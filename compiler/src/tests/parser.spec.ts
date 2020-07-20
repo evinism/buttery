@@ -488,7 +488,17 @@ describe("Parsing", function () {
       };
       chai.assert.deepEqual(ref, targetRef);
     });
+    it("should fail to parse a service with type parameters", function () {
+      const input = `service HiService<Foo>:
+  rpc Hello:
+    request: List<Map<string, Dog>>
+    response: bool`;
+
+      // Frankly this shouldn't throw, but fail to parse, but whatever rn.
+      assert.throws(() => parseService(input));
+    });
   });
+
   describe("Import", function () {
     const parseImport = buildTestParser(importParser);
 
