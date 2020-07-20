@@ -108,16 +108,22 @@ const OptionalEntry: ResolveFn = (
   };
 };
 
-const defaultLexicalScope: { [key: string]: ResolveFn } = {
-  boolean: () => ({ type: Primitive.boolean }),
-  integer: () => ({ type: Primitive.integer }),
-  double: () => ({ type: Primitive.double }),
-  null: () => ({ type: Primitive.null }),
-  string: () => ({ type: Primitive.string }),
-  List: ListEntry,
-  Map: MapEntry,
-  Optional: OptionalEntry,
-};
+type LexicalScope = { [key: string]: ResolveFn }[];
+
+const defaultLexicalScope: { [key: string]: ResolveFn }[] = [
+  {
+    boolean: () => ({ type: Primitive.boolean }),
+    integer: () => ({ type: Primitive.integer }),
+    double: () => ({ type: Primitive.double }),
+    null: () => ({ type: Primitive.null }),
+    string: () => ({ type: Primitive.string }),
+  },
+  {
+    List: ListEntry,
+    Map: MapEntry,
+    Optional: OptionalEntry,
+  },
+];
 
 const getRepresentableFromVar = (
   resolvedDecl: VariableDeclaration<Representable>
@@ -138,7 +144,8 @@ const getRepresentableFromVar = (
 };
 
 // Lookup by lexical scope!!!
-function maybeGetBuiltin(
+function getInLexicalScope(
+  lexicalScope: LexicalScope,
   referenceObj: Reference,
   context: ButteryFile<Reference>,
   prevReffedVars: string[],
@@ -146,7 +153,10 @@ function maybeGetBuiltin(
   load: LoadFn,
   namespaceContext?: string
 ): Representable | undefined {
-  const resolveFn = defaultLexicalScope[referenceObj.ref];
+  const resolveFn = lexicalScope.reduceRight(
+    (acc: ResolveFn | undefined, cur) => acc || cur[referenceObj.ref],
+    undefined
+  );
   if (!resolveFn) {
     return undefined;
   }
@@ -171,7 +181,8 @@ function resolveRef(
   const { ref, namespace } = refObject;
 
   // Builtins!
-  const maybeBuiltin = maybeGetBuiltin(
+  const maybeBuiltin = getInLexicalScope(
+    defaultLexicalScope,
     refObject,
     context,
     prevReffedVars,
