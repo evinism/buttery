@@ -51,7 +51,7 @@ export interface Field<T> {
 
 interface Genericizable {
   // Should probably be augmented to be resolvable.
-  typeArgs: string[];
+  typeParams: string[];
 }
 
 export interface StructType<T> extends Genericizable {

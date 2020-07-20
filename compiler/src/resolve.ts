@@ -302,14 +302,14 @@ function resolveDecl(
       ),
     };
   } else {
-    const { type, fields, typeArgs } = decl.value;
+    const { type, fields, typeParams } = decl.value;
     newVal = {
       type,
       fields: fields.map(({ name, baseType }) => ({
         name,
         baseType: qResolveRev(baseType),
       })),
-      typeArgs,
+      typeParams,
     };
   }
 

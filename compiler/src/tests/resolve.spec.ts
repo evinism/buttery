@@ -13,7 +13,7 @@ describe("Resolving", function () {
             name: "Person",
             value: {
               type: "struct",
-              typeArgs: [],
+              typeParams: [],
               fields: [
                 { name: "name", baseType: { type: "string" } },
                 {
@@ -28,13 +28,13 @@ describe("Resolving", function () {
             name: "Message",
             value: {
               type: "struct",
-              typeArgs: [],
+              typeParams: [],
               fields: [
                 {
                   name: "author",
                   baseType: {
                     type: "struct",
-                    typeArgs: [],
+                    typeParams: [],
                     fields: [
                       {
                         name: "name",
@@ -62,7 +62,7 @@ describe("Resolving", function () {
                     key: "string",
                     value: {
                       type: "struct",
-                      typeArgs: [],
+                      typeParams: [],
                       fields: [
                         {
                           name: "name",
@@ -98,7 +98,7 @@ describe("Resolving", function () {
                         type: "list",
                         value: {
                           type: "struct",
-                          typeArgs: [],
+                          typeParams: [],
                           fields: [
                             {
                               name: "name",
@@ -116,7 +116,7 @@ describe("Resolving", function () {
                       name: "response",
                       baseType: {
                         type: "struct",
-                        typeArgs: [],
+                        typeParams: [],
                         fields: [
                           {
                             name: "name",
@@ -141,13 +141,13 @@ describe("Resolving", function () {
                       name: "incoming",
                       baseType: {
                         type: "struct",
-                        typeArgs: [],
+                        typeParams: [],
                         fields: [
                           {
                             name: "author",
                             baseType: {
                               type: "struct",
-                              typeArgs: [],
+                              typeParams: [],
                               fields: [
                                 {
                                   name: "name",
@@ -175,7 +175,7 @@ describe("Resolving", function () {
                               key: "string",
                               value: {
                                 type: "struct",
-                                typeArgs: [],
+                                typeParams: [],
                                 fields: [
                                   {
                                     name: "name",
@@ -196,13 +196,13 @@ describe("Resolving", function () {
                       name: "outgoing",
                       baseType: {
                         type: "struct",
-                        typeArgs: [],
+                        typeParams: [],
                         fields: [
                           {
                             name: "author",
                             baseType: {
                               type: "struct",
-                              typeArgs: [],
+                              typeParams: [],
                               fields: [
                                 {
                                   name: "name",
@@ -230,7 +230,7 @@ describe("Resolving", function () {
                               key: "string",
                               value: {
                                 type: "struct",
-                                typeArgs: [],
+                                typeParams: [],
                                 fields: [
                                   {
                                     name: "name",
@@ -269,7 +269,7 @@ describe("Resolving", function () {
             name: "Person",
             value: {
               type: "struct",
-              typeArgs: [],
+              typeParams: [],
               fields: [
                 { name: "name", baseType: { type: "string" } },
                 {
@@ -284,7 +284,7 @@ describe("Resolving", function () {
             name: "Slot",
             value: {
               type: "struct",
-              typeArgs: [],
+              typeParams: [],
               fields: [
                 {
                   name: "people",
@@ -292,7 +292,7 @@ describe("Resolving", function () {
                     type: "list",
                     value: {
                       type: "struct",
-                      typeArgs: [],
+                      typeParams: [],
                       fields: [
                         {
                           name: "name",
@@ -322,7 +322,7 @@ describe("Resolving", function () {
             name: "AddToPartyResponse",
             value: {
               type: "struct",
-              typeArgs: [],
+              typeParams: [],
               fields: [
                 {
                   name: "success",
@@ -334,7 +334,7 @@ describe("Resolving", function () {
                     type: "optional",
                     value: {
                       type: "struct",
-                      typeArgs: [],
+                      typeParams: [],
                       fields: [
                         {
                           name: "people",
@@ -342,7 +342,7 @@ describe("Resolving", function () {
                             type: "list",
                             value: {
                               type: "struct",
-                              typeArgs: [],
+                              typeParams: [],
                               fields: [
                                 {
                                   name: "name",
@@ -379,7 +379,7 @@ describe("Resolving", function () {
             name: "ChatMessage",
             value: {
               type: "struct",
-              typeArgs: [],
+              typeParams: [],
               fields: [
                 {
                   name: "time",
@@ -397,7 +397,7 @@ describe("Resolving", function () {
             name: "ChatUpdate",
             value: {
               type: "struct",
-              typeArgs: [],
+              typeParams: [],
               fields: [
                 {
                   name: "time",
@@ -411,7 +411,7 @@ describe("Resolving", function () {
                   name: "author",
                   baseType: {
                     type: "struct",
-                    typeArgs: [],
+                    typeParams: [],
                     fields: [
                       {
                         name: "name",
@@ -444,7 +444,7 @@ describe("Resolving", function () {
                       name: "request",
                       baseType: {
                         type: "struct",
-                        typeArgs: [],
+                        typeParams: [],
                         fields: [
                           {
                             name: "name",
@@ -464,7 +464,7 @@ describe("Resolving", function () {
                       name: "response",
                       baseType: {
                         type: "struct",
-                        typeArgs: [],
+                        typeParams: [],
                         fields: [
                           {
                             name: "success",
@@ -476,7 +476,7 @@ describe("Resolving", function () {
                               type: "optional",
                               value: {
                                 type: "struct",
-                                typeArgs: [],
+                                typeParams: [],
                                 fields: [
                                   {
                                     name: "people",
@@ -484,7 +484,7 @@ describe("Resolving", function () {
                                       type: "list",
                                       value: {
                                         type: "struct",
-                                        typeArgs: [],
+                                        typeParams: [],
                                         fields: [
                                           {
                                             name: "name",
@@ -528,7 +528,7 @@ describe("Resolving", function () {
                       name: "incoming",
                       baseType: {
                         type: "struct",
-                        typeArgs: [],
+                        typeParams: [],
                         fields: [
                           {
                             name: "time",
@@ -545,7 +545,7 @@ describe("Resolving", function () {
                       name: "outgoing",
                       baseType: {
                         type: "struct",
-                        typeArgs: [],
+                        typeParams: [],
                         fields: [
                           {
                             name: "time",
@@ -559,7 +559,7 @@ describe("Resolving", function () {
                             name: "author",
                             baseType: {
                               type: "struct",
-                              typeArgs: [],
+                              typeParams: [],
                               fields: [
                                 {
                                   name: "name",
@@ -613,7 +613,7 @@ describe("Resolving", function () {
                   name: "Meal",
                   value: {
                     type: "struct",
-                    typeArgs: [],
+                    typeParams: [],
                     fields: [
                       {
                         name: "id",
@@ -635,7 +635,7 @@ describe("Resolving", function () {
                   name: "Restaurant",
                   value: {
                     type: "struct",
-                    typeArgs: [],
+                    typeParams: [],
                     fields: [
                       {
                         name: "id",
@@ -655,7 +655,7 @@ describe("Resolving", function () {
                           type: "list",
                           value: {
                             type: "struct",
-                            typeArgs: [],
+                            typeParams: [],
                             fields: [
                               {
                                 name: "id",
@@ -692,7 +692,7 @@ describe("Resolving", function () {
                         type: "list",
                         value: {
                           type: "struct",
-                          typeArgs: [],
+                          typeParams: [],
                           fields: [
                             {
                               name: "id",
@@ -712,7 +712,7 @@ describe("Resolving", function () {
                                 type: "list",
                                 value: {
                                   type: "struct",
-                                  typeArgs: [],
+                                  typeParams: [],
                                   fields: [
                                     {
                                       name: "id",
@@ -744,7 +744,7 @@ describe("Resolving", function () {
             name: "User",
             value: {
               type: "struct",
-              typeArgs: [],
+              typeParams: [],
               fields: [
                 {
                   name: "id",
@@ -773,7 +773,7 @@ describe("Resolving", function () {
                   name: "Order",
                   value: {
                     type: "struct",
-                    typeArgs: [],
+                    typeParams: [],
                     fields: [
                       {
                         name: "restaurantId",
@@ -800,7 +800,7 @@ describe("Resolving", function () {
                       name: "request",
                       baseType: {
                         type: "struct",
-                        typeArgs: [],
+                        typeParams: [],
                         fields: [
                           {
                             name: "restaurantId",
@@ -839,7 +839,7 @@ describe("Resolving", function () {
                         type: "list",
                         value: {
                           type: "struct",
-                          typeArgs: [],
+                          typeParams: [],
                           fields: [
                             {
                               name: "id",

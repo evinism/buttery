@@ -99,13 +99,13 @@ export const fieldParser: Parser<Token, Field<Reference>> = seq(
 
 // Intended to type args, e.g.
 // <TypeArg1, TypeArg2>
-const typeArgsParser = apFirst(matchToken<CloseBracketToken>("closebracket"))(
+const typeParamsParser = apFirst(matchToken<CloseBracketToken>("closebracket"))(
   seq(matchToken<OpenBracketToken>("openbracket"), () =>
     sepBy1(matchToken<CommaToken>("comma"), matchToken<NameToken>("name"))
   )
 );
 // maybe of above
-const maybeTypeArgsParser = maybe(getMonoid<NameToken>())(typeArgsParser);
+const maybeTypeParamsParser = maybe(getMonoid<NameToken>())(typeParamsParser);
 
 type IndentingDeclaration = VariableDeclaration<Reference>;
 
@@ -114,7 +114,7 @@ const indentingDeclarationParser = <T>(
   keywordTokenType: Token["token"],
   innerParser: (
     name: NameToken,
-    typeArgs: NameToken[]
+    typeParams: NameToken[]
   ) => Parser<Token, IndentingDeclaration>
 ) => {
   const declStartParser = seq(matchToken<Token>(keywordTokenType), () =>
@@ -126,9 +126,9 @@ const indentingDeclarationParser = <T>(
       )
     )(
       seq(matchToken<NameToken>("name"), (name) =>
-        map<NameToken[], [NameToken, NameToken[]]>((typeArgs) => {
-          return [name, typeArgs];
-        })(maybeTypeArgsParser)
+        map<NameToken[], [NameToken, NameToken[]]>((typeParams) => {
+          return [name, typeParams];
+        })(maybeTypeParamsParser)
       )
     )
   );
@@ -136,18 +136,18 @@ const indentingDeclarationParser = <T>(
   const declEndParser = matchToken<ShiftOutToken>("shiftOut");
 
   return apFirst(declEndParser)(
-    seq(declStartParser, ([name, typeArgs]) => innerParser(name, typeArgs))
+    seq(declStartParser, ([name, typeParams]) => innerParser(name, typeParams))
   );
 };
 
 export const structParser = indentingDeclarationParser(
   "struct",
-  ({ name }, typeArgs) =>
+  ({ name }, typeParams) =>
     map((fields: Array<Field<Reference>>) => {
       const struct: StructType<Reference> = {
         type: "struct",
         fields,
-        typeArgs: typeArgs.map(({ name }) => name),
+        typeParams: typeParams.map(({ name }) => name),
       };
       const decl: VariableDeclaration<Reference> = {
         statementType: "declaration",
@@ -160,12 +160,12 @@ export const structParser = indentingDeclarationParser(
 
 export const oneOfParser = indentingDeclarationParser(
   "oneof",
-  ({ name }, typeArgs) =>
+  ({ name }, typeParams) =>
     map((fields: Array<Field<Reference>>) => {
       const struct: OneOfType<Reference> = {
         type: "oneof",
         fields,
-        typeArgs: typeArgs.map(({ name }) => name),
+        typeParams: typeParams.map(({ name }) => name),
       };
       const decl: VariableDeclaration<Reference> = {
         statementType: "declaration",
@@ -178,10 +178,10 @@ export const oneOfParser = indentingDeclarationParser(
 
 export const rpcParser = indentingDeclarationParser(
   "rpc",
-  ({ name }, typeArgs) => {
+  ({ name }, typeParams) => {
     return map((fields: Array<Field<Reference>>) => {
-      if (typeArgs.length !== 0) {
-        throw "RPCs can't have type arguments";
+      if (typeParams.length !== 0) {
+        throw "RPCs can't have type parameters";
       }
 
       // Bad way of ensuring required fields!
@@ -216,10 +216,10 @@ export const rpcParser = indentingDeclarationParser(
 
 export const channelParser = indentingDeclarationParser(
   "channel",
-  ({ name }, typeArgs) => {
+  ({ name }, typeParams) => {
     return map((fields: Array<Field<Reference>>) => {
       // Reject if ther are type args here
-      if (typeArgs.length !== 0) {
+      if (typeParams.length !== 0) {
         throw "Channels can't have type arguments";
       }
 
@@ -255,9 +255,9 @@ export const channelParser = indentingDeclarationParser(
 
 export const serviceParser = indentingDeclarationParser(
   "service",
-  ({ name }, typeArgs) => {
+  ({ name }, typeParams) => {
     return map((variables: NonEmptyArray<VariableDeclaration<Reference>>) => {
-      if (typeArgs.length !== 0) {
+      if (typeParams.length !== 0) {
         throw "Services can't have type arguments";
       }
 

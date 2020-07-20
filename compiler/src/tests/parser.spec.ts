@@ -187,7 +187,7 @@ describe("Parsing", function () {
               baseType: { ref: "Dog", typeArgs: [] },
             },
           ],
-          typeArgs: [],
+          typeParams: [],
         },
       };
       chai.assert.deepEqual(ref, targetRef);
@@ -208,7 +208,7 @@ describe("Parsing", function () {
         name: "Hello",
         value: {
           type: "struct",
-          typeArgs: [],
+          typeParams: [],
           fields: [
             {
               baseType: {
@@ -271,7 +271,7 @@ describe("Parsing", function () {
         name: "Hello",
         value: {
           type: "oneof",
-          typeArgs: [],
+          typeParams: [],
           fields: [
             {
               name: "fat",
@@ -572,7 +572,7 @@ service BloopService:
             name: "WhoBloopedRequest",
             value: {
               type: "struct",
-              typeArgs: [],
+              typeParams: [],
               fields: [
                 {
                   name: "bloop",
@@ -595,7 +595,7 @@ service BloopService:
             name: "WhoBloopedResponse",
             value: {
               type: "struct",
-              typeArgs: [],
+              typeParams: [],
               fields: [
                 {
                   name: "scoop",
