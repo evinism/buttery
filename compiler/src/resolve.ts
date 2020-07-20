@@ -2,81 +2,17 @@ import {
   ButteryFile,
   Representable,
   Reference,
-  Primitive,
   VariableDeclaration,
   VarRHS,
 } from "./ast";
 import path from "path";
-
-const validMapKey = (key: unknown): key is Primitive => {
-  const lookup: unknown[] = [
-    Primitive.boolean,
-    Primitive.double,
-    Primitive.integer,
-    Primitive.string,
-  ];
-  return lookup.includes(key);
-};
+import {
+  LexicalScope,
+  defaultLexicalScope,
+  getInLexicalScope,
+} from "./lexicalScope";
 
 type LoadFn = (file: string) => ButteryFile<Reference>;
-
-/* START REFACTOR SHIM FOR SWITCHING TO LEXICAL SCOPE TRACKING */
-type ResolveFn = (resolvedTypeArgs: Representable[]) => Representable;
-
-// Refactoring to shim in basic lexical scope whatever.
-const ListEntry: ResolveFn = (resolvedTypeArgs) => {
-  if (resolvedTypeArgs.length !== 1) {
-    throw `Wrong number of type arguments for a List (expected 1, got ${resolvedTypeArgs.length})`;
-  }
-  return {
-    type: "list",
-    value: resolvedTypeArgs[0],
-  };
-};
-const MapEntry: ResolveFn = (resolvedTypeArgs) => {
-  if (resolvedTypeArgs.length !== 2) {
-    throw `Wrong number of type arguments for a Map (expected 2, got ${resolvedTypeArgs.length})`;
-  }
-
-  const mapKey = resolvedTypeArgs[0].type;
-  const isValidMapKey = validMapKey(mapKey);
-  if (!isValidMapKey) {
-    throw "Can only use one of {string, double, integer, boolean} as a key for map";
-  }
-  return {
-    type: "map",
-    key: mapKey as Primitive, // No clue why this is necessary, it seems like typeguard above should catch it.
-    value: resolvedTypeArgs[1],
-  };
-};
-
-const OptionalEntry: ResolveFn = (resolvedTypeArgs) => {
-  if (resolvedTypeArgs.length !== 1) {
-    throw `Wrong number of type arguments for a Optional (expected 1, got ${resolvedTypeArgs.length})`;
-  }
-
-  return {
-    type: "optional",
-    value: resolvedTypeArgs[0],
-  };
-};
-
-type LexicalScope = { [key: string]: ResolveFn }[];
-
-const defaultLexicalScope: { [key: string]: ResolveFn }[] = [
-  {
-    boolean: () => ({ type: Primitive.boolean }),
-    integer: () => ({ type: Primitive.integer }),
-    double: () => ({ type: Primitive.double }),
-    null: () => ({ type: Primitive.null }),
-    string: () => ({ type: Primitive.string }),
-  },
-  {
-    List: ListEntry,
-    Map: MapEntry,
-    Optional: OptionalEntry,
-  },
-];
 
 const getRepresentableFromVar = (
   resolvedDecl: VariableDeclaration<Representable>
@@ -95,22 +31,6 @@ const getRepresentableFromVar = (
   }
   return resolvedDecl.value;
 };
-
-// Lookup by lexical scope!!!
-function getInLexicalScope(
-  name: string,
-  resolvedTypeArgs: Representable[],
-  lexicalScope: LexicalScope
-): Representable | undefined {
-  const resolveFn = lexicalScope.reduceRight(
-    (acc: ResolveFn | undefined, cur) => acc || cur[name],
-    undefined
-  );
-  if (!resolveFn) {
-    return undefined;
-  }
-  return resolveFn(resolvedTypeArgs);
-}
 
 function resolveRef(
   lexicalScope: LexicalScope,
