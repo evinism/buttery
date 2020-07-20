@@ -8,110 +8,56 @@ import {
 } from "./ast";
 import path from "path";
 
-const validMapKey = (key: Primitive) =>
-  [
+const validMapKey = (key: unknown): key is Primitive => {
+  const lookup: unknown[] = [
     Primitive.boolean,
     Primitive.double,
     Primitive.integer,
     Primitive.string,
-  ].includes(key);
+  ];
+  return lookup.includes(key);
+};
 
 type LoadFn = (file: string) => ButteryFile<Reference>;
 
 /* START REFACTOR SHIM FOR SWITCHING TO LEXICAL SCOPE TRACKING */
-type ResolveFn = (
-  lexicalScope: LexicalScope,
-  { ref, typeArgs }: Reference,
-  context: ButteryFile<Reference>,
-  prevReffedVars: string[],
-  prevReffedFiles: string[],
-  load: LoadFn,
-  namespaceContext?: string
-) => Representable;
+type ResolveFn = (resolvedTypeArgs: Representable[]) => Representable;
 
 // Refactoring to shim in basic lexical scope whatever.
-const ListEntry: ResolveFn = (
-  lexicalScope: LexicalScope,
-  { typeArgs },
-  context,
-  prevReffedVars,
-  prevReffedFiles,
-  load,
-  namespaceContext
-) => {
-  if (typeArgs.length !== 1) {
-    throw `Wrong number of type arguments for a List (expected 1, got ${typeArgs.length})`;
+const ListEntry: ResolveFn = (resolvedTypeArgs) => {
+  if (resolvedTypeArgs.length !== 1) {
+    throw `Wrong number of type arguments for a List (expected 1, got ${resolvedTypeArgs.length})`;
   }
   return {
     type: "list",
-    value: resolveRef(
-      lexicalScope,
-      typeArgs[0],
-      context,
-      prevReffedVars,
-      prevReffedFiles,
-      load,
-      namespaceContext
-    ),
+    value: resolvedTypeArgs[0],
   };
 };
-const MapEntry: ResolveFn = (
-  lexicalScope,
-  { typeArgs },
-  context,
-  prevReffedVars,
-  prevReffedFiles,
-  load,
-  namespaceContext
-) => {
-  if (typeArgs.length !== 2) {
-    throw `Wrong number of type arguments for a Map (expected 2, got ${typeArgs.length})`;
+const MapEntry: ResolveFn = (resolvedTypeArgs) => {
+  if (resolvedTypeArgs.length !== 2) {
+    throw `Wrong number of type arguments for a Map (expected 2, got ${resolvedTypeArgs.length})`;
   }
 
-  const mapKey = typeArgs[0].ref as Primitive;
+  const mapKey = resolvedTypeArgs[0].type;
   const isValidMapKey = validMapKey(mapKey);
   if (!isValidMapKey) {
     throw "Can only use one of {string, double, integer, boolean} as a key for map";
   }
   return {
     type: "map",
-    key: mapKey,
-    value: resolveRef(
-      lexicalScope,
-      typeArgs[1],
-      context,
-      prevReffedVars,
-      prevReffedFiles,
-      load,
-      namespaceContext
-    ),
+    key: mapKey as Primitive, // No clue why this is necessary, it seems like typeguard above should catch it.
+    value: resolvedTypeArgs[1],
   };
 };
 
-const OptionalEntry: ResolveFn = (
-  lexicalScope,
-  { typeArgs },
-  context,
-  prevReffedVars,
-  prevReffedFiles,
-  load,
-  namespaceContext
-) => {
-  if (typeArgs.length !== 1) {
-    throw `Wrong number of type arguments for a Optional (expected 1, got ${typeArgs.length})`;
+const OptionalEntry: ResolveFn = (resolvedTypeArgs) => {
+  if (resolvedTypeArgs.length !== 1) {
+    throw `Wrong number of type arguments for a Optional (expected 1, got ${resolvedTypeArgs.length})`;
   }
 
   return {
     type: "optional",
-    value: resolveRef(
-      lexicalScope,
-      typeArgs[0],
-      context,
-      prevReffedVars,
-      prevReffedFiles,
-      load,
-      namespaceContext
-    ),
+    value: resolvedTypeArgs[0],
   };
 };
 
@@ -152,30 +98,18 @@ const getRepresentableFromVar = (
 
 // Lookup by lexical scope!!!
 function getInLexicalScope(
-  lexicalScope: LexicalScope,
-  referenceObj: Reference,
-  context: ButteryFile<Reference>,
-  prevReffedVars: string[],
-  prevReffedFiles: string[],
-  load: LoadFn,
-  namespaceContext?: string
+  name: string,
+  resolvedTypeArgs: Representable[],
+  lexicalScope: LexicalScope
 ): Representable | undefined {
   const resolveFn = lexicalScope.reduceRight(
-    (acc: ResolveFn | undefined, cur) => acc || cur[referenceObj.ref],
+    (acc: ResolveFn | undefined, cur) => acc || cur[name],
     undefined
   );
   if (!resolveFn) {
     return undefined;
   }
-  return resolveFn(
-    lexicalScope,
-    referenceObj,
-    context,
-    prevReffedVars,
-    prevReffedFiles,
-    load,
-    namespaceContext
-  );
+  return resolveFn(resolvedTypeArgs);
 }
 
 function resolveRef(
@@ -189,15 +123,23 @@ function resolveRef(
 ): Representable {
   const { ref, namespace } = refObject;
 
+  const resolvedTypeArgs = refObject.typeArgs.map((typeArgRef) =>
+    resolveRef(
+      lexicalScope,
+      typeArgRef,
+      context,
+      prevReffedVars,
+      prevReffedFiles,
+      load,
+      namespaceContext
+    )
+  );
+
   // Builtins!
   const maybeBuiltin = getInLexicalScope(
-    lexicalScope,
-    refObject,
-    context,
-    prevReffedVars,
-    prevReffedFiles,
-    load,
-    namespaceContext
+    refObject.ref,
+    resolvedTypeArgs,
+    lexicalScope
   );
 
   if (maybeBuiltin) {
