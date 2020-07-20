@@ -49,12 +49,17 @@ export interface Field<T> {
   baseType: T;
 }
 
-export interface StructType<T> {
+interface Genericizable {
+  // Should probably be augmented to be resolvable.
+  typeArgs: string[];
+}
+
+export interface StructType<T> extends Genericizable {
   type: "struct";
   fields: Array<Field<T>>;
 }
 
-export interface OneOfType<T> {
+export interface OneOfType<T> extends Genericizable {
   type: "oneof";
   fields: Array<Field<T>>;
 }

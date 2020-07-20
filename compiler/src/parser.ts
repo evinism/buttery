@@ -39,8 +39,10 @@ import {
   ShiftInToken,
   ShiftOutToken,
   PeriodToken,
+  nameTokenParser,
 } from "./lexer";
 import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
+import { anyOf } from "./util";
 
 // Dangerous function because casted
 const matchToken = <T extends BasicToken<unknown>>(tokenName: T["token"]) =>
@@ -95,11 +97,25 @@ export const fieldParser: Parser<Token, Field<Reference>> = seq(
     })
 );
 
+// Intended to type args, e.g.
+// <TypeArg1, TypeArg2>
+const typeArgsParser = apFirst(matchToken<CloseBracketToken>("closebracket"))(
+  seq(matchToken<OpenBracketToken>("openbracket"), () =>
+    sepBy1(matchToken<CommaToken>("comma"), matchToken<NameToken>("name"))
+  )
+);
+// maybe of above
+const maybeTypeArgsParser = maybe(getMonoid<NameToken>())(typeArgsParser);
+
+type IndentingDeclaration = VariableDeclaration<Reference>;
+
+// [type] name<TypeArg1, TypeArg2>: \n
 const indentingDeclarationParser = <T>(
   keywordTokenType: Token["token"],
   innerParser: (
-    name: NameToken
-  ) => Parser<Token, VariableDeclaration<Reference>>
+    name: NameToken,
+    typeArgs: NameToken[]
+  ) => Parser<Token, IndentingDeclaration>
 ) => {
   const declStartParser = seq(matchToken<Token>(keywordTokenType), () =>
     apFirst(
@@ -108,79 +124,105 @@ const indentingDeclarationParser = <T>(
           matchToken<ShiftInToken>("shiftIn")
         )
       )
-    )(matchToken<NameToken>("name"))
+    )(
+      seq(matchToken<NameToken>("name"), (name) =>
+        map<NameToken[], [NameToken, NameToken[]]>((typeArgs) => {
+          return [name, typeArgs];
+        })(maybeTypeArgsParser)
+      )
+    )
   );
 
   const declEndParser = matchToken<ShiftOutToken>("shiftOut");
 
-  return apFirst(declEndParser)(seq(declStartParser, innerParser));
+  return apFirst(declEndParser)(
+    seq(declStartParser, ([name, typeArgs]) => innerParser(name, typeArgs))
+  );
 };
 
-export const structParser = indentingDeclarationParser("struct", ({ name }) =>
-  map((fields: Array<Field<Reference>>) => {
-    const struct: StructType<Reference> = {
-      type: "struct",
-      fields,
-    };
-    const decl: VariableDeclaration<Reference> = {
-      statementType: "declaration",
-      name,
-      value: struct,
-    };
-    return decl;
-  })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser))
+export const structParser = indentingDeclarationParser(
+  "struct",
+  ({ name }, typeArgs) =>
+    map((fields: Array<Field<Reference>>) => {
+      const struct: StructType<Reference> = {
+        type: "struct",
+        fields,
+        typeArgs: typeArgs.map(({ name }) => name),
+      };
+      const decl: VariableDeclaration<Reference> = {
+        statementType: "declaration",
+        name,
+        value: struct,
+      };
+      return decl;
+    })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser))
 );
 
-export const oneOfParser = indentingDeclarationParser("oneof", ({ name }) =>
-  map((fields: Array<Field<Reference>>) => {
-    const struct: OneOfType<Reference> = {
-      type: "oneof",
-      fields,
-    };
-    const decl: VariableDeclaration<Reference> = {
-      statementType: "declaration",
-      name,
-      value: struct,
-    };
-    return decl;
-  })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser))
+export const oneOfParser = indentingDeclarationParser(
+  "oneof",
+  ({ name }, typeArgs) =>
+    map((fields: Array<Field<Reference>>) => {
+      const struct: OneOfType<Reference> = {
+        type: "oneof",
+        fields,
+        typeArgs: typeArgs.map(({ name }) => name),
+      };
+      const decl: VariableDeclaration<Reference> = {
+        statementType: "declaration",
+        name,
+        value: struct,
+      };
+      return decl;
+    })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser))
 );
 
-export const rpcParser = indentingDeclarationParser("rpc", ({ name }) => {
-  return map((fields: Array<Field<Reference>>) => {
-    // Bad way of ensuring required fields!
-    const request = fields.find((field) => field.name === "request");
-    const response = fields.find((field) => field.name === "response");
-    if (!request) {
-      throw "Missing request!";
-    }
-    if (!response) {
-      throw "Missing response!";
-    }
-    if (fields.length > 2) {
-      throw "Too many fields!";
-    }
+export const rpcParser = indentingDeclarationParser(
+  "rpc",
+  ({ name }, typeArgs) => {
+    return map((fields: Array<Field<Reference>>) => {
+      if (typeArgs.length !== 0) {
+        throw "RPCs can't have type arguments";
+      }
 
-    const rpc: RPC<Reference> = {
-      type: "rpc",
-      name: name,
-      request,
-      response,
-    };
+      // Bad way of ensuring required fields!
+      const request = fields.find((field) => field.name === "request");
+      const response = fields.find((field) => field.name === "response");
+      if (!request) {
+        throw "Missing request!";
+      }
+      if (!response) {
+        throw "Missing response!";
+      }
+      if (fields.length > 2) {
+        throw "Too many fields!";
+      }
 
-    const decl: VariableDeclaration<Reference> = {
-      statementType: "declaration",
-      name,
-      value: rpc,
-    };
-    return decl;
-  })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser));
-});
+      const rpc: RPC<Reference> = {
+        type: "rpc",
+        name: name,
+        request,
+        response,
+      };
+
+      const decl: VariableDeclaration<Reference> = {
+        statementType: "declaration",
+        name,
+        value: rpc,
+      };
+      return decl;
+    })(sepBy1(matchToken<NewLineToken>("newline"), fieldParser));
+  }
+);
 
 export const channelParser = indentingDeclarationParser(
   "channel",
-  ({ name }) => {
+  ({ name }, typeArgs) => {
     return map((fields: Array<Field<Reference>>) => {
+      // Reject if ther are type args here
+      if (typeArgs.length !== 0) {
+        throw "Channels can't have type arguments";
+      }
+
       // Bad way of ensuring required fields!
       const incoming = fields.find((field) => field.name === "incoming");
       const outgoing = fields.find((field) => field.name === "outgoing");
@@ -213,8 +255,12 @@ export const channelParser = indentingDeclarationParser(
 
 export const serviceParser = indentingDeclarationParser(
   "service",
-  ({ name }) => {
+  ({ name }, typeArgs) => {
     return map((variables: NonEmptyArray<VariableDeclaration<Reference>>) => {
+      if (typeArgs.length !== 0) {
+        throw "Services can't have type arguments";
+      }
+
       const service: Service<Reference> = {
         type: "service",
         name,
@@ -229,9 +275,7 @@ export const serviceParser = indentingDeclarationParser(
     })(
       sepBy1(
         matchToken<NewLineToken>("newline"),
-        either(oneOfParser, () =>
-          either(structParser, () => either(rpcParser, () => channelParser))
-        )
+        anyOf([oneOfParser, structParser, rpcParser, channelParser])
       )
     );
   }
@@ -271,7 +315,7 @@ const statementParser: Parser<Token, Statement<Reference>[]> = either<
   Statement<Reference>[]
 >(importParser, () =>
   map((a: Statement<Reference>) => [a])(
-    either(oneOfParser, () => either(structParser, () => serviceParser))
+    anyOf([oneOfParser, structParser, serviceParser])
   )
 );
 

@@ -12,12 +12,13 @@ import {
   Parser,
   apFirst,
   many,
-  fail,
   many1,
   sat,
   either,
   eof,
 } from "parser-ts/lib/Parser";
+
+import { anyOf } from "./util";
 
 function isNonNewline(char: string): boolean {
   return char !== "\n";
@@ -180,10 +181,6 @@ export type Token =
   | OpenBracketToken
   | CloseBracketToken
   | NameToken;
-
-const anyOf = <S, T>(parsers: Array<Parser<S, T>>) => {
-  return parsers.reduceRight((acc, cur) => either(cur, () => acc), fail());
-};
 
 export const lexer: Parser<string, Token[]> = map(
   // jank way of removing null tokens, which as of yet were unallowed
