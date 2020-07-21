@@ -4,7 +4,7 @@ import {
   Reference,
   Primitive,
   VariableDeclaration,
-  VarRHS,
+  Value,
 } from "./ast";
 import path from "path";
 
@@ -238,7 +238,7 @@ function resolveDecl(
       currentNamespace
     );
 
-  let newVal: VarRHS<Representable>;
+  let newVal: Value<Representable>;
   if (decl.value.type === "channel") {
     const { type, name, incoming, outgoing } = decl.value;
     newVal = {
@@ -301,7 +301,7 @@ function resolveDecl(
         resolveDecl(ref, context, nextReffedVars, prevReffedFiles, load, name)
       ),
     };
-  } else {
+  } else if (decl.value.type === "oneof" || decl.value.type === "struct") {
     const { type, fields, typeParams } = decl.value;
     newVal = {
       type,
@@ -311,6 +311,9 @@ function resolveDecl(
       })),
       typeParams,
     };
+  } else {
+    // Otherwise it's a primitive!
+    newVal = decl.value;
   }
 
   return {

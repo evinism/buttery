@@ -92,7 +92,15 @@ export interface Import {
   path: string;
 }
 
-export type VarRHS<T> =
+export type PrimitiveType =
+  | IntegerType
+  | DoubleType
+  | BooleanType
+  | StringType
+  | NullType;
+
+export type Value<T> =
+  | PrimitiveType
   | Channel<T>
   | RPC<T>
   | StructType<T>
@@ -103,7 +111,7 @@ export type VarRHS<T> =
 export interface VariableDeclaration<T> {
   statementType: "declaration";
   name: string;
-  value: VarRHS<T>;
+  value: Value<T>;
 }
 
 export type Statement<T> = VariableDeclaration<T>;
