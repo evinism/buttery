@@ -1,7 +1,7 @@
 import {
   VariableDeclaration,
   Representable,
-  VarRHS,
+  Value,
   Primitive,
 } from "../../ast";
 
@@ -23,7 +23,7 @@ const generateNodeDeclaration = (
 export type ${name} = ExtractNodeType<typeof ${name}__node>;`;
 };
 
-const genTypeForRhs = (rhs: VarRHS<Representable>): string => {
+const genTypeForRhs = (rhs: Value<Representable>): string => {
   switch (rhs.type) {
     case "channel": {
       const incoming = genTypeForRepresentable(rhs.incoming.baseType);

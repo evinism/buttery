@@ -150,7 +150,7 @@ describe("Parsing", function () {
       const ref = parsed.right.value;
       const targetRef: Field<Reference> = {
         name: "myFieldName",
-        
+
         baseType: {
           ref: "number",
           typeArgs: [],
@@ -178,15 +178,16 @@ describe("Parsing", function () {
           fields: [
             {
               name: "fat",
-              
+
               baseType: { ref: "Dog", typeArgs: [] },
             },
             {
               name: "cat",
-              
+
               baseType: { ref: "Dog", typeArgs: [] },
             },
           ],
+          typeParams: [],
         },
       };
       chai.assert.deepEqual(ref, targetRef);
@@ -207,6 +208,7 @@ describe("Parsing", function () {
         name: "Hello",
         value: {
           type: "struct",
+          typeParams: [],
           fields: [
             {
               baseType: {
@@ -228,7 +230,6 @@ describe("Parsing", function () {
                 ],
               },
               name: "fatDogs",
-              
             },
             {
               baseType: {
@@ -236,7 +237,6 @@ describe("Parsing", function () {
                 typeArgs: [],
               },
               name: "catTracksSeen",
-              
             },
             {
               baseType: {
@@ -249,7 +249,42 @@ describe("Parsing", function () {
                 ],
               },
               name: "peopleWhoLetTheDogsOut",
-              
+            },
+          ],
+        },
+      };
+      chai.assert.deepEqual(ref, targetRef);
+    });
+
+    it("should correctly parse a proto a generic declaration", function () {
+      const input = `struct Hello<TypeOne, TypeTwo>:
+  foo: TypeOne
+  bar: TypeTwo`;
+
+      const parsed = parseStruct(input);
+      // parsing succeeds!
+      assert(isRight(parsed));
+      const ref = parsed.right.value;
+      const targetRef: VariableDeclaration<Reference> = {
+        statementType: "declaration",
+        name: "Hello",
+        value: {
+          type: "struct",
+          typeParams: ["TypeOne", "TypeTwo"],
+          fields: [
+            {
+              baseType: {
+                ref: "TypeOne",
+                typeArgs: [],
+              },
+              name: "foo",
+            },
+            {
+              baseType: {
+                ref: "TypeTwo",
+                typeArgs: [],
+              },
+              name: "bar",
             },
           ],
         },
@@ -272,15 +307,16 @@ describe("Parsing", function () {
         name: "Hello",
         value: {
           type: "oneof",
+          typeParams: [],
           fields: [
             {
               name: "fat",
-              
+
               baseType: { ref: "Dog", typeArgs: [] },
             },
             {
               name: "cat",
-              
+
               baseType: { ref: "Dog", typeArgs: [] },
             },
           ],
@@ -327,7 +363,6 @@ describe("Parsing", function () {
               ],
             },
             name: "request",
-            
           },
           response: {
             baseType: {
@@ -335,7 +370,6 @@ describe("Parsing", function () {
               typeArgs: [],
             },
             name: "response",
-            
           },
         },
       };
@@ -380,7 +414,6 @@ describe("Parsing", function () {
               ],
             },
             name: "incoming",
-            
           },
           outgoing: {
             baseType: {
@@ -388,7 +421,6 @@ describe("Parsing", function () {
               typeArgs: [],
             },
             name: "outgoing",
-            
           },
         },
       };
@@ -441,7 +473,6 @@ describe("Parsing", function () {
                     ],
                   },
                   name: "request",
-                  
                 },
                 response: {
                   baseType: {
@@ -449,7 +480,6 @@ describe("Parsing", function () {
                     typeArgs: [],
                   },
                   name: "response",
-                  
                 },
               },
             },
@@ -458,7 +488,17 @@ describe("Parsing", function () {
       };
       chai.assert.deepEqual(ref, targetRef);
     });
+    it("should fail to parse a service with type parameters", function () {
+      const input = `service HiService<Foo>:
+  rpc Hello:
+    request: List<Map<string, Dog>>
+    response: bool`;
+
+      // Frankly this shouldn't throw, but fail to parse, but whatever rn.
+      assert.throws(() => parseService(input));
+    });
   });
+
   describe("Import", function () {
     const parseImport = buildTestParser(importParser);
 
@@ -578,15 +618,16 @@ service BloopService:
             name: "WhoBloopedRequest",
             value: {
               type: "struct",
+              typeParams: [],
               fields: [
                 {
                   name: "bloop",
-                  
+
                   baseType: { ref: "Bloop", typeArgs: [] },
                 },
                 {
                   name: "includeExtras",
-                  
+
                   baseType: {
                     ref: "Optional",
                     typeArgs: [{ ref: "boolean", typeArgs: [] }],
@@ -600,15 +641,16 @@ service BloopService:
             name: "WhoBloopedResponse",
             value: {
               type: "struct",
+              typeParams: [],
               fields: [
                 {
                   name: "scoop",
-                  
+
                   baseType: { ref: "Scoop", typeArgs: [] },
                 },
                 {
                   name: "bloopers",
-                  
+
                   baseType: {
                     ref: "List",
                     typeArgs: [{ ref: "Bloopers", typeArgs: [] }],
@@ -632,12 +674,12 @@ service BloopService:
                     name: "WhoBlooped",
                     request: {
                       name: "request",
-                      
+
                       baseType: { ref: "WhoBloopedRequest", typeArgs: [] },
                     },
                     response: {
                       name: "response",
-                      
+
                       baseType: { ref: "WhoBloopedResponse", typeArgs: [] },
                     },
                   },

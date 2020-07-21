@@ -49,12 +49,17 @@ export interface Field<T> {
   baseType: T;
 }
 
-export interface StructType<T> {
+interface Genericizable {
+  // Should probably be augmented to be resolvable.
+  typeParams: string[];
+}
+
+export interface StructType<T> extends Genericizable {
   type: "struct";
   fields: Array<Field<T>>;
 }
 
-export interface OneOfType<T> {
+export interface OneOfType<T> extends Genericizable {
   type: "oneof";
   fields: Array<Field<T>>;
 }
@@ -87,7 +92,15 @@ export interface Import {
   path: string;
 }
 
-export type VarRHS<T> =
+export type PrimitiveType =
+  | IntegerType
+  | DoubleType
+  | BooleanType
+  | StringType
+  | NullType;
+
+export type Value<T> =
+  | PrimitiveType
   | Channel<T>
   | RPC<T>
   | StructType<T>
@@ -98,7 +111,7 @@ export type VarRHS<T> =
 export interface VariableDeclaration<T> {
   statementType: "declaration";
   name: string;
-  value: VarRHS<T>;
+  value: Value<T>;
 }
 
 export type Statement<T> = VariableDeclaration<T>;

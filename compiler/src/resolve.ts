@@ -4,9 +4,10 @@ import {
   Reference,
   Primitive,
   VariableDeclaration,
-  VarRHS,
+  Value,
 } from "./ast";
 import path from "path";
+import { loadButteryFile } from "./pipeline";
 
 const validMapKey = (key: Primitive) =>
   [
@@ -15,8 +16,6 @@ const validMapKey = (key: Primitive) =>
     Primitive.integer,
     Primitive.string,
   ].includes(key);
-
-type LoadFn = (file: string) => ButteryFile<Reference>;
 
 const getRepresentableFromVar = (
   resolvedDecl: VariableDeclaration<Representable>
@@ -41,7 +40,6 @@ function maybeGetBuiltin(
   context: ButteryFile<Reference>,
   prevReffedVars: string[],
   prevReffedFiles: string[],
-  load: LoadFn,
   namespaceContext?: string
 ): Representable | undefined {
   // ew on this cast. I need to rethink enums here.
@@ -66,7 +64,7 @@ function maybeGetBuiltin(
         context,
         prevReffedVars,
         prevReffedFiles,
-        load,
+
         namespaceContext
       ),
     };
@@ -89,7 +87,7 @@ function maybeGetBuiltin(
         context,
         prevReffedVars,
         prevReffedFiles,
-        load,
+
         namespaceContext
       ),
     };
@@ -106,7 +104,7 @@ function maybeGetBuiltin(
         context,
         prevReffedVars,
         prevReffedFiles,
-        load,
+
         namespaceContext
       ),
     };
@@ -118,7 +116,6 @@ function resolveRef(
   context: ButteryFile<Reference>,
   prevReffedVars: string[],
   prevReffedFiles: string[],
-  load: LoadFn,
   namespaceContext?: string
 ): Representable {
   const { ref, namespace } = refObject;
@@ -129,7 +126,7 @@ function resolveRef(
     context,
     prevReffedVars,
     prevReffedFiles,
-    load,
+
     namespaceContext
   );
 
@@ -153,7 +150,7 @@ function resolveRef(
         if (prevReffedFiles.includes(loadPath)) {
           throw new Error(`Circular reference in files detected: ${loadPath}`);
         }
-        const tmp = load(loadPath).variables.find(
+        const tmp = loadButteryFile(loadPath).variables.find(
           (decl) => decl.name === importName
         );
         if (!tmp) {
@@ -205,7 +202,7 @@ function resolveRef(
       context,
       prevReffedVars,
       prevReffedFiles,
-      load,
+
       namespaceContext
     )
   );
@@ -216,7 +213,6 @@ function resolveDecl(
   context: ButteryFile<Reference>,
   prevReffedVars: string[],
   prevReffedFiles: string[],
-  load: LoadFn,
   currentNamespace?: string // What namespace are we currently in?
 ): VariableDeclaration<Representable> {
   const scopedName = currentNamespace
@@ -234,11 +230,11 @@ function resolveDecl(
       context,
       nextReffedVars,
       prevReffedFiles,
-      load,
+
       currentNamespace
     );
 
-  let newVal: VarRHS<Representable>;
+  let newVal: Value<Representable>;
   if (decl.value.type === "channel") {
     const { type, name, incoming, outgoing } = decl.value;
     newVal = {
@@ -277,20 +273,15 @@ function resolveDecl(
     if (prevReffedFiles.includes(loadPath)) {
       throw new Error(`Circular reference in files detected: ${loadPath}`);
     }
-    const file = load(loadPath);
+    const file = loadButteryFile(loadPath);
     const reffedVar = file.variables.find((v) => v.name === ref);
 
     if (!reffedVar) {
       throw new Error(`File ${loadPath} does not define ${ref}`);
     }
 
-    newVal = resolveDecl(
-      reffedVar,
-      file,
-      [],
-      prevReffedFiles.concat(file.path),
-      load
-    ).value;
+    newVal = resolveDecl(reffedVar, file, [], prevReffedFiles.concat(file.path))
+      .value;
   } else if (decl.value.type === "service") {
     const { type, name, variables } = decl.value;
 
@@ -298,18 +289,22 @@ function resolveDecl(
       type,
       name,
       variables: variables.map((ref: VariableDeclaration<Reference>) =>
-        resolveDecl(ref, context, nextReffedVars, prevReffedFiles, load, name)
+        resolveDecl(ref, context, nextReffedVars, prevReffedFiles, name)
       ),
     };
-  } else {
-    const { type, fields } = decl.value;
+  } else if (decl.value.type === "oneof" || decl.value.type === "struct") {
+    const { type, fields, typeParams } = decl.value;
     newVal = {
       type,
       fields: fields.map(({ name, baseType }) => ({
         name,
         baseType: qResolveRev(baseType),
       })),
+      typeParams,
     };
+  } else {
+    // Otherwise it's a primitive!
+    newVal = decl.value;
   }
 
   return {
@@ -326,7 +321,7 @@ export function resolve(
   // circ reference betw. files solved in load()
   // so now we just have to solve it here.
   const newVars = refFile.variables.map((variable) =>
-    resolveDecl(variable, refFile, [], [refFile.path], load)
+    resolveDecl(variable, refFile, [], [refFile.path])
   );
 
   return {
